@@ -2,9 +2,9 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace TestMe.Data.Migrations
+namespace TestMe.Migrations
 {
-    public partial class CreateIdentitySchema : Migration
+    public partial class ModelOptimizations : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -40,7 +40,10 @@ namespace TestMe.Data.Migrations
                     TwoFactorEnabled = table.Column<bool>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false)
+                    AccessFailedCount = table.Column<int>(nullable: false),
+                    Discriminator = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Surname = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -153,6 +156,68 @@ namespace TestMe.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Tests",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    TextName = table.Column<string>(maxLength: 200, nullable: false),
+                    CreationDate = table.Column<DateTime>(nullable: false),
+                    AppUserId = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tests_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TestQuestion",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    QuestionText = table.Column<string>(maxLength: 1000, nullable: false),
+                    TestId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TestQuestion", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TestQuestion_Tests_TestId",
+                        column: x => x.TestId,
+                        principalTable: "Tests",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TestAnswer",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    AnswerText = table.Column<string>(maxLength: 1000, nullable: false),
+                    IsCorrect = table.Column<bool>(nullable: false),
+                    TestQuestionId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TestAnswer", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TestAnswer_TestQuestion_TestQuestionId",
+                        column: x => x.TestQuestionId,
+                        principalTable: "TestQuestion",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -191,6 +256,21 @@ namespace TestMe.Data.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TestAnswer_TestQuestionId",
+                table: "TestAnswer",
+                column: "TestQuestionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TestQuestion_TestId",
+                table: "TestQuestion",
+                column: "TestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tests_AppUserId",
+                table: "Tests",
+                column: "AppUserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -211,7 +291,16 @@ namespace TestMe.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "TestAnswer");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "TestQuestion");
+
+            migrationBuilder.DropTable(
+                name: "Tests");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

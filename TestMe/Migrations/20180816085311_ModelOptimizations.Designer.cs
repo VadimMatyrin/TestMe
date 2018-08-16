@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TestMe.Data;
 
-namespace TestMe.Data.Migrations
+namespace TestMe.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20180816084303_CreateDb2")]
-    partial class CreateDb2
+    [Migration("20180816085311_ModelOptimizations")]
+    partial class ModelOptimizations
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -197,9 +197,14 @@ namespace TestMe.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AppUserId");
+                    b.Property<string>("AppUserId")
+                        .IsRequired();
 
                     b.Property<DateTime>("CreationDate");
+
+                    b.Property<string>("TextName")
+                        .IsRequired()
+                        .HasMaxLength(200);
 
                     b.HasKey("Id");
 
@@ -214,11 +219,13 @@ namespace TestMe.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AnswerText");
+                    b.Property<string>("AnswerText")
+                        .IsRequired()
+                        .HasMaxLength(1000);
 
                     b.Property<bool>("IsCorrect");
 
-                    b.Property<int?>("TestQuestionId");
+                    b.Property<int>("TestQuestionId");
 
                     b.HasKey("Id");
 
@@ -233,9 +240,11 @@ namespace TestMe.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("QuestionText");
+                    b.Property<string>("QuestionText")
+                        .IsRequired()
+                        .HasMaxLength(1000);
 
-                    b.Property<int?>("TestId");
+                    b.Property<int>("TestId");
 
                     b.HasKey("Id");
 
@@ -306,21 +315,24 @@ namespace TestMe.Data.Migrations
                 {
                     b.HasOne("TestMe.Models.AppUser", "AppUser")
                         .WithMany()
-                        .HasForeignKey("AppUserId");
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("TestMe.Models.TestAnswer", b =>
                 {
                     b.HasOne("TestMe.Models.TestQuestion", "TestQuestion")
                         .WithMany("TestAnswers")
-                        .HasForeignKey("TestQuestionId");
+                        .HasForeignKey("TestQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("TestMe.Models.TestQuestion", b =>
                 {
                     b.HasOne("TestMe.Models.Test", "Test")
                         .WithMany("TestQuestions")
-                        .HasForeignKey("TestId");
+                        .HasForeignKey("TestId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }
