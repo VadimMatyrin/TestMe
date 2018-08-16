@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using TestMe.Data;
 using TestMe.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace TestMe.Controllers
 {
@@ -15,10 +16,11 @@ namespace TestMe.Controllers
     public class TestsController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public TestsController(ApplicationDbContext context)
+        private readonly UserManager<AppUser> _userManager;
+        public TestsController(ApplicationDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Tests
@@ -59,10 +61,11 @@ namespace TestMe.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,TextName,CreationDate,AppUserId")] Test test)
+        public async Task<IActionResult> Create(Test test)
         {
             if (ModelState.IsValid)
             {
+                test.AppUser = await _userManager.FindByNameAsync(User.Identity.Name);
                 _context.Add(test);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
