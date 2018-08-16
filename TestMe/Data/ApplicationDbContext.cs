@@ -16,5 +16,12 @@ namespace TestMe.Data
             : base(options)
         {
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Test>()
+                .Property(t => t.CreationDate)
+                .HasDefaultValueSql("getdate()");
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }
