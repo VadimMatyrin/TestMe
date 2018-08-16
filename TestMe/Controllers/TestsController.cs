@@ -27,7 +27,8 @@ namespace TestMe.Controllers
         public async Task<IActionResult> Index()
         {
             var userName = await _userManager.FindByNameAsync(User.Identity.Name);
-            var applicationDbContext = _context.Tests.Include(t => t.AppUser).Where(t => t.AppUser.Id == userName.Id);
+            var applicationDbContext = _context.Tests.Include(t => t.AppUser).Where(t => t.AppUserId == userName.Id);
+
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -64,6 +65,10 @@ namespace TestMe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Test test)
         {
+            if(_context.Tests.Any(t => t.TestName == test.TestName))
+            {
+                ModelState.AddModelError("TestName", "Test with the same name already exists");
+            }
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByNameAsync(User.Identity.Name);
@@ -98,7 +103,7 @@ namespace TestMe.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,TextName,CreationDate,AppUserId")] Test test)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,TestName,CreationDate,AppUserId")] Test test)
         {
             if (id != test.Id)
             {
@@ -109,7 +114,10 @@ namespace TestMe.Controllers
             {
                 try
                 {
+                    var user = await _userManager.FindByNameAsync(User.Identity.Name);
+                    test.AppUser = user;
                     _context.Update(test);
+                    _context.Entry<Test>(test).Property(x => x.CreationDate).IsModified = false;
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)

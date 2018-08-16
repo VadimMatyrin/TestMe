@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TestMe.Data;
 
 namespace TestMe.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180816115258_ChangedTestAnswQuest")]
+    partial class ChangedTestAnswQuest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -222,15 +224,11 @@ namespace TestMe.Migrations
                         .IsRequired()
                         .HasMaxLength(1000);
 
-                    b.Property<string>("AppUserId");
-
                     b.Property<bool>("IsCorrect");
 
                     b.Property<int>("TestQuestionId");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
 
                     b.HasIndex("TestQuestionId");
 
@@ -243,8 +241,6 @@ namespace TestMe.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AppUserId");
-
                     b.Property<string>("QuestionText")
                         .IsRequired()
                         .HasMaxLength(1000);
@@ -252,8 +248,6 @@ namespace TestMe.Migrations
                     b.Property<int>("TestId");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
 
                     b.HasIndex("TestId");
 
@@ -327,10 +321,6 @@ namespace TestMe.Migrations
 
             modelBuilder.Entity("TestMe.Models.TestAnswer", b =>
                 {
-                    b.HasOne("TestMe.Models.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId");
-
                     b.HasOne("TestMe.Models.TestQuestion", "TestQuestion")
                         .WithMany("TestAnswers")
                         .HasForeignKey("TestQuestionId")
@@ -339,10 +329,6 @@ namespace TestMe.Migrations
 
             modelBuilder.Entity("TestMe.Models.TestQuestion", b =>
                 {
-                    b.HasOne("TestMe.Models.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId");
-
                     b.HasOne("TestMe.Models.Test", "Test")
                         .WithMany("TestQuestions")
                         .HasForeignKey("TestId")

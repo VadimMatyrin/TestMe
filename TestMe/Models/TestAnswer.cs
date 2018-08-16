@@ -15,5 +15,7 @@ namespace TestMe.Models
         public bool IsCorrect { get; set; }
         public int TestQuestionId { get; set; }
         public TestQuestion TestQuestion { get; set; }
+        public string AppUserId { get; set; }
+        public AppUser AppUser { get; set; }
     }
 }
