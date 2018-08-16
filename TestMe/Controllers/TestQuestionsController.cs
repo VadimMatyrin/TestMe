@@ -7,31 +7,26 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TestMe.Data;
 using TestMe.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 
 namespace TestMe.Controllers
 {
-    [Authorize]
-    public class TestsController : Controller
+    public class TestQuestionsController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<AppUser> _userManager;
-        public TestsController(ApplicationDbContext context, UserManager<AppUser> userManager)
+
+        public TestQuestionsController(ApplicationDbContext context)
         {
             _context = context;
-            _userManager = userManager;
         }
 
-        // GET: Tests
+        // GET: TestQuestions
         public async Task<IActionResult> Index()
         {
-            var userName = await _userManager.FindByNameAsync(User.Identity.Name);
-            var applicationDbContext = _context.Tests.Include(t => t.AppUser).Where(t => t.AppUser.Id == userName.Id);
+            var applicationDbContext = _context.TestQuestion.Include(t => t.Test);
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Tests/Details/5
+        // GET: TestQuestions/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -39,44 +34,42 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var test = await _context.Tests
-                .Include(t => t.AppUser)
+            var testQuestion = await _context.TestQuestion
+                .Include(t => t.Test)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (test == null)
+            if (testQuestion == null)
             {
                 return NotFound();
             }
 
-            return View(test);
+            return View(testQuestion);
         }
 
-        // GET: Tests/Create
+        // GET: TestQuestions/Create
         public IActionResult Create()
         {
-            ViewData["AppUserId"] = new SelectList(_context.AppUsers, "Id", "Id");
+            ViewData["TestId"] = new SelectList(_context.Tests, "Id", "TestName");
             return View();
         }
 
-        // POST: Tests/Create
+        // POST: TestQuestions/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Test test)
+        public async Task<IActionResult> Create([Bind("Id,QuestionText,TestId")] TestQuestion testQuestion)
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByNameAsync(User.Identity.Name);
-                test.AppUser = user;
-                _context.Add(test);
+                _context.Add(testQuestion);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AppUserId"] = new SelectList(_context.AppUsers, "Id", "Id", test.AppUserId);
-            return View(test);
+            ViewData["TestId"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
+            return View(testQuestion);
         }
 
-        // GET: Tests/Edit/5
+        // GET: TestQuestions/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -84,23 +77,23 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var test = await _context.Tests.FindAsync(id);
-            if (test == null)
+            var testQuestion = await _context.TestQuestion.FindAsync(id);
+            if (testQuestion == null)
             {
                 return NotFound();
             }
-            ViewData["AppUserId"] = new SelectList(_context.AppUsers, "Id", "Id", test.AppUserId);
-            return View(test);
+            ViewData["TestId"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
+            return View(testQuestion);
         }
 
-        // POST: Tests/Edit/5
+        // POST: TestQuestions/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,TextName,CreationDate,AppUserId")] Test test)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,QuestionText,TestId")] TestQuestion testQuestion)
         {
-            if (id != test.Id)
+            if (id != testQuestion.Id)
             {
                 return NotFound();
             }
@@ -109,12 +102,12 @@ namespace TestMe.Controllers
             {
                 try
                 {
-                    _context.Update(test);
+                    _context.Update(testQuestion);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TestExists(test.Id))
+                    if (!TestQuestionExists(testQuestion.Id))
                     {
                         return NotFound();
                     }
@@ -125,11 +118,11 @@ namespace TestMe.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AppUserId"] = new SelectList(_context.AppUsers, "Id", "Id", test.AppUserId);
-            return View(test);
+            ViewData["TestId"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
+            return View(testQuestion);
         }
 
-        // GET: Tests/Delete/5
+        // GET: TestQuestions/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -137,31 +130,31 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var test = await _context.Tests
-                .Include(t => t.AppUser)
+            var testQuestion = await _context.TestQuestion
+                .Include(t => t.Test)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (test == null)
+            if (testQuestion == null)
             {
                 return NotFound();
             }
 
-            return View(test);
+            return View(testQuestion);
         }
 
-        // POST: Tests/Delete/5
+        // POST: TestQuestions/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var test = await _context.Tests.FindAsync(id);
-            _context.Tests.Remove(test);
+            var testQuestion = await _context.TestQuestion.FindAsync(id);
+            _context.TestQuestion.Remove(testQuestion);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool TestExists(int id)
+        private bool TestQuestionExists(int id)
         {
-            return _context.Tests.Any(e => e.Id == id);
+            return _context.TestQuestion.Any(e => e.Id == id);
         }
     }
 }

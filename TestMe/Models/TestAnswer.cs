@@ -13,7 +13,6 @@ namespace TestMe.Models
         [StringLength(1000)]
         public string AnswerText { get; set; }
         public bool IsCorrect { get; set; }
-        [Required]
         public int TestQuestionId { get; set; }
         public TestQuestion TestQuestion { get; set; }
     }

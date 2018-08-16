@@ -23,5 +23,6 @@ namespace TestMe.Data
                 .HasDefaultValueSql("getdate()");
             base.OnModelCreating(modelBuilder);
         }
+        public DbSet<TestMe.Models.TestQuestion> TestQuestion { get; set; }
     }
 }

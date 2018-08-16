@@ -1,4 +1,4 @@
-﻿@model TestMe.Models.Test
+﻿@model TestMe.Models.TestQuestion
 
 @{
     ViewData["Title"] = "Delete";
@@ -8,26 +8,20 @@
 
 <h3>Are you sure you want to delete this?</h3>
 <div>
-    <h4>Test</h4>
+    <h4>TestQuestion</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.TestName)
+            @Html.DisplayNameFor(model => model.QuestionText)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.TestName)
+            @Html.DisplayFor(model => model.QuestionText)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.CreationDate)
+            @Html.DisplayNameFor(model => model.Test)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.CreationDate)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.AppUser)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.AppUser.UserName)
+            @Html.DisplayFor(model => model.Test.TestName)
         </dd>
     </dl>
     
