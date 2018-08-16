@@ -11,7 +11,7 @@ namespace TestMe.Models
         public int Id { get; set; }
         [Required]
         [StringLength(200)]
-        public string TextName { get; set; }
+        public string TestName { get; set; }
         public DateTime CreationDate { get; set; }
         [Required]
         public string AppUserId { get; set; }
