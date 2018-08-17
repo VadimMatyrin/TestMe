@@ -66,10 +66,21 @@ namespace TestMe.Controllers
         }
 
         // GET: TestQuestions/Create
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int? id)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var test = await _context.Tests.FindAsync(id);
+            if (test == null)
+            {
+                return NotFound();
+            }
             //var user = await _userManager.GetUserAsync(User);
-            ViewData["TestId"] = new SelectList(_context.Tests.Where(t => t.AppUserId == _userId), "Id", "TestName");
+            ViewBag.TestId = test.Id;
+            ViewData["Tests"] = new SelectList(_context.Tests.Where(t => t.AppUserId == _userId), "Id", "TestName");
             return View();
         }
 
@@ -78,7 +89,7 @@ namespace TestMe.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,QuestionText, TestId")] TestQuestion testQuestion)
+        public async Task<IActionResult> Create([Bind("QuestionText", "TestId")] TestQuestion testQuestion)
         {
             if (ModelState.IsValid)
             {
@@ -89,8 +100,8 @@ namespace TestMe.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
             }
-            ViewData["TestId"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
-            return View("Index", testQuestion.TestId);
+            ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
+            return View();
         }
 
         // GET: TestQuestions/Edit/5
@@ -106,7 +117,7 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
-            ViewData["TestId"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
+            ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
             return View(testQuestion);
         }
 
@@ -145,7 +156,7 @@ namespace TestMe.Controllers
                 }
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
             }
-            ViewData["TestId"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
+            ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
             return View(testQuestion);
         }
 

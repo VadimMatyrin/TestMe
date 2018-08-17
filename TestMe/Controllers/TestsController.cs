@@ -43,7 +43,7 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Index));
             }
 
             var test = await _context.Tests
@@ -51,7 +51,7 @@ namespace TestMe.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (test == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Index));
             }
 
             return View(test);
@@ -93,13 +93,13 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Index));
             }
 
             var test = await _context.Tests.FindAsync(id);
             if (test == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Index));
             }
             ViewData["AppUserId"] = new SelectList(_context.AppUsers, "Id", "Id", test.AppUserId);
             return View(test);
@@ -114,7 +114,7 @@ namespace TestMe.Controllers
         {
             if (id != test.Id)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Index));
             }
 
             if (ModelState.IsValid)
@@ -132,7 +132,7 @@ namespace TestMe.Controllers
                 {
                     if (!TestExists(test.Id))
                     {
-                        return NotFound();
+                        return RedirectToAction(nameof(Index));
                     }
                     else
                     {
@@ -150,7 +150,7 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Index));
             }
 
             var test = await _context.Tests
@@ -158,7 +158,7 @@ namespace TestMe.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (test == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Index));
             }
 
             return View(test);
