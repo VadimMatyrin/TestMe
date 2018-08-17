@@ -25,7 +25,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.QuestionText)
+               <a asp-action="Index" asp-controller="TestAnswers" asp-route-id="@item.Id"> @Html.DisplayFor(modelItem => item.QuestionText)</a>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Test.TestName)

@@ -34,8 +34,8 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var userName = await _userManager.FindByNameAsync(User.Identity.Name);
-            var applicationDbContext = _context.TestQuestion.Include(t => t.Test).Where(t => t.AppUser.Id == userName.Id && t.TestId == id);
+            var user = await _userManager.GetUserAsync(User);
+            var applicationDbContext = _context.TestQuestions.Include(t => t.Test).Where(t => t.AppUser.Id == user.Id && t.TestId == id);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -47,7 +47,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var testQuestion = await _context.TestQuestion
+            var testQuestion = await _context.TestQuestions
                 .Include(t => t.Test)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (testQuestion == null)
@@ -59,9 +59,10 @@ namespace TestMe.Controllers
         }
 
         // GET: TestQuestions/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["TestId"] = new SelectList(_context.Tests, "Id", "TestName");
+            var user = await _userManager.GetUserAsync(User);
+            ViewData["TestId"] = new SelectList(_context.Tests.Where(t => t.AppUserId == user.Id), "Id", "TestName");
             return View();
         }
 
@@ -92,7 +93,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var testQuestion = await _context.TestQuestion.FindAsync(id);
+            var testQuestion = await _context.TestQuestions.FindAsync(id);
             if (testQuestion == null)
             {
                 return NotFound();
@@ -147,7 +148,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var testQuestion = await _context.TestQuestion
+            var testQuestion = await _context.TestQuestions
                 .Include(t => t.Test)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (testQuestion == null)
@@ -163,16 +164,16 @@ namespace TestMe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var testQuestion = await _context.TestQuestion.FindAsync(id);
+            var testQuestion = await _context.TestQuestions.FindAsync(id);
             var testId = testQuestion.TestId;
-            _context.TestQuestion.Remove(testQuestion);
+            _context.TestQuestions.Remove(testQuestion);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index), new { id = testId });
         }
 
         private bool TestQuestionExists(int id)
         {
-            return _context.TestQuestion.Any(e => e.Id == id);
+            return _context.TestQuestions.Any(e => e.Id == id);
         }
     }
 }

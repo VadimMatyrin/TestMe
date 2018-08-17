@@ -12,6 +12,8 @@ namespace TestMe.Data
     {
         public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<Test> Tests { get; set; }
+        public DbSet<TestQuestion> TestQuestions { get; set; }
+        public DbSet<TestAnswer> TestAnswers { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -23,6 +25,5 @@ namespace TestMe.Data
                 .HasDefaultValueSql("getdate()");
             base.OnModelCreating(modelBuilder);
         }
-        public DbSet<TestMe.Models.TestQuestion> TestQuestion { get; set; }
     }
 }
