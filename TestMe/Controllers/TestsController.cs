@@ -9,6 +9,7 @@ using TestMe.Data;
 using TestMe.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace TestMe.Controllers
 {
@@ -17,17 +18,22 @@ namespace TestMe.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AppUser> _userManager;
+        private string _userId;
         public TestsController(ApplicationDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
             _userManager = userManager;
         }
-
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            //Get user id   
+            _userId = _userManager.GetUserId(User);
+        }
         // GET: Tests
         public async Task<IActionResult> Index()
         {
-            var userName = await _userManager.FindByNameAsync(User.Identity.Name);
-            var applicationDbContext = _context.Tests.Include(t => t.AppUser).Where(t => t.AppUserId == userName.Id);
+            //var userName = await _userManager.FindByNameAsync(User.Identity.Name);
+            var applicationDbContext = _context.Tests.Include(t => t.AppUser).Where(t => t.AppUserId == _userId);
 
             return View(await applicationDbContext.ToListAsync());
         }
@@ -65,14 +71,15 @@ namespace TestMe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Test test)
         {
-            if(_context.Tests.Any(t => t.TestName == test.TestName))
+            if(_context.Tests.Where(t => t.AppUserId == _userId).Any(t => t.TestName == test.TestName))
             {
-                ModelState.AddModelError("TestName", "Test with the same name already exists");
+                ModelState.AddModelError("TestName", "You already have test with the same name!");
             }
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByNameAsync(User.Identity.Name);
-                test.AppUser = user;
+                //var user = await _userManager.FindByNameAsync(User.Identity.Name);
+                test.AppUserId = _userId;
+                //test.AppUser = user;
                 _context.Add(test);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -114,8 +121,9 @@ namespace TestMe.Controllers
             {
                 try
                 {
-                    var user = await _userManager.FindByNameAsync(User.Identity.Name);
-                    test.AppUser = user;
+                    //var user = await _userManager.FindByNameAsync(User.Identity.Name);
+                    //test.AppUser = user;
+                    test.AppUserId = _userId;
                     _context.Update(test);
                     _context.Entry<Test>(test).Property(x => x.CreationDate).IsModified = false;
                     await _context.SaveChangesAsync();
