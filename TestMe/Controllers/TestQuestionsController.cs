@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TestMe.Data;
@@ -15,10 +16,16 @@ namespace TestMe.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AppUser> _userManager;
+        private string _userId;
         public TestQuestionsController(ApplicationDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
             _userManager = userManager;
+        }
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            //Get user id   
+            _userId = _userManager.GetUserId(User);
         }
         // GET: TestQuestions
         public async Task<IActionResult> Index(int? id)
@@ -34,8 +41,8 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var user = await _userManager.GetUserAsync(User);
-            var applicationDbContext = _context.TestQuestions.Include(t => t.Test).Where(t => t.AppUser.Id == user.Id && t.TestId == id);
+            //var user = await _userManager.GetUserAsync(User);
+            var applicationDbContext = _context.TestQuestions.Include(t => t.Test).Where(t => t.AppUser.Id == _userId && t.TestId == id);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -61,8 +68,8 @@ namespace TestMe.Controllers
         // GET: TestQuestions/Create
         public async Task<IActionResult> Create()
         {
-            var user = await _userManager.GetUserAsync(User);
-            ViewData["TestId"] = new SelectList(_context.Tests.Where(t => t.AppUserId == user.Id), "Id", "TestName");
+            //var user = await _userManager.GetUserAsync(User);
+            ViewData["TestId"] = new SelectList(_context.Tests.Where(t => t.AppUserId == _userId), "Id", "TestName");
             return View();
         }
 
@@ -75,8 +82,9 @@ namespace TestMe.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByNameAsync(User.Identity.Name);
-                testQuestion.AppUser = user;
+                //var user = await _userManager.FindByNameAsync(User.Identity.Name);
+                //testQuestion.AppUser = user;
+                testQuestion.AppUserId = _userId;
                 _context.Add(testQuestion);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
@@ -118,8 +126,9 @@ namespace TestMe.Controllers
             {
                 try
                 {
-                    var user = await _userManager.FindByNameAsync(User.Identity.Name);
-                    testQuestion.AppUser = user;
+                    //var user = await _userManager.FindByNameAsync(User.Identity.Name);
+                    //testQuestion.AppUser = user;
+                    testQuestion.AppUserId = _userId;
                     _context.Update(testQuestion);
                     await _context.SaveChangesAsync();
                 }
