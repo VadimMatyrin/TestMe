@@ -113,6 +113,7 @@ namespace TestMe.Controllers
             if (ModelState.IsValid)
             {
                 try
+                { 
                     test.AppUserId = _userId;
                     _context.Update(test);
                     _context.Entry<Test>(test).Property(x => x.CreationDate).IsModified = false;

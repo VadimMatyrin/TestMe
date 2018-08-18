@@ -32,13 +32,13 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
             var test = await _context.Tests.FindAsync(id);
             if (test == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
             ViewBag.TestId = test.Id;
             ViewBag.TestName = test.TestName;
@@ -51,7 +51,7 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
             var testQuestion = await _context.TestQuestions
@@ -59,7 +59,7 @@ namespace TestMe.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (testQuestion == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
             return View(testQuestion);
@@ -70,13 +70,13 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
             var test = await _context.Tests.FindAsync(id);
             if (test == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
             ViewBag.TestId = test.Id;
             ViewBag.TestName = test.TestName;
@@ -106,13 +106,13 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
             var testQuestion = await _context.TestQuestions.FindAsync(id);
             if (testQuestion == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
             return View(testQuestion);
         }
@@ -126,7 +126,7 @@ namespace TestMe.Controllers
         {
             if (id != testQuestion.Id)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
             if (ModelState.IsValid)
@@ -141,7 +141,7 @@ namespace TestMe.Controllers
                 {
                     if (!TestQuestionExists(testQuestion.Id))
                     {
-                        return NotFound();
+                        return RedirectToAction("Index", "Tests");
                     }
                     else
                     {
@@ -158,7 +158,7 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
             var testQuestion = await _context.TestQuestions
@@ -166,7 +166,7 @@ namespace TestMe.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (testQuestion == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
             return View(testQuestion);
