@@ -1,0 +1,44 @@
+﻿@model IEnumerable<TestMe.Models.TestQuestion>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>@ViewBag.TestName</h2>
+
+<p>
+    <a asp-action="Create" asp-route-id="@ViewBag.TestId">Add new question</a>
+</p>
+<p>
+    <a asp-action="Index" asp-controller="Tests">Return to tests</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.QuestionText)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Test)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+               <a asp-action="Index" asp-controller="TestAnswers" asp-route-id="@item.Id"> @Html.DisplayFor(modelItem => item.QuestionText)</a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Test.TestName)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
