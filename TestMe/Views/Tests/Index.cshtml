@@ -34,9 +34,6 @@
                 @Html.DisplayFor(modelItem => item.CreationDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.AppUser.Id)
-            </td>
-            <td>
                 <a asp-action="Create" asp-controller="TestQuestions" asp-route-id="@item.Id">Add new question</a> |
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
