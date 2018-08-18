@@ -26,6 +26,9 @@
                 </div>
             </div>
             <div class="form-group">
+                <input type="hidden" asp-for="TestQuestionId" value="@ViewBag.TestQuestionId" />
+            </div>
+            <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />
             </div>
         </form>
@@ -33,7 +36,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" asp-route-id="@Model.TestQuestionId">Back to answers</a>
 </div>
 
 @section Scripts {

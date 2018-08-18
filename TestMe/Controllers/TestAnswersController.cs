@@ -110,11 +110,14 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var testAnswer = await _context.TestAnswers.FindAsync(id);
+            var testAnswer = await _context.TestAnswers.Include(t => t.AppUser)
+                .Include(t => t.TestQuestion).FirstOrDefaultAsync(t => t.Id == id);
             if (testAnswer == null)
             {
                 return NotFound();
             }
+            ViewBag.TestQuestionId = testAnswer.TestQuestionId;
+            ViewBag.TestQuestionText = testAnswer.TestQuestion.QuestionText;
             return View(testAnswer);
         }
 
@@ -123,7 +126,7 @@ namespace TestMe.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("AnswerText,IsCorrect,TestQuestionId")] TestAnswer testAnswer)
+        public async Task<IActionResult> Edit(int id, [Bind("Id, AnswerText,IsCorrect,TestQuestionId")] TestAnswer testAnswer)
         {
             if (id != testAnswer.Id)
             {
@@ -134,6 +137,7 @@ namespace TestMe.Controllers
             {
                 try
                 {
+                    testAnswer.AppUserId = _userId;
                     _context.Update(testAnswer);
                     await _context.SaveChangesAsync();
                 }
