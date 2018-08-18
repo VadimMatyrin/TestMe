@@ -49,7 +49,7 @@ namespace TestMe.Controllers
         }
 
         // GET: TestAnswers/Create
-        public IActionResult Create()
+        public IActionResult Create(int? id)
         {
             ViewData["AppUserId"] = new SelectList(_context.AppUsers, "Id", "Id");
             ViewData["TestQuestionId"] = new SelectList(_context.TestQuestions, "Id", "QuestionText");

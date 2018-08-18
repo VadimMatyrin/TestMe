@@ -78,10 +78,8 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
-            //var user = await _userManager.GetUserAsync(User);
             ViewBag.TestId = test.Id;
             ViewBag.TestName = test.TestName;
-           // ViewData["Tests"] = new SelectList(_context.Tests.Where(t => t.AppUserId == _userId), "Id", "TestName");
             return View();
         }
 
@@ -94,8 +92,6 @@ namespace TestMe.Controllers
         {
             if (ModelState.IsValid)
             {
-                //var user = await _userManager.FindByNameAsync(User.Identity.Name);
-                //testQuestion.AppUser = user;
                 testQuestion.AppUserId = _userId;
                 _context.Add(testQuestion);
                 await _context.SaveChangesAsync();
@@ -118,7 +114,6 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
-            //ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
             return View(testQuestion);
         }
 
@@ -138,8 +133,6 @@ namespace TestMe.Controllers
             {
                 try
                 {
-                    //var user = await _userManager.FindByNameAsync(User.Identity.Name);
-                    //testQuestion.AppUser = user;
                     testQuestion.AppUserId = _userId;
                     _context.Update(testQuestion);
                     await _context.SaveChangesAsync();
@@ -157,7 +150,6 @@ namespace TestMe.Controllers
                 }
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
             }
-            //ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
             return View(testQuestion);
         }
 

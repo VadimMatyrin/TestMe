@@ -26,13 +26,11 @@ namespace TestMe.Controllers
         }
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            //Get user id   
             _userId = _userManager.GetUserId(User);
         }
         // GET: Tests
         public async Task<IActionResult> Index()
         {
-            //var userName = await _userManager.FindByNameAsync(User.Identity.Name);
             var applicationDbContext = _context.Tests.Include(t => t.AppUser).Where(t => t.AppUserId == _userId);
 
             return View(await applicationDbContext.ToListAsync());
@@ -60,7 +58,6 @@ namespace TestMe.Controllers
         // GET: Tests/Create
         public IActionResult Create()
         {
-            ViewData["AppUserId"] = new SelectList(_context.AppUsers, "Id", "Id");
             return View();
         }
 
@@ -77,14 +74,11 @@ namespace TestMe.Controllers
             }
             if (ModelState.IsValid)
             {
-                //var user = await _userManager.FindByNameAsync(User.Identity.Name);
                 test.AppUserId = _userId;
-                //test.AppUser = user;
                 _context.Add(test);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AppUserId"] = new SelectList(_context.AppUsers, "Id", "Id", test.AppUserId);
             return View(test);
         }
 
@@ -101,7 +95,6 @@ namespace TestMe.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AppUserId"] = new SelectList(_context.AppUsers, "Id", "Id", test.AppUserId);
             return View(test);
         }
 
@@ -120,9 +113,6 @@ namespace TestMe.Controllers
             if (ModelState.IsValid)
             {
                 try
-                {
-                    //var user = await _userManager.FindByNameAsync(User.Identity.Name);
-                    //test.AppUser = user;
                     test.AppUserId = _userId;
                     _context.Update(test);
                     _context.Entry<Test>(test).Property(x => x.CreationDate).IsModified = false;
@@ -141,7 +131,6 @@ namespace TestMe.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AppUserId"] = new SelectList(_context.AppUsers, "Id", "Id", test.AppUserId);
             return View(test);
         }
 
