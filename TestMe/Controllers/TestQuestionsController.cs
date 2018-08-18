@@ -40,8 +40,8 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
-
-            //var user = await _userManager.GetUserAsync(User);
+            ViewBag.TestId = test.Id;
+            ViewBag.TestName = test.TestName;
             var applicationDbContext = _context.TestQuestions.Include(t => t.Test).Where(t => t.AppUser.Id == _userId && t.TestId == id);
             return View(await applicationDbContext.ToListAsync());
         }
@@ -80,7 +80,8 @@ namespace TestMe.Controllers
             }
             //var user = await _userManager.GetUserAsync(User);
             ViewBag.TestId = test.Id;
-            ViewData["Tests"] = new SelectList(_context.Tests.Where(t => t.AppUserId == _userId), "Id", "TestName");
+            ViewBag.TestName = test.TestName;
+           // ViewData["Tests"] = new SelectList(_context.Tests.Where(t => t.AppUserId == _userId), "Id", "TestName");
             return View();
         }
 
@@ -100,7 +101,7 @@ namespace TestMe.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
             }
-            ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
+           // ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
             return View();
         }
 
@@ -117,7 +118,7 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
-            ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
+            //ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
             return View(testQuestion);
         }
 
@@ -156,7 +157,7 @@ namespace TestMe.Controllers
                 }
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
             }
-            ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
+            //ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
             return View(testQuestion);
         }
 

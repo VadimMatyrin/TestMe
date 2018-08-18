@@ -4,10 +4,13 @@
     ViewData["Title"] = "Index";
 }
 
-<h2>Index</h2>
+<h2>@ViewBag.TestName</h2>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" asp-route-id="@ViewBag.TestId">Add new question</a>
+</p>
+<p>
+    <a asp-action="Index" asp-controller="Tests">Return to tests</a>
 </p>
 <table class="table">
     <thead>
