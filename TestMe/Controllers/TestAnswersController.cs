@@ -40,6 +40,7 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
+            ViewBag.TestId = testQuestion.TestId;
             ViewBag.TestQuestionId = testQuestion.Id;
             ViewBag.TestQuestionText = testQuestion.QuestionText;
             var applicationDbContext = _context.TestAnswers.Include(t => t.AppUser).Include(t => t.TestQuestion).Where(ta => ta.TestQuestionId == id);
@@ -122,7 +123,7 @@ namespace TestMe.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,AnswerText,IsCorrect,TestQuestionId,AppUserId")] TestAnswer testAnswer)
+        public async Task<IActionResult> Edit(int id, [Bind("AnswerText,IsCorrect,TestQuestionId")] TestAnswer testAnswer)
         {
             if (id != testAnswer.Id)
             {

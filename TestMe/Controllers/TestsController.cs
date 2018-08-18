@@ -103,7 +103,7 @@ namespace TestMe.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,TestName,CreationDate,AppUserId")] Test test)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,TestName,CreationDate")] Test test)
         {
             if (id != test.Id)
             {
