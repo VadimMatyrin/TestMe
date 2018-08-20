@@ -46,7 +46,7 @@ namespace TestMe.Controllers
 
             var test = await _context.Tests
                 .Include(t => t.AppUser)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -68,7 +68,7 @@ namespace TestMe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Test test)
         {
-            if(_context.Tests.Where(t => t.AppUserId == _userId).Any(t => t.TestName == test.TestName))
+            if (_context.Tests.Where(t => t.AppUserId == _userId).Any(t => t.TestName == test.TestName))
             {
                 ModelState.AddModelError("TestName", "You already have test with the same name!");
             }
@@ -90,7 +90,7 @@ namespace TestMe.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = await _context.Tests.FindAsync(id);
+            var test = await _context.Tests.FirstOrDefaultAsync(t => t.Id == id && t.AppUserId == _userId);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -113,7 +113,7 @@ namespace TestMe.Controllers
             if (ModelState.IsValid)
             {
                 try
-                { 
+                {
                     test.AppUserId = _userId;
                     _context.Update(test);
                     _context.Entry<Test>(test).Property(x => x.CreationDate).IsModified = false;
@@ -145,7 +145,7 @@ namespace TestMe.Controllers
 
             var test = await _context.Tests
                 .Include(t => t.AppUser)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));

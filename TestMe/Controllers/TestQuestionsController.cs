@@ -35,7 +35,7 @@ namespace TestMe.Controllers
                 return RedirectToAction("Index", "Tests");
             }
 
-            var test = await _context.Tests.FindAsync(id);
+            var test = await _context.Tests.FirstOrDefaultAsync(t => t.Id == id && t.AppUserId == _userId);
             if (test == null)
             {
                 return RedirectToAction("Index", "Tests");
@@ -56,7 +56,7 @@ namespace TestMe.Controllers
 
             var testQuestion = await _context.TestQuestions
                 .Include(t => t.Test)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
             if (testQuestion == null)
             {
                 return RedirectToAction("Index", "Tests");
@@ -73,7 +73,7 @@ namespace TestMe.Controllers
                 return RedirectToAction("Index", "Tests");
             }
 
-            var test = await _context.Tests.FindAsync(id);
+            var test = await _context.Tests.FirstOrDefaultAsync(t => t.Id == id && t.AppUserId == _userId);
             if (test == null)
             {
                 return RedirectToAction("Index", "Tests");
@@ -97,7 +97,7 @@ namespace TestMe.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
             }
-           // ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
+            // ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
             return View();
         }
 
@@ -109,7 +109,7 @@ namespace TestMe.Controllers
                 return RedirectToAction("Index", "Tests");
             }
 
-            var testQuestion = await _context.TestQuestions.FindAsync(id);
+            var testQuestion = await _context.TestQuestions.FirstOrDefaultAsync(t => t.Id == id && t.AppUserId == _userId); ;
             if (testQuestion == null)
             {
                 return RedirectToAction("Index", "Tests");
@@ -164,7 +164,7 @@ namespace TestMe.Controllers
 
             var testQuestion = await _context.TestQuestions
                 .Include(t => t.Test)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
             if (testQuestion == null)
             {
                 return RedirectToAction("Index", "Tests");
