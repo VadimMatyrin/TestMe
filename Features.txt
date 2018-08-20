@@ -1,0 +1,15 @@
+Now added features:
+
+Add new test
+Add new test's questions
+Add new questions' possible answers
+
+Future features:
+
+Pass test
+Share tests with unregistered user via link with unique test code
+See all users that tried to pass your test and their scores
+Share tests with another users
+Pass another users' tests
+Marks for tests
+Test tags
