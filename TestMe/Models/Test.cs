@@ -14,6 +14,7 @@ namespace TestMe.Models
         public string TestName { get; set; }
         public DateTime CreationDate { get; set; }
         public string AppUserId { get; set; }
+        public string TestCode { get; set; }
         public AppUser AppUser { get; set; }
         public virtual ICollection<TestQuestion> TestQuestions { get; set; }
     }

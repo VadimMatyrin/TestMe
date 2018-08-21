@@ -69,6 +69,11 @@ namespace TestMe
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+
+                routes.MapRoute(
+                    name: "TestEngine",
+                    template: "{code}",
+                    defaults: new { controller = "TestEngine", action = "Index" });
             });
         }
     }
