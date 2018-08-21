@@ -16,6 +16,7 @@ namespace TestMe.Controllers
         public TestEngineController(ApplicationDbContext context)
         {
             _context = context;
+            _test = new Test();
         }
         public async Task<IActionResult> Index(string code)
         {
@@ -24,11 +25,12 @@ namespace TestMe.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            var test = await _context.Tests.FirstOrDefaultAsync(t => t.TestCode == code);
+            var test = await _context.Tests.Include(t => t.AppUser).FirstOrDefaultAsync(t => t.TestCode == code);
             if (test == null)
             {
                 return RedirectToAction("Index", "Home");
             }
+            _test = test;
             return View(test);
         }
     }

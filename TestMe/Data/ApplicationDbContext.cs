@@ -23,6 +23,10 @@ namespace TestMe.Data
             modelBuilder.Entity<Test>()
                 .Property(t => t.CreationDate)
                 .HasDefaultValueSql("getdate()");
+
+            modelBuilder.Entity<Test>()
+                .HasAlternateKey(t => t.TestCode);
+
             base.OnModelCreating(modelBuilder);
         }
     }

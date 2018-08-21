@@ -35,7 +35,48 @@ namespace TestMe.Controllers
 
             return View(await applicationDbContext.ToListAsync());
         }
+        public async Task<IActionResult> CreateCode(int? id)
+        {
+            if (id == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
 
+            var test = await _context.Tests
+                .Include(t => t.AppUser)
+                .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
+            if (test == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                test.TestCode = RandomString(8);
+                _context.Update(test);
+                _context.Entry<Test>(test).Property(x => x.CreationDate).IsModified = false;
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                if (!TestExists(test.Id))
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));
+        }
+        public static string RandomString(int length)
+        {
+             Random random = new Random();
+             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+             return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
         // GET: Tests/Details/5
         public async Task<IActionResult> Details(int? id)
         {
