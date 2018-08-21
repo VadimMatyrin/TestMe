@@ -24,13 +24,13 @@ namespace TestMe.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
-
-            var test = await _context.Tests.Include(t => t.AppUser).FirstOrDefaultAsync(t => t.TestCode == code);
+            var test = await _context.Tests.Include(t => t.AppUser).Include(t => t.TestQuestions).FirstOrDefaultAsync(t => t.TestCode == code);
             if (test == null)
             {
                 return RedirectToAction("Index", "Home");
             }
             _test = test;
+            _test.TestQuestions = await _context.Entry(_test).Collection(t => t.TestQuestions).Query().ToListAsync();
             return View(test);
         }
     }

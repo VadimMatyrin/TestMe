@@ -2,7 +2,11 @@
 @{
 
 }
-<h1>@Model.TestName</h1>
-<div>
-
+<div class="container-fluid">
+    <h1 class="text-center">@Model.TestName</h1>
+    <h2>Author: @Model.AppUser.UserName</h2>
+    <h3>Creation date: @Model.CreationDate</h3>
+    <h4>Question amount: @Model.TestQuestions.Count</h4>
+    <button type="button" class="btn btn-primary btn-lg center-block">Start test</button>
 </div>
+
