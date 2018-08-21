@@ -49,26 +49,33 @@ namespace TestMe.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
+            if (test.TestCode is null)
+            {
+                var generatedCode = RandomString(8);
+                try
+                {
+                    while (_context.Tests.Any(t => t.TestCode == generatedCode))
+                        generatedCode = RandomString(8);
 
-            try
-            {
-                test.TestCode = RandomString(8);
-                _context.Update(test);
-                _context.Entry<Test>(test).Property(x => x.CreationDate).IsModified = false;
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (!TestExists(test.Id))
-                {
-                    return RedirectToAction(nameof(Index));
+                    test.TestCode = generatedCode;
+                    _context.Update(test);
+                    _context.Entry<Test>(test).Property(x => x.CreationDate).IsModified = false;
+                    await _context.SaveChangesAsync();
                 }
-                else
+                catch (DbUpdateException)
                 {
-                    throw;
+                    if (!TestExists(test.Id))
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
+                return View("CreateCode", generatedCode);
             }
-            return RedirectToAction(nameof(Index));
+            return View("CreateCode", test.TestCode);
         }
         public static string RandomString(int length)
         {

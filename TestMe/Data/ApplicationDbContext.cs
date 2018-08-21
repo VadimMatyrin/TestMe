@@ -24,8 +24,8 @@ namespace TestMe.Data
                 .Property(t => t.CreationDate)
                 .HasDefaultValueSql("getdate()");
 
-            modelBuilder.Entity<Test>()
-                .HasAlternateKey(t => t.TestCode);
+            //modelBuilder.Entity<Test>()
+            //    .HasAlternateKey(t => t.TestCode);
 
             base.OnModelCreating(modelBuilder);
         }
