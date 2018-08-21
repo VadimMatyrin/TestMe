@@ -19,9 +19,7 @@
                 <span asp-validation-for="QuestionText" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="TestId" class="control-label"></label>
-                <select asp-for="TestId" class="form-control" asp-items="ViewBag.TestId"></select>
-                <span asp-validation-for="TestId" class="text-danger"></span>
+                <input type="hidden" asp-for="TestId" value="@ViewBag.TestId"/>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />
@@ -31,7 +29,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" asp-route-id="@Model.TestId">Back to questions</a>
 </div>
 
 @section Scripts {

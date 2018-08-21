@@ -32,13 +32,13 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
-            var test = await _context.Tests.FindAsync(id);
+            var test = await _context.Tests.FirstOrDefaultAsync(t => t.Id == id && t.AppUserId == _userId);
             if (test == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
             ViewBag.TestId = test.Id;
             ViewBag.TestName = test.TestName;
@@ -51,15 +51,15 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
             var testQuestion = await _context.TestQuestions
                 .Include(t => t.Test)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
             if (testQuestion == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
             return View(testQuestion);
@@ -70,18 +70,16 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
-            var test = await _context.Tests.FindAsync(id);
+            var test = await _context.Tests.FirstOrDefaultAsync(t => t.Id == id && t.AppUserId == _userId);
             if (test == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
-            //var user = await _userManager.GetUserAsync(User);
             ViewBag.TestId = test.Id;
             ViewBag.TestName = test.TestName;
-           // ViewData["Tests"] = new SelectList(_context.Tests.Where(t => t.AppUserId == _userId), "Id", "TestName");
             return View();
         }
 
@@ -94,14 +92,12 @@ namespace TestMe.Controllers
         {
             if (ModelState.IsValid)
             {
-                //var user = await _userManager.FindByNameAsync(User.Identity.Name);
-                //testQuestion.AppUser = user;
                 testQuestion.AppUserId = _userId;
                 _context.Add(testQuestion);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
             }
-           // ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
+            // ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
             return View();
         }
 
@@ -110,15 +106,15 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
-            var testQuestion = await _context.TestQuestions.FindAsync(id);
+            var testQuestion = await _context.TestQuestions.FirstOrDefaultAsync(t => t.Id == id && t.AppUserId == _userId); ;
             if (testQuestion == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
-            //ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
+            ViewBag.TestId = testQuestion.TestId;
             return View(testQuestion);
         }
 
@@ -131,15 +127,13 @@ namespace TestMe.Controllers
         {
             if (id != testQuestion.Id)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    //var user = await _userManager.FindByNameAsync(User.Identity.Name);
-                    //testQuestion.AppUser = user;
                     testQuestion.AppUserId = _userId;
                     _context.Update(testQuestion);
                     await _context.SaveChangesAsync();
@@ -148,7 +142,7 @@ namespace TestMe.Controllers
                 {
                     if (!TestQuestionExists(testQuestion.Id))
                     {
-                        return NotFound();
+                        return RedirectToAction("Index", "Tests");
                     }
                     else
                     {
@@ -157,7 +151,6 @@ namespace TestMe.Controllers
                 }
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
             }
-            //ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
             return View(testQuestion);
         }
 
@@ -166,15 +159,15 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
             var testQuestion = await _context.TestQuestions
                 .Include(t => t.Test)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
             if (testQuestion == null)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Tests");
             }
 
             return View(testQuestion);

@@ -26,13 +26,11 @@ namespace TestMe.Controllers
         }
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            //Get user id   
             _userId = _userManager.GetUserId(User);
         }
         // GET: Tests
         public async Task<IActionResult> Index()
         {
-            //var userName = await _userManager.FindByNameAsync(User.Identity.Name);
             var applicationDbContext = _context.Tests.Include(t => t.AppUser).Where(t => t.AppUserId == _userId);
 
             return View(await applicationDbContext.ToListAsync());
@@ -48,7 +46,7 @@ namespace TestMe.Controllers
 
             var test = await _context.Tests
                 .Include(t => t.AppUser)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -60,7 +58,6 @@ namespace TestMe.Controllers
         // GET: Tests/Create
         public IActionResult Create()
         {
-            ViewData["AppUserId"] = new SelectList(_context.AppUsers, "Id", "Id");
             return View();
         }
 
@@ -71,20 +68,17 @@ namespace TestMe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Test test)
         {
-            if(_context.Tests.Where(t => t.AppUserId == _userId).Any(t => t.TestName == test.TestName))
+            if (_context.Tests.Where(t => t.AppUserId == _userId).Any(t => t.TestName == test.TestName))
             {
                 ModelState.AddModelError("TestName", "You already have test with the same name!");
             }
             if (ModelState.IsValid)
             {
-                //var user = await _userManager.FindByNameAsync(User.Identity.Name);
                 test.AppUserId = _userId;
-                //test.AppUser = user;
                 _context.Add(test);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AppUserId"] = new SelectList(_context.AppUsers, "Id", "Id", test.AppUserId);
             return View(test);
         }
 
@@ -96,12 +90,11 @@ namespace TestMe.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = await _context.Tests.FindAsync(id);
+            var test = await _context.Tests.FirstOrDefaultAsync(t => t.Id == id && t.AppUserId == _userId);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AppUserId"] = new SelectList(_context.AppUsers, "Id", "Id", test.AppUserId);
             return View(test);
         }
 
@@ -110,7 +103,7 @@ namespace TestMe.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,TestName,CreationDate,AppUserId")] Test test)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,TestName,CreationDate")] Test test)
         {
             if (id != test.Id)
             {
@@ -121,8 +114,6 @@ namespace TestMe.Controllers
             {
                 try
                 {
-                    //var user = await _userManager.FindByNameAsync(User.Identity.Name);
-                    //test.AppUser = user;
                     test.AppUserId = _userId;
                     _context.Update(test);
                     _context.Entry<Test>(test).Property(x => x.CreationDate).IsModified = false;
@@ -141,7 +132,6 @@ namespace TestMe.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AppUserId"] = new SelectList(_context.AppUsers, "Id", "Id", test.AppUserId);
             return View(test);
         }
 
@@ -155,7 +145,7 @@ namespace TestMe.Controllers
 
             var test = await _context.Tests
                 .Include(t => t.AppUser)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
