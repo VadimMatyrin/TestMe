@@ -27,10 +27,9 @@
                 type: "POST",
                 data: { '__RequestVerificationToken': token },
                 success: function (data) {
-                    $("#StorageLocations").empty();
-                    data.forEach(function (element) {
+                   /* data.forEach(function (element) {
                         $("#StorageLocations").append("<option>" + element.LocationName + "</option>");
-                    });
+                    });*/
                     $("#startTestForm").hide();
                 },
                 error: function () {

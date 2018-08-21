@@ -12,36 +12,75 @@ namespace TestMe.Controllers
     public class TestEngineController : Controller
     {
         private ApplicationDbContext _context;
-        private Test _test;
+        private ICollection<TestQuestion> _testQuestions;
         public TestEngineController(ApplicationDbContext context)
         {
             _context = context;
-            _test = new Test();
         }
         public async Task<IActionResult> Index(string code)
         {
-            if (code == null)
+            var test = await GetTestAsync(code);
+            if (test is null)
             {
                 return RedirectToAction("Index", "Home");
             }
-            var test = await _context.Tests.Include(t => t.AppUser).Include(t => t.TestQuestions).FirstOrDefaultAsync(t => t.TestCode == code);
-            if (test == null)
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            _test = test;
-            //_test.TestQuestions = await _context.Entry(_test).Collection(t => t.TestQuestions).Query().ToListAsync();
             return View(test);
         }
 
-        public async Task<IActionResult> StartTest()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> StartTest(string code)
         {
-            if (_test.TestQuestions.Any(t => !(t.TestAnswers is null)))
+            var test = await GetTestAsync(code);
+
+            if (test is null)
+                return RedirectToAction("Index", "Home");
+
+            if (test.TestQuestions.Any(t => !(t.TestAnswers is null)))
                 return Json("error");
 
-            foreach (var testQuestion in _test.TestQuestions)
-                testQuestion.TestAnswers = await _context.Entry(testQuestion).Collection(t => t.TestAnswers).Query().ToListAsync();
-            return Json("hello");
+            _testQuestions = test.TestQuestions;
+
+            return Json(_testQuestions.FirstOrDefault());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Tast<IActionResult> CheckAnswer(int questionId, params int[] answerId)
+        {
+
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GetNextQuestion(int questionId)
+        {
+
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GetPrevQuestion(int questionId)
+        {
+
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GetQuestion(int questionId)
+        {
+
+        }
+        private async Task<Test> GetTestAsync(string code)
+        {
+            if (code is null)
+            {
+                return null;
+            }
+            var test = await _context.Tests.Include(t => t.AppUser).Include(t => t.TestQuestions).FirstOrDefaultAsync(t => t.TestCode == code);
+            if (test is null)
+            {
+                return null;
+            } 
+            return test;
         }
     }
 }
