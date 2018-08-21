@@ -24,6 +24,9 @@ namespace TestMe.Data
                 .Property(t => t.CreationDate)
                 .HasDefaultValueSql("getdate()");
 
+            modelBuilder.Entity<Test>().HasMany(t => t.TestQuestions).WithOne(t => t.Test);
+            modelBuilder.Entity<TestQuestion>().HasMany(t => t.TestAnswers).WithOne(t => t.TestQuestion);
+
             //modelBuilder.Entity<Test>()
             //    .HasAlternateKey(t => t.TestCode);
 

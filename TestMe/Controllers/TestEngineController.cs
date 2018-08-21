@@ -30,8 +30,18 @@ namespace TestMe.Controllers
                 return RedirectToAction("Index", "Home");
             }
             _test = test;
-            _test.TestQuestions = await _context.Entry(_test).Collection(t => t.TestQuestions).Query().ToListAsync();
+            //_test.TestQuestions = await _context.Entry(_test).Collection(t => t.TestQuestions).Query().ToListAsync();
             return View(test);
+        }
+
+        public async Task<IActionResult> StartTest()
+        {
+            if (_test.TestQuestions.Any(t => !(t.TestAnswers is null)))
+                return Json("error");
+
+            foreach (var testQuestion in _test.TestQuestions)
+                testQuestion.TestAnswers = await _context.Entry(testQuestion).Collection(t => t.TestAnswers).Query().ToListAsync();
+            return Json("hello");
         }
     }
 }

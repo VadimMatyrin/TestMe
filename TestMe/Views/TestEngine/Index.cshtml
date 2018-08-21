@@ -7,6 +7,40 @@
     <h2>Author: @Model.AppUser.UserName</h2>
     <h3>Creation date: @Model.CreationDate</h3>
     <h4>Question amount: @Model.TestQuestions.Count</h4>
-    <button type="button" class="btn btn-primary btn-lg center-block">Start test</button>
+    <form asp-controller="TestEngine" asp-action="StartTest" id="startTestForm" method="post">
+        @Html.AntiForgeryToken()
+        <button type="button" class="btn btn-primary btn-lg center-block" id="startButton">Start test</button>
+    </form>
+    <form asp-controller="TestEngine" asp-action="StartTest" method="post" display="none">
+        @Html.AntiForgeryToken()
+
+    </form>
 </div>
+
+@section Scripts{
+    <script type="text/javascript">
+        function startTest() {
+            var token = $('input[name="__RequestVerificationToken"]', $('#startTestForm')).val();
+
+            $.ajax({
+                url: "/TestEngine/StartTest",
+                type: "POST",
+                data: { '__RequestVerificationToken': token },
+                success: function (data) {
+                    $("#StorageLocations").empty();
+                    data.forEach(function (element) {
+                        $("#StorageLocations").append("<option>" + element.LocationName + "</option>");
+                    });
+                    $("#startTestForm").hide();
+                },
+                error: function () {
+                    $("#StorageLocations").empty();
+
+                }
+            });
+        }
+
+        $("#startButton").on("click", startTest);
+    </script>
+}
 

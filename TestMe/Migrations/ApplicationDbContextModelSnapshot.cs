@@ -201,16 +201,13 @@ namespace TestMe.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("TestCode")
-                        .IsRequired();
+                    b.Property<string>("TestCode");
 
                     b.Property<string>("TestName")
                         .IsRequired()
                         .HasMaxLength(200);
 
                     b.HasKey("Id");
-
-                    b.HasAlternateKey("TestCode");
 
                     b.HasIndex("AppUserId");
 

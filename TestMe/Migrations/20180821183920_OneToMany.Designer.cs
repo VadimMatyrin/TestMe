@@ -10,8 +10,8 @@ using TestMe.Data;
 namespace TestMe.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20180817065254_Names")]
-    partial class Names
+    [Migration("20180821183920_OneToMany")]
+    partial class OneToMany
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -202,6 +202,8 @@ namespace TestMe.Migrations
                     b.Property<DateTime>("CreationDate")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("getdate()");
+
+                    b.Property<string>("TestCode");
 
                     b.Property<string>("TestName")
                         .IsRequired()

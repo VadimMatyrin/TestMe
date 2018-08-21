@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TestMe.Migrations
 {
-    public partial class ModelOptimizations : Migration
+    public partial class OneToMany : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -162,9 +162,10 @@ namespace TestMe.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    TextName = table.Column<string>(maxLength: 200, nullable: false),
-                    CreationDate = table.Column<DateTime>(nullable: false),
-                    AppUserId = table.Column<string>(nullable: false)
+                    TestName = table.Column<string>(maxLength: 200, nullable: false),
+                    CreationDate = table.Column<DateTime>(nullable: false, defaultValueSql: "getdate()"),
+                    AppUserId = table.Column<string>(nullable: true),
+                    TestCode = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -174,23 +175,30 @@ namespace TestMe.Migrations
                         column: x => x.AppUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "TestQuestion",
+                name: "TestQuestions",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     QuestionText = table.Column<string>(maxLength: 1000, nullable: false),
-                    TestId = table.Column<int>(nullable: false)
+                    TestId = table.Column<int>(nullable: false),
+                    AppUserId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TestQuestion", x => x.Id);
+                    table.PrimaryKey("PK_TestQuestions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TestQuestion_Tests_TestId",
+                        name: "FK_TestQuestions_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_TestQuestions_Tests_TestId",
                         column: x => x.TestId,
                         principalTable: "Tests",
                         principalColumn: "Id",
@@ -198,22 +206,29 @@ namespace TestMe.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TestAnswer",
+                name: "TestAnswers",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     AnswerText = table.Column<string>(maxLength: 1000, nullable: false),
                     IsCorrect = table.Column<bool>(nullable: false),
-                    TestQuestionId = table.Column<int>(nullable: false)
+                    TestQuestionId = table.Column<int>(nullable: false),
+                    AppUserId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TestAnswer", x => x.Id);
+                    table.PrimaryKey("PK_TestAnswers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TestAnswer_TestQuestion_TestQuestionId",
+                        name: "FK_TestAnswers_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_TestAnswers_TestQuestions_TestQuestionId",
                         column: x => x.TestQuestionId,
-                        principalTable: "TestQuestion",
+                        principalTable: "TestQuestions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -258,13 +273,23 @@ namespace TestMe.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TestAnswer_TestQuestionId",
-                table: "TestAnswer",
+                name: "IX_TestAnswers_AppUserId",
+                table: "TestAnswers",
+                column: "AppUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TestAnswers_TestQuestionId",
+                table: "TestAnswers",
                 column: "TestQuestionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TestQuestion_TestId",
-                table: "TestQuestion",
+                name: "IX_TestQuestions_AppUserId",
+                table: "TestQuestions",
+                column: "AppUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TestQuestions_TestId",
+                table: "TestQuestions",
                 column: "TestId");
 
             migrationBuilder.CreateIndex(
@@ -291,13 +316,13 @@ namespace TestMe.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "TestAnswer");
+                name: "TestAnswers");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "TestQuestion");
+                name: "TestQuestions");
 
             migrationBuilder.DropTable(
                 name: "Tests");
