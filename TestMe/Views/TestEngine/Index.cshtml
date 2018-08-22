@@ -3,17 +3,39 @@
 
 }
 <div class="container-fluid">
-    <h1 class="text-center">@Model.TestName</h1>
-    <h2>Author: @Model.AppUser.UserName</h2>
-    <h3>Creation date: @Model.CreationDate</h3>
-    <h4>Question amount: @Model.TestQuestions.Count</h4>
     <form asp-controller="TestEngine" asp-action="StartTest" id="startTestForm" method="post">
         @Html.AntiForgeryToken()
-        <input type="hidden" value="@Model.TestCode" id="testCode"/>
+        <h1 class="text-center">@Model.TestName</h1>
+        <h2>Author: @Model.AppUser.UserName</h2>
+        <h3>Creation date: @Model.CreationDate</h3>
+        <h4>Question amount: @Model.TestQuestions.Count</h4>
+        <input type="hidden" value="@Model.TestCode" id="testCode" />
         <button type="button" class="btn btn-primary btn-lg center-block" id="startButton">Start test</button>
     </form>
-    <form asp-controller="TestEngine" asp-action="StartTest" id="questionForm"method="post" display="none">
+    <form asp-controller="TestEngine" asp-action="StartTest" id="questionForm" method="post" display="none">
         @Html.AntiForgeryToken()
+        <fieldset id="testQuestionFieldSet">
+            <legend id="questionText"></legend>
+
+            @*<div>
+                <input type="checkbox" id="scales" name="feature"
+                       value="scales" checked />
+                <label for="scales">Scales</label>
+            </div>
+
+            <div>
+                <input type="checkbox" id="horns" name="feature"
+                       value="horns" />
+                <label for="horns">Horns</label>
+            </div>
+
+            <div>
+                <input type="checkbox" id="claws" name="feature"
+                       value="claws" />
+                <label for="claws">Claws</label>
+            </div>*@
+
+        </fieldset>
 
     </form>
 </div>
@@ -33,8 +55,12 @@
                     //data.TestAnswers.forEach(function (element) {
                     //    $("#questionForm").append("<div>" + element.AnswerText + "</div>");
                     //});
-                    $("#questionForm").append("<div>" + data.questionText + "</div>");
+                    $("#questionForm").show();
+                    $("#questionText").append("<h1>" + data.questionText + "</h1>");
                     $("#startTestForm").hide();
+                    data.testAnswers.forEach(function (element) {
+                        $("#testQuestionFieldSet").append("<div>" + element.answerText + "</div>");
+                    });
                 },
                 error: function () {
                     $("#StorageLocations").empty();

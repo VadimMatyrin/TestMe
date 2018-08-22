@@ -40,7 +40,6 @@ namespace TestMe.Controllers
             //    return Json("error");
 
             _testAnswers = testAnswers;
-
             return Json(_testAnswers.FirstOrDefault().TestQuestion);
         }
 
