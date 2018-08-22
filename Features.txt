@@ -1,15 +1,12 @@
-Now added features:
+1)Purpose and use case, funtional
+TestMe - online resource for making, managing and sharing tests. Online platform that can by used by schools, universities for testing and checking students' knowledge or among friend to determine wheter or not they now everything about some subjects. Users are going to be able to add their own tests, questions for tests and text answers or answers with images, share their tests with another people, pass another people tests. Also share their tests with unregistered users via specially generated link.
 
-Add new test
-Add new test's questions
-Add new questions' possible answers
+2)Roles:
+-Administrator
+-User
+-Guest user
 
-Future features:
-
-Pass test
-Share tests with unregistered user via link with unique test code
-See all users that tried to pass your test and their scores
-Share tests with another users
-Pass another users' tests
-Marks for tests
-Test tags
+3)Role functions
+Administator - has unlimited access to everything - user data(excluding password), tests, questions, answers. Is able to edit and delete tests and its data of another users.  
+User - can add his own tests, questions and answers, can share his tests with another users, share his tests with unregistered users via specially generated links.
+Guest User - can enter his name and surname, access and pass tests via special test link.
