@@ -12,7 +12,7 @@ namespace TestMe.Controllers
     public class TestEngineController : Controller
     {
         private ApplicationDbContext _context;
-        private ICollection<TestQuestion> _testQuestions;
+        private IEnumerable<TestAnswer> _testAnswers;
         public TestEngineController(ApplicationDbContext context)
         {
             _context = context;
@@ -31,43 +31,43 @@ namespace TestMe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> StartTest(string code)
         {
-            var test = await GetTestAsync(code);
+            var testAnswers = await GetTestAnswersAsync(code);
 
-            if (test is null)
+            if (testAnswers is null)
                 return RedirectToAction("Index", "Home");
 
-            if (test.TestQuestions.Any(t => !(t.TestAnswers is null)))
-                return Json("error");
+            //if (testAnswers.TestQuestions.Any(t => !(t.TestAnswers is null)))
+            //    return Json("error");
 
-            _testQuestions = test.TestQuestions;
+            _testAnswers = testAnswers;
 
-            return Json(_testQuestions.FirstOrDefault());
+            return Json(_testAnswers.FirstOrDefault().TestQuestion);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Tast<IActionResult> CheckAnswer(int questionId, params int[] answerId)
+        public async Task<IActionResult> CheckAnswer(int questionId, params int[] answerId)
         {
-
+            throw new NotImplementedException();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetNextQuestion(int questionId)
         {
-
+            throw new NotImplementedException();
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetPrevQuestion(int questionId)
         {
-
+            throw new NotImplementedException();
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetQuestion(int questionId)
         {
-
+            throw new NotImplementedException();
         }
         private async Task<Test> GetTestAsync(string code)
         {
@@ -79,8 +79,21 @@ namespace TestMe.Controllers
             if (test is null)
             {
                 return null;
-            } 
+            }
             return test;
+        }
+        private async Task<IEnumerable<TestAnswer>> GetTestAnswersAsync(string code)
+        {
+            if (code is null)
+            {
+                return null;
+            }
+            var testAnswers = _context.TestAnswers.Include(t => t.AppUser).Include(t => t.TestQuestion).ThenInclude(t => t.Test).Where(t => t.TestQuestion.Test.TestCode == code);
+            if (testAnswers is null)
+            {
+                return null;
+            } 
+            return await testAnswers.ToListAsync();
         }
     }
 }

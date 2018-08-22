@@ -9,9 +9,10 @@
     <h4>Question amount: @Model.TestQuestions.Count</h4>
     <form asp-controller="TestEngine" asp-action="StartTest" id="startTestForm" method="post">
         @Html.AntiForgeryToken()
+        <input type="hidden" value="@Model.TestCode" id="testCode"/>
         <button type="button" class="btn btn-primary btn-lg center-block" id="startButton">Start test</button>
     </form>
-    <form asp-controller="TestEngine" asp-action="StartTest" method="post" display="none">
+    <form asp-controller="TestEngine" asp-action="StartTest" id="questionForm"method="post" display="none">
         @Html.AntiForgeryToken()
 
     </form>
@@ -21,15 +22,18 @@
     <script type="text/javascript">
         function startTest() {
             var token = $('input[name="__RequestVerificationToken"]', $('#startTestForm')).val();
+            var myData = { code: $("#testCode").val() };
+            var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
 
             $.ajax({
                 url: "/TestEngine/StartTest",
                 type: "POST",
-                data: { '__RequestVerificationToken': token },
+                data: dataWithAntiforgeryToken,
                 success: function (data) {
-                   /* data.forEach(function (element) {
-                        $("#StorageLocations").append("<option>" + element.LocationName + "</option>");
-                    });*/
+                    //data.TestAnswers.forEach(function (element) {
+                    //    $("#questionForm").append("<div>" + element.AnswerText + "</div>");
+                    //});
+                    $("#questionForm").append("<div>" + data.questionText + "</div>");
                     $("#startTestForm").hide();
                 },
                 error: function () {
