@@ -3,7 +3,7 @@
 
 }
 <div class="container-fluid">
-    <form asp-controller="TestEngine" asp-action="StartTest" id="startTestForm" method="post">
+    <div id="startTestElem">
         @Html.AntiForgeryToken()
         <h1 class="text-center">@Model.TestName</h1>
         <h2>Author: @Model.AppUser.UserName</h2>
@@ -11,7 +11,7 @@
         <h4>Question amount: @Model.TestQuestions.Count</h4>
         <input type="hidden" value="@Model.TestCode" id="testCode" />
         <button type="button" class="btn btn-primary btn-lg center-block" id="startButton">Start test</button>
-    </form>
+    </div>
     <form asp-controller="TestEngine" asp-action="StartTest" id="questionForm" method="post" display="none">
         @Html.AntiForgeryToken()
         <fieldset id="testQuestionFieldSet">
@@ -43,7 +43,7 @@
 @section Scripts{
     <script type="text/javascript">
         function startTest() {
-            var token = $('input[name="__RequestVerificationToken"]', $('#startTestForm')).val();
+            var token = $('input[name="__RequestVerificationToken"]', $('#startTestElem')).val();
             var myData = { code: $("#testCode").val() };
             var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
 
@@ -52,21 +52,30 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    //data.TestAnswers.forEach(function (element) {
-                    //    $("#questionForm").append("<div>" + element.AnswerText + "</div>");
-                    //});
-                    $("#questionForm").show();
-                    $("#questionText").append("<h1>" + data.questionText + "</h1>");
-                    $("#startTestForm").hide();
-                    data.testAnswers.forEach(function (element) {
-                        $("#testQuestionFieldSet").append("<div>" + element.answerText + "</div>");
-                    });
+                    ConfigureForTheFirstQuestion(data);
                 },
                 error: function () {
-                    $("#StorageLocations").empty();
-
+                    $("#questionForm").empty();
                 }
             });
+        }
+        function ConfigureForTheFirstQuestion(question)
+        {
+            $("#questionForm").show();
+            $("#questionText").append("<h1>" + question.questionText + "</h1>");
+            $("#startTestElem").hide();
+            question.testAnswers.forEach(function (element) {
+                $("#testQuestionFieldSet").append('<div><input type ="checkbox" values="' + element.id + ' ">' + element.answerText + "</input></div>");
+
+            });
+
+            $('<button/>', { text: 'Check answer', id: 'answerButton', click: CheckAnswer }).appendTo("#testQuestionFieldSet");
+        }
+
+        function CheckAnswer()
+        {
+
+
         }
 
         $("#startButton").on("click", startTest);

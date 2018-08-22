@@ -10,8 +10,8 @@ using TestMe.Data;
 namespace TestMe.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20180821183920_OneToMany")]
-    partial class OneToMany
+    [Migration("20180822154100_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
