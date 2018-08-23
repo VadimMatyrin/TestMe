@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using TestMe.Data;
 using TestMe.Models;
@@ -12,10 +13,11 @@ namespace TestMe.Controllers
     public class TestEngineController : Controller
     {
         private ApplicationDbContext _context;
-        private IEnumerable<TestAnswer> _testAnswers;
+        private Dictionary<TestQuestion, bool> _correctllyAnswered;
         public TestEngineController(ApplicationDbContext context)
         {
             _context = context;
+            _correctllyAnswered = new Dictionary<TestQuestion, bool>();
         }
         public async Task<IActionResult> Index(string code)
         {
@@ -37,17 +39,50 @@ namespace TestMe.Controllers
                 return RedirectToAction("Index", "Home");
 
             //if (testAnswers.TestQuestions.Any(t => !(t.TestAnswers is null)))
-            //    return Json("error");
+            //    return Json("Error");
 
-            _testAnswers = testAnswers;
-            return Json(_testAnswers.FirstOrDefault().TestQuestion);
+            return Json(testAnswers.FirstOrDefault().TestQuestion);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CheckAnswer(int questionId, params int[] answerId)
+        public async Task<IActionResult> CheckAnswer(string testCode, int? questionId, params int[] checkedIds)
         {
-            throw new NotImplementedException();
+            if (questionId is null || testCode is null || checkedIds is null || checkedIds.Length == 0 )
+                return Json("error");
+
+            var testAnswers = await GetTestAnswersAsync(testCode, questionId);
+
+            if (testAnswers is null)
+                return RedirectToAction("Index", "Home");
+
+            var _answers = testAnswers.Where(ta => ta.TestQuestionId == questionId);
+            if (_answers.Count(ta => ta.TestQuestionId == questionId) == 0)
+                return Json("error");
+
+            if (checkedIds.Any(checkId => _answers.Count(ta => ta.Id == checkId) == 0))
+                return Json("error");
+
+            var question = await _context.TestQuestions.FirstOrDefaultAsync(tq => tq.Id == questionId);
+            bool isCorrect = true;
+            foreach(var answId in checkedIds)
+            {
+                if (_answers.FirstOrDefault(ta => ta.Id == answId && ta.IsCorrect) is null)
+                {
+                    isCorrect = false;
+                    _correctllyAnswered[question] = false;
+                    break;
+                }
+            }
+            if(isCorrect)
+                _correctllyAnswered[question] = true;
+            var answers = new List<int>();
+            foreach(var correct in _answers.Where(ta => ta.IsCorrect))
+            {
+                answers.Add(correct.Id);
+            }
+            return  Json(answers);
+
         }
 
         [HttpPost]
@@ -92,6 +127,24 @@ namespace TestMe.Controllers
             {
                 return null;
             } 
+            return await testAnswers.ToListAsync();
+        }
+        private async Task<IEnumerable<TestAnswer>> GetTestAnswersAsync(string code, int? questionId)
+        {
+            if (code is null || questionId is null)
+            {
+                return null;
+            }
+            var testAnswers = _context.TestAnswers
+                .Include(t => t.AppUser)
+                .Include(t => t.TestQuestion)
+                .ThenInclude(t => t.Test)
+                .Where(t => t.TestQuestion.Test.TestCode == code && t.TestQuestionId == questionId);
+
+            if (testAnswers is null)
+            {
+                return null;
+            }
             return await testAnswers.ToListAsync();
         }
     }

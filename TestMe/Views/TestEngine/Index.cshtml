@@ -12,32 +12,15 @@
         <input type="hidden" value="@Model.TestCode" id="testCode" />
         <button type="button" class="btn btn-primary btn-lg center-block" id="startButton">Start test</button>
     </div>
-    <form asp-controller="TestEngine" asp-action="StartTest" id="questionForm" method="post" display="none">
+    <div id="questionBlock"  display="none">
         @Html.AntiForgeryToken()
         <fieldset id="testQuestionFieldSet">
-            <legend id="questionText"></legend>
+            <legend id="questionText">
 
-            @*<div>
-                <input type="checkbox" id="scales" name="feature"
-                       value="scales" checked />
-                <label for="scales">Scales</label>
-            </div>
-
-            <div>
-                <input type="checkbox" id="horns" name="feature"
-                       value="horns" />
-                <label for="horns">Horns</label>
-            </div>
-
-            <div>
-                <input type="checkbox" id="claws" name="feature"
-                       value="claws" />
-                <label for="claws">Claws</label>
-            </div>*@
-
+            </legend>
         </fieldset>
 
-    </form>
+    </div>
 </div>
 
 @section Scripts{
@@ -65,15 +48,42 @@
             $("#questionText").append("<h1>" + question.questionText + "</h1>");
             $("#startTestElem").hide();
             question.testAnswers.forEach(function (element) {
-                $("#testQuestionFieldSet").append('<div><input type ="checkbox" values="' + element.id + ' ">' + element.answerText + "</input></div>");
-
+                $("#testQuestionFieldSet").append('<div><input type ="checkbox" name="answer" value="' + element.id + ' ">' + element.answerText + "</input></div>");
             });
-
+            $("#testQuestionFieldSet").data("testCode", question.test.testCode);
+            $("#testQuestionFieldSet").data("id", question.id);
             $('<button/>', { text: 'Check answer', id: 'answerButton', click: CheckAnswer }).appendTo("#testQuestionFieldSet");
         }
 
         function CheckAnswer()
         {
+            var token = $('input[name="__RequestVerificationToken"]', $('#questionBlock')).val();
+            var checkedArray = new Array();
+            $('input[name="answer"]:checked').each(function () {
+                checkedArray.push(this.value);
+            });
+
+            var myData = { checkedIds: checkedArray };
+            var questionId = $("#testQuestionFieldSet").data('id');
+            var testCode = $("#testQuestionFieldSet").data("testCode");
+            myData = $.extend(myData, { 'questionId': questionId });
+            myData = $.extend(myData, { 'testCode': testCode });
+            var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+            $.ajax({
+                url: "/TestEngine/CheckAnswer",
+                type: "POST",
+                data: dataWithAntiforgeryToken,
+                success: function (data) {
+                    showCorrectAnswer(data);
+                },
+                error: function () {
+                    $("#questionBlock").append('<h5> Internal error. Try again</h5>');
+                }
+            });
+
+        }
+
+        function showCorrectAnswer(question) {
 
 
         }

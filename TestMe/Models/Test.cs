@@ -18,10 +18,10 @@ namespace TestMe.Models
         public DateTime CreationDate { get; set; }
         [JsonIgnore]
         public string AppUserId { get; set; }
-        [JsonIgnore]
         public string TestCode { get; set; }
         [JsonIgnore]
         public AppUser AppUser { get; set; }
+        [JsonIgnore]
         public virtual ICollection<TestQuestion> TestQuestions { get; set; }
     }
 }

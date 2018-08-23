@@ -15,7 +15,6 @@ namespace TestMe.Models
         public string QuestionText { get; set; }
         [JsonIgnore]
         public int TestId { get; set; }
-        [JsonIgnore]
         public Test Test { get; set; }
         [JsonIgnore]
         public string AppUserId { get; set; }
