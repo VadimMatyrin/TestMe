@@ -48,7 +48,7 @@
             $("#questionText").append("<h1>" + question.questionText + "</h1>");
             $("#startTestElem").hide();
             question.testAnswers.forEach(function (element) {
-                $("#testQuestionFieldSet").append('<div><input type ="checkbox" name="answer" value="' + element.id + ' ">' + element.answerText + "</input></div>");
+                $("#testQuestionFieldSet").append('<div><input type ="checkbox" name="answer" value="' + element.id + '">' + element.answerText + "</input></div>");
             });
             $("#testQuestionFieldSet").data("testCode", question.test.testCode);
             $("#testQuestionFieldSet").data("id", question.id);
@@ -74,7 +74,7 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    showCorrectAnswer(data);
+                    showCorrectAnswer(data, checkedArray);
                 },
                 error: function () {
                     $("#questionBlock").append('<h5> Internal error. Try again</h5>');
@@ -83,9 +83,15 @@
 
         }
 
-        function showCorrectAnswer(question) {
+        function showCorrectAnswer(question, userAnswered) {
+            userAnswered.forEach(function (element) {
+                $("input[type=checkbox][value='" + element + "']").closest("div").css("background-color", "red");
+            });
 
-
+            question.forEach(function (element) {
+                    $("input[type=checkbox][value='" + element + "']").closest("div").css("background-color", "green");
+            });
+            $("#answerButton").remove();
         }
 
         $("#startButton").on("click", startTest);
