@@ -110,10 +110,6 @@ namespace TestMe.Controllers
                 return null;
             }
             var test = await _context.Tests.Include(t => t.AppUser).Include(t => t.TestQuestions).FirstOrDefaultAsync(t => t.TestCode == code);
-            if (test is null)
-            {
-                return null;
-            }
             return test;
         }
         private async Task<IEnumerable<TestAnswer>> GetTestAnswersAsync(string code)
@@ -123,11 +119,7 @@ namespace TestMe.Controllers
                 return null;
             }
             var testAnswers = _context.TestAnswers.Include(t => t.AppUser).Include(t => t.TestQuestion).ThenInclude(t => t.Test).Where(t => t.TestQuestion.Test.TestCode == code);
-            if (testAnswers is null)
-            {
-                return null;
-            } 
-            return await testAnswers.ToListAsync();
+            return await testAnswers?.ToListAsync();
         }
         private async Task<IEnumerable<TestAnswer>> GetTestAnswersAsync(string code, int? questionId)
         {
@@ -141,11 +133,7 @@ namespace TestMe.Controllers
                 .ThenInclude(t => t.Test)
                 .Where(t => t.TestQuestion.Test.TestCode == code && t.TestQuestionId == questionId);
 
-            if (testAnswers is null)
-            {
-                return null;
-            }
-            return await testAnswers.ToListAsync();
+            return await testAnswers?.ToListAsync();
         }
     }
 }
