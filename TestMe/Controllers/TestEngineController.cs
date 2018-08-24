@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using TestMe.Data;
 using TestMe.Models;
 
@@ -26,17 +27,20 @@ namespace TestMe.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
+            HttpContext.Session.SetString("testCode", code);
             return View(test);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> StartTest(string code)
+        public async Task<IActionResult> StartTest()
         {
-            var testAnswers = await GetTestAnswersAsync(code);
+            var testCode = HttpContext.Session.GetString("testCode");
+            var testAnswers = await GetTestAnswersAsync(testCode);
 
             if (testAnswers is null)
                 return RedirectToAction("Index", "Home");
+
 
             //if (testAnswers.TestQuestions.Any(t => !(t.TestAnswers is null)))
             //    return Json("Error");
@@ -46,8 +50,9 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CheckAnswer(string testCode, int? questionId, params int[] checkedIds)
+        public async Task<IActionResult> CheckAnswer(int? questionId, params int[] checkedIds)
         {
+            var testCode = HttpContext.Session.GetString("testCode");
             if (questionId is null || testCode is null || checkedIds is null || checkedIds.Length == 0 )
                 return Json("error");
 
@@ -87,9 +92,20 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetNextQuestion(int questionId)
+        public async Task<IActionResult> GetNextQuestion(int? questionId)
         {
-            throw new NotImplementedException();
+            var testCode = HttpContext.Session.GetString("testCode");
+            if (questionId is null || testCode is null)
+                return Json("error");
+
+            var testAnswers = await GetTestAnswersAsync(testCode);
+            var nextQuestion = testAnswers.SkipWhile(ta => ta.TestQuestionId != questionId).SkipWhile(ta => ta.TestQuestionId == questionId).Take(1).FirstOrDefault().TestQuestion;
+
+            if (nextQuestion is null)
+                return Json("error");
+
+            return Json(nextQuestion);
+
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
