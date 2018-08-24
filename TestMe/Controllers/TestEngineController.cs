@@ -99,7 +99,7 @@ namespace TestMe.Controllers
                 return Json("error");
 
             var testAnswers = await GetTestAnswersAsync(testCode);
-            var nextQuestion = testAnswers.SkipWhile(ta => ta.TestQuestionId != questionId).SkipWhile(ta => ta.TestQuestionId == questionId).Take(1).FirstOrDefault().TestQuestion;
+            var nextQuestion = testAnswers.SkipWhile(ta => ta.TestQuestionId != questionId).SkipWhile(ta => ta.TestQuestionId == questionId).FirstOrDefault()?.TestQuestion;
 
             if (nextQuestion is null)
                 return Json("error");
@@ -109,9 +109,20 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetPrevQuestion(int questionId)
+        public async Task<IActionResult> GetPrevQuestion(int? questionId)
         {
-            throw new NotImplementedException();
+            var testCode = HttpContext.Session.GetString("testCode");
+            if (questionId is null || testCode is null)
+                return Json("error");
+
+            var testAnswers = await GetTestAnswersAsync(testCode);
+            testAnswers = testAnswers.Reverse();
+            var prevQuestion = testAnswers.SkipWhile(ta => ta.TestQuestionId != questionId).SkipWhile(ta => ta.TestQuestionId == questionId).FirstOrDefault()?.TestQuestion;
+
+            if (prevQuestion is null)
+                return Json("error");
+
+            return Json(prevQuestion);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]

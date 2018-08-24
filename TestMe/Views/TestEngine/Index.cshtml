@@ -93,12 +93,32 @@
                 }
             });
         }
+        function getPrevQuestion() {
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            var myData = { questionId: $("#testQuestionFieldSet").data("id") };
+            var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+
+            $.ajax({
+                url: "/TestEngine/GetPrevQuestion",
+                type: "POST",
+                data: dataWithAntiforgeryToken,
+                success: function (data) {
+                    if (data !== "error")
+                        appendQuestion(data);
+                    else
+                        alert("nani???");
+                },
+                error: function () {
+                    $("#questionForm").empty();
+                }
+            });
+        }
         function ConfigureForTheFirstQuestion(question)
         {
             $("#questionForm").show(); 
             $("#startTestElem").remove();
             appendQuestion(question);
-            $('<button/>', { text: 'Next question', id: 'nestQuestionButton', click: getNextQuestion }).appendTo("#testQuestionFieldSet");
+            $('<button/>', { text: 'Next question', id: 'nextQuestionButton', click: getNextQuestion }).appendTo("#testQuestionFieldSet");
         }
         function appendQuestion(question) {
             $("#testQuestionFieldSet").empty();
@@ -112,6 +132,8 @@
                 $("#testQuestionFieldSet").append('<div><input type ="checkbox" name="answer" value="' + element.id + '">' + element.answerText + "</input></div>");
             });
             $('<button/>', { text: 'Check answer', id: 'answerButton', click: CheckAnswer }).appendTo("#testQuestionFieldSet");
+            $('<button/>', { text: 'Next question', id: 'nextQuestionButton', click: getNextQuestion }).appendTo("#testQuestionFieldSet");
+            $('<button/>', { text: 'Prev question', id: 'prevQuestionButton', click: getPrevQuestion }).appendTo("#testQuestionFieldSet");
         }
         function showCorrectAnswer(question, userAnswered) {
                 userAnswered.forEach(function (element) {
