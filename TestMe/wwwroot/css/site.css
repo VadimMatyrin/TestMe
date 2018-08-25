@@ -35,3 +35,12 @@ body {
         display: none;
     }
 }
+.isCorrectText{
+    margin: 0;
+}
+.incorrectAnsw{
+    color: red;
+}
+.correctAnsw{
+    color: green;
+}

@@ -36,6 +36,10 @@ namespace TestMe.Controllers
         public async Task<IActionResult> StartTest()
         {
             var testCode = HttpContext.Session.GetString("testCode");
+
+            if (testCode is null)
+                return View("Index", "Home");
+
             var testAnswers = await GetTestAnswersAsync(testCode);
 
             if (testAnswers is null)
@@ -53,7 +57,11 @@ namespace TestMe.Controllers
         public async Task<IActionResult> CheckAnswer(int? questionId, params int[] checkedIds)
         {
             var testCode = HttpContext.Session.GetString("testCode");
-            if (questionId is null || testCode is null || checkedIds is null || checkedIds.Length == 0 )
+
+            if (testCode is null)
+                return View("Index", "Home");
+
+            if (questionId is null || checkedIds is null || checkedIds.Length == 0 )
                 return Json("error");
 
             var testAnswers = await GetTestAnswersAsync(testCode, questionId);
@@ -89,13 +97,42 @@ namespace TestMe.Controllers
             return  Json(answers);
 
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GetQuestionIds()
+        {
+            var testCode = HttpContext.Session.GetString("testCode");
 
+            if (testCode is null)
+                return View("Index", "Home");
+
+            var testAnswers = await GetTestAnswersAsync(testCode);
+
+            if (testAnswers is null)
+                return RedirectToAction("Index", "Home");
+
+            var firstAnswer = testAnswers.FirstOrDefault();
+            if (firstAnswer is null)
+                return Json("Error");
+
+            var questionIds = new List<int>();
+            foreach(var question in firstAnswer.TestQuestion.Test.TestQuestions)
+            {
+                questionIds.Add(question.Id);
+            }
+
+            return Json(questionIds);
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetNextQuestion(int? questionId)
         {
             var testCode = HttpContext.Session.GetString("testCode");
-            if (questionId is null || testCode is null)
+
+            if (testCode is null)
+                return View("Index", "Home");
+
+            if (questionId is null)
                 return Json("error");
 
             var testAnswers = await GetTestAnswersAsync(testCode);
@@ -115,7 +152,11 @@ namespace TestMe.Controllers
         public async Task<IActionResult> GetPrevQuestion(int? questionId)
         {
             var testCode = HttpContext.Session.GetString("testCode");
-            if (questionId is null || testCode is null)
+
+            if (testCode is null)
+                return View("Index", "Home");
+
+            if (questionId is null)
                 return Json("error");
 
             var testAnswers = await GetTestAnswersAsync(testCode);
@@ -132,9 +173,25 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetQuestion(int questionId)
+        public async Task<IActionResult> GetQuestion(int? questionId)
         {
-            throw new NotImplementedException();
+            var testCode = HttpContext.Session.GetString("testCode");
+
+            if (testCode is null)
+                return View("Index", "Home");
+
+            if (questionId is null)
+                return Json("error");
+
+            var testAnswers = await GetTestAnswersAsync(testCode);
+            var question = testAnswers
+                .FirstOrDefault(ta => ta.TestQuestionId == questionId)?
+                .TestQuestion;
+
+            if (question is null)
+                return Json("error");
+
+            return Json(question);
         }
         private async Task<Test> GetTestAsync(string code)
         {

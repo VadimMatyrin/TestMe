@@ -42,7 +42,10 @@ namespace TestMe
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddDistributedMemoryCache();
-            services.AddSession();
+            services.AddSession(options => 
+            {
+                options.IdleTimeout = TimeSpan.FromHours(3);
+            });
 
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)

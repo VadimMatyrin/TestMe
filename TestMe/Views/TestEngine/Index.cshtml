@@ -16,7 +16,9 @@
         @Html.AntiForgeryToken()
         <fieldset id="testQuestionFieldSet">
             <legend id="questionText">
+                <div class="row">
 
+                </div>
             </legend>
         </fieldset>
 
@@ -118,7 +120,6 @@
             $("#questionForm").show(); 
             $("#startTestElem").remove();
             appendQuestion(question);
-            $('<button/>', { text: 'Next question', id: 'nextQuestionButton', click: getNextQuestion }).appendTo("#testQuestionFieldSet");
         }
         function appendQuestion(question) {
             $("#testQuestionFieldSet").empty();
@@ -129,24 +130,55 @@
             $("#testQuestionFieldSet").data("testCode", question.test.testCode);
             $("#testQuestionFieldSet").data("id", question.id);
             question.testAnswers.forEach(function (element) {
-                $("#testQuestionFieldSet").append('<div><input type ="checkbox" name="answer" value="' + element.id + '">' + element.answerText + "</input></div>");
+                var input = $('<input/>', { type: 'checkbox', name: 'answer', value: element.id });
+                var label = $('<label/>', { text: element.answerText });
+                var div = $('<div/>');
+                input.appendTo(div);
+                label.appendTo(div);
+                div.appendTo("#testQuestionFieldSet");
+                //$("#testQuestionFieldSet").append('<div><input type ="checkbox" name="answer" value="' + element.id + '">' + element.answerText + "</input></div>");
             });
-            $('<button/>', { text: 'Check answer', id: 'answerButton', click: CheckAnswer }).appendTo("#testQuestionFieldSet");
-            $('<button/>', { text: 'Next question', id: 'nextQuestionButton', click: getNextQuestion }).appendTo("#testQuestionFieldSet");
-            $('<button/>', { text: 'Prev question', id: 'prevQuestionButton', click: getPrevQuestion }).appendTo("#testQuestionFieldSet");
+            var buttonsRow = $('<div/>', { class: 'row' });
+            $('<button/>', { text: 'Prev question', id: 'prevQuestionButton', class: 'btn btn-primary col-sm-2', click: getPrevQuestion }).appendTo(buttonsRow);
+            $('<button/>', { text: 'Check answer', id: 'answerButton', class: 'btn btn-success col-sm-offset-3 col-sm-2', click: CheckAnswer }).appendTo(buttonsRow);
+            $('<button/>', { text: 'Next question', id: 'nextQuestionButton', class: 'btn btn-primary col-sm-offset-3 col-sm-2', click: getNextQuestion }).appendTo(buttonsRow);
+            buttonsRow.appendTo("#testQuestionFieldSet")
         }
-        function showCorrectAnswer(question, userAnswered) {
-                userAnswered.forEach(function (element) {
-                    $("input[type=checkbox][value='" + element + "']").closest("div").css("background-color", "red");
+        function showCorrectAnswer(questionAnswers, userAnswers) {
+            userAnswers.forEach(function (element) {
+                    $("input[type=checkbox][value='" + element + "']").closest("div").css("color", "red");
                 });
 
-                question.forEach(function (element) {
-                    $("input[type=checkbox][value='" + element + "']").closest("div").css("background-color", "green");
-                });
-
-                $("#answerButton").remove();
+                questionAnswers.forEach(function (element) {
+                    $("input[type=checkbox][value='" + element + "']").closest("div").css("color", "green");
+            });
+            if (isAllCorrect(questionAnswers, userAnswers)) {
+                var div = $('<div/>', { class: 'text-center text-primary col-sm-offset-3 col-sm-2' });
+                var h2 = $('<h3/>', { class: 'text-success isCorrectText', text: 'Correct' });
+            }
+            else {
+                var div = $('<div/>', { class: 'text-center text-primary col-sm-offset-3 col-sm-2' });
+                var h2 = $('<h3/>', { class: 'text-danger isCorrectText', text: 'Incorrect' });
+            }
+            $("#answerButton").remove();
+            div.append(h2);
+            div.insertAfter($("#prevQuestionButton"));
+            //$("#nextQuestionButton").removeClass("col-sm-offset-3");
+           //$("#nextQuestionButton").addClass("col-sm-offset-8");
+            $('input[name="answer"]').each(function () {
+                $(this).prop('disabled', true);
+            });
         }
+        function isAllCorrect(questionAnswers, userAnswered) {
+            if (questionAnswers.length !== userAnswered.length)
+                return false;
+            for (var i = questionAnswers.length; i--;) {
+                if (questionAnswers[i] != userAnswered[i])
+                    return false;
+            }
 
+            return true;
+        }
         $("#startButton").on("click", startTest);
     </script>
 }
