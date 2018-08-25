@@ -21,7 +21,9 @@
                 </div>
             </legend>
         </fieldset>
+        <nav id="questions">
 
+        </nav>
     </div>
 </div>
 
@@ -37,22 +39,30 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    ConfigureForTheFirstQuestion(data);
+                    if (data != "error")
+                    {
+                        ConfigureForTheFirstQuestion(data);
+                        getQuestionsId();
+                    }
                 },
                 error: function () {
                     $("#questionForm").empty();
                 }
             });
         }
-        function CheckAnswer() {
+        function CheckAnswer(questionId, checkedArray) {
             var token = $('input[name="__RequestVerificationToken"]', $('#questionBlock')).val();
-            var checkedArray = new Array();
-            $('input[name="answer"]:checked').each(function () {
-                checkedArray.push(this.value);
-            });
+            if (checkedArray === undefined) {
+                checkedArray = new Array();
+                $('input[name="answer"]:checked').each(function () {
+                    checkedArray.push(this.value);
+                });
+            }
 
             var myData = { checkedIds: checkedArray };
-            var questionId = $("#testQuestionFieldSet").data('id');
+            if (typeof questionId !== 'number') {
+                questionId = $("#testQuestionFieldSet").data('id');
+            }
             var testCode = $("#testQuestionFieldSet").data("testCode");
             myData = $.extend(myData, { 'questionId': questionId });
             myData = $.extend(myData, { 'testCode': testCode });
@@ -85,10 +95,17 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    if (data !== "error")
+                    if (data !== "error" && data !== "bound") {
                         appendQuestion(data);
-                    else
-                        alert("nani???");
+                        getIfAlreadyAswered(data);
+                        $("#nextQuestionButton").prop('disabled', false);
+                    }
+                    else {
+                        if (data === "bound")
+                            $("#nextQuestionButton").prop('disabled', true);
+                        else
+                            alert("nani???");
+                    }
                 },
                 error: function () {
                     $("#questionForm").empty();
@@ -105,8 +122,38 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    if (data !== "error")
+                    if (data !== "error" && data !== "bound") {
                         appendQuestion(data);
+                        getIfAlreadyAswered(data);
+                        $("#prevQuestionButton").prop('disabled', false);
+                    }
+                    else
+                    {
+                        if (data === "bound")
+                            $("#prevQuestionButton").prop('disabled', true);
+                        else
+                            alert("nani???");
+                    }
+                },
+                error: function () {
+                    $("#questionForm").empty();
+                }
+            });
+        }
+        function getQuestion(questionId) {
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            var myData = { questionId: questionId };
+            var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+
+            $.ajax({
+                url: "/TestEngine/GetQuestion",
+                type: "POST",
+                data: dataWithAntiforgeryToken,
+                success: function (data) {
+                    if (data !== "error") {
+                        appendQuestion(data);
+                        getIfAlreadyAswered(data);
+                    }
                     else
                         alert("nani???");
                 },
@@ -115,6 +162,59 @@
                 }
             });
         }
+        function getIfAlreadyAswered(questionAnswers) {
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            var myData = { questionId: $("#testQuestionFieldSet").data("id") };
+            var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+
+            $.ajax({
+                url: "/TestEngine/GetIfAlreadyAnswered",
+                type: "POST",
+                data: dataWithAntiforgeryToken,
+                success: function (data) {
+                    if (data !== "error") {
+                        CheckAnswer(questionAnswers, data);
+                    }
+                },
+                error: function () {
+                    $("#questionForm").empty();
+                }
+            });
+        }
+        function getQuestionsId() {
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            var dataWithAntiforgeryToken =  { '__RequestVerificationToken': token };
+
+            $.ajax({
+                url: "/TestEngine/GetQuestionsIds",
+                type: "POST",
+                data: dataWithAntiforgeryToken,
+                success: function (data) {
+                    if (data !== "error") {
+                        displayQuestionNav(data);
+                    }
+                    //else
+                        //alert("nani???");
+                },
+                error: function () {
+                    $("#questionForm").empty();
+                }
+            });
+        }
+        function displayQuestionNav(questionIds) {
+            for (let i = 0; i < questionIds.length; i++) {
+                let button = $('<button/>', {
+                    type: 'button',
+                    class: 'btn btn-outline-info',
+                    value: questionIds[i],
+                    text: (i + 1) ,
+                    click: function () {
+                        getQuestion($(this).attr('value'));
+                    }
+                }).appendTo($("nav#questions"));
+            }
+        }
+        
         function ConfigureForTheFirstQuestion(question)
         {
             $("#questionForm").show(); 
@@ -146,7 +246,8 @@
         }
         function showCorrectAnswer(questionAnswers, userAnswers) {
             userAnswers.forEach(function (element) {
-                    $("input[type=checkbox][value='" + element + "']").closest("div").css("color", "red");
+                $("input[type=checkbox][value='" + element + "']").closest("div").css("color", "red");
+                $("input[type=checkbox][value='" + element + "']").prop('checked', true);
                 });
 
                 questionAnswers.forEach(function (element) {

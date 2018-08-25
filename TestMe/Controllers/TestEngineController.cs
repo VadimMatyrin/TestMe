@@ -8,17 +8,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using TestMe.Data;
 using TestMe.Models;
+using Newtonsoft.Json;
 
 namespace TestMe.Controllers
 {
     public class TestEngineController : Controller
     {
         private ApplicationDbContext _context;
-        private Dictionary<TestQuestion, bool> _correctllyAnswered;
         public TestEngineController(ApplicationDbContext context)
         {
             _context = context;
-            _correctllyAnswered = new Dictionary<TestQuestion, bool>();
         }
         public async Task<IActionResult> Index(string code)
         {
@@ -28,6 +27,7 @@ namespace TestMe.Controllers
                 return RedirectToAction("Index", "Home");
             }
             HttpContext.Session.SetString("testCode", code);
+            HttpContext.Session.SetString("correctlyAnswered", "");
             return View(test);
         }
 
@@ -45,24 +45,39 @@ namespace TestMe.Controllers
             if (testAnswers is null)
                 return RedirectToAction("Index", "Home");
 
-
             //if (testAnswers.TestQuestions.Any(t => !(t.TestAnswers is null)))
             //    return Json("Error");
 
             return Json(testAnswers.FirstOrDefault().TestQuestion);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CheckAnswer(int? questionId, params int[] checkedIds)
+        public async Task<IActionResult> GetIfAlreadyAnswered(int? questionId)
+        {
+            if (questionId is null)
+                return Json("error");
+
+            if (!(HttpContext.Session.GetString(questionId.ToString()) is null))
+            {
+                var userAnswersStr = HttpContext.Session.GetString(questionId.ToString());
+                var userAnswers = JsonConvert.DeserializeObject<List<int>>(userAnswersStr);
+                return Json(userAnswers);
+            }
+
+            return Json("error");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CheckAnswer(int? questionId, List<int> checkedIds)
         {
             var testCode = HttpContext.Session.GetString("testCode");
 
             if (testCode is null)
                 return View("Index", "Home");
 
-            if (questionId is null || checkedIds is null || checkedIds.Length == 0 )
+            if (questionId is null || checkedIds is null)
                 return Json("error");
+
 
             var testAnswers = await GetTestAnswersAsync(testCode, questionId);
 
@@ -70,7 +85,22 @@ namespace TestMe.Controllers
                 return RedirectToAction("Index", "Home");
 
             var _answers = testAnswers.Where(ta => ta.TestQuestionId == questionId);
+
+
             if (_answers.Count(ta => ta.TestQuestionId == questionId) == 0)
+                return Json("error");
+
+            if (!(HttpContext.Session.GetString(questionId.ToString()) is null))
+            {
+                var correctAnswers = new List<int>();
+                foreach (var correct in _answers.Where(ta => ta.IsCorrect))
+                {
+                    correctAnswers.Add(correct.Id);
+                }
+                return Json(correctAnswers);
+            }
+
+            if (checkedIds.Count == 0)
                 return Json("error");
 
             if (checkedIds.Any(checkId => _answers.Count(ta => ta.Id == checkId) == 0))
@@ -83,12 +113,21 @@ namespace TestMe.Controllers
                 if (_answers.FirstOrDefault(ta => ta.Id == answId && ta.IsCorrect) is null)
                 {
                     isCorrect = false;
-                    _correctllyAnswered[question] = false;
                     break;
                 }
             }
-            if(isCorrect)
-                _correctllyAnswered[question] = true;
+            if (isCorrect)
+            {
+                var alreadyCorrectlyAnsweredStr = HttpContext.Session.GetString("correctlyAnswered");
+                var alreadyCorrectlyAnswered = JsonConvert.DeserializeObject<List<int>>(alreadyCorrectlyAnsweredStr);
+                if (alreadyCorrectlyAnswered is null)
+                    alreadyCorrectlyAnswered = new List<int>();
+                alreadyCorrectlyAnswered.Add(questionId.Value);
+                HttpContext.Session.SetString("correctlyAnswered", JsonConvert.SerializeObject(alreadyCorrectlyAnswered));
+            }
+            var serializedAnswers = JsonConvert.SerializeObject(checkedIds);
+            HttpContext.Session.SetString(questionId.ToString(), serializedAnswers);
+
             var answers = new List<int>();
             foreach(var correct in _answers.Where(ta => ta.IsCorrect))
             {
@@ -99,7 +138,7 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetQuestionIds()
+        public async Task<IActionResult> GetQuestionsIds()
         {
             var testCode = HttpContext.Session.GetString("testCode");
 
@@ -142,7 +181,13 @@ namespace TestMe.Controllers
                 .TestQuestion;
 
             if (nextQuestion is null)
-                return Json("error");
+            {
+
+                if (testAnswers.Any(ta => ta.TestQuestionId == questionId))
+                    return Json("bound");
+                else
+                    return Json("error");
+            }
 
             return Json(nextQuestion);
 
@@ -167,7 +212,13 @@ namespace TestMe.Controllers
                 .TestQuestion;
 
             if (prevQuestion is null)
-                return Json("error");
+            {
+
+                if (testAnswers.Any(ta => ta.TestQuestionId == questionId))
+                    return Json("bound");
+                else
+                    return Json("error");
+            }
 
             return Json(prevQuestion);
         }
