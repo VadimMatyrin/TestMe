@@ -3,30 +3,29 @@
 
 }
 <div class="container-fluid">
-    <div id="startTestElem">
+    <div id="startTestElem" class="row">
         @Html.AntiForgeryToken()
-        <h1 class="text-center">@Model.TestName</h1>
-        <h2>Author: @Model.AppUser.UserName</h2>
-        <h3>Creation date: @Model.CreationDate</h3>
-        <h4>Question amount: @Model.TestQuestions.Count</h4>
+        <h1 class="text-center col-md-12">@Model.TestName</h1>
+        <h2 class="col-md-12">Author: @Model.AppUser.UserName</h2>
+        <h3 class="col-md-12">Creation date: @Model.CreationDate</h3>
+        <h4 class="col-md-12">Question amount: @Model.TestQuestions.Count</h4>
         <input type="hidden" value="@Model.TestCode" id="testCode" />
-        <button type="button" class="btn btn-primary btn-lg center-block" id="startButton">Start test</button>
+        <button type="button" class="btn btn-primary btn-lg center-block col-md-12" id="startButton">Start test</button>
     </div>
-    <div id="questionBlock"  display="none">
+    <div id="questionBlock" class="row" display="none">
         @Html.AntiForgeryToken()
-        <fieldset id="testQuestionFieldSet">
+        <fieldset id="testQuestionFieldSet" class="col-md-12">
             <legend id="questionText">
                 <div class="row">
 
                 </div>
             </legend>
         </fieldset>
-        <nav id="questions">
+        <div id="questions" class="row">
 
-        </nav>
+        </div>
     </div>
-</div>
-
+<div/>
 @section Scripts{
     <script type="text/javascript">
         function startTest() {
@@ -205,21 +204,27 @@
             for (let i = 0; i < questionIds.length; i++) {
                 let button = $('<button/>', {
                     type: 'button',
-                    class: 'btn btn-outline-info',
+                    class: 'btn btn-info center-block',
                     value: questionIds[i],
-                    text: (i + 1) ,
+                    text: (i + 1),
                     click: function () {
                         getQuestion($(this).attr('value'));
                     }
-                }).appendTo($("nav#questions"));
+                });
+                let div = $('<div/>', { class: 'col-xs-1' }).append(button);
+                div.appendTo($("div#questions"));
             }
-        }
-        
+        }  
         function ConfigureForTheFirstQuestion(question)
         {
             $("#questionForm").show(); 
             $("#startTestElem").remove();
             appendQuestion(question);
+            var buttonsRow = $('<div/>', { class: 'row' });
+            $('<button/>', { text: 'Prev question', id: 'prevQuestionButton', class: 'btn btn-primary col-xs-2', click: getPrevQuestion }).appendTo(buttonsRow);
+            $('<button/>', { text: 'Check answer', id: 'answerButton', class: 'btn btn-success col-xs-offset-3 col-xs-2', click: CheckAnswer }).appendTo(buttonsRow);
+            $('<button/>', { text: 'Next question', id: 'nextQuestionButton', class: 'btn btn-primary col-xs-offset-3 col-xs-2', click: getNextQuestion }).appendTo(buttonsRow);
+            buttonsRow.insertAfter("#testQuestionFieldSet");
         }
         function appendQuestion(question) {
             $("#testQuestionFieldSet").empty();
@@ -236,13 +241,7 @@
                 input.appendTo(div);
                 label.appendTo(div);
                 div.appendTo("#testQuestionFieldSet");
-                //$("#testQuestionFieldSet").append('<div><input type ="checkbox" name="answer" value="' + element.id + '">' + element.answerText + "</input></div>");
             });
-            var buttonsRow = $('<div/>', { class: 'row' });
-            $('<button/>', { text: 'Prev question', id: 'prevQuestionButton', class: 'btn btn-primary col-sm-2', click: getPrevQuestion }).appendTo(buttonsRow);
-            $('<button/>', { text: 'Check answer', id: 'answerButton', class: 'btn btn-success col-sm-offset-3 col-sm-2', click: CheckAnswer }).appendTo(buttonsRow);
-            $('<button/>', { text: 'Next question', id: 'nextQuestionButton', class: 'btn btn-primary col-sm-offset-3 col-sm-2', click: getNextQuestion }).appendTo(buttonsRow);
-            buttonsRow.appendTo("#testQuestionFieldSet")
         }
         function showCorrectAnswer(questionAnswers, userAnswers) {
             userAnswers.forEach(function (element) {
@@ -254,14 +253,15 @@
                     $("input[type=checkbox][value='" + element + "']").closest("div").css("color", "green");
             });
             if (isAllCorrect(questionAnswers, userAnswers)) {
-                var div = $('<div/>', { class: 'text-center text-primary col-sm-offset-3 col-sm-2' });
+                var div = $('<div/>', { id: 'answerMessage', class: 'text-center text-primary col-xs-offset-3 col-xs-2' });
                 var h2 = $('<h3/>', { class: 'text-success isCorrectText', text: 'Correct' });
             }
             else {
-                var div = $('<div/>', { class: 'text-center text-primary col-sm-offset-3 col-sm-2' });
+                var div = $('<div/>', { id: 'answerMessage', class: 'text-center text-primary col-xs-offset-3 col-xs-2' });
                 var h2 = $('<h3/>', { class: 'text-danger isCorrectText', text: 'Incorrect' });
             }
             $("#answerButton").remove();
+            $("#answerMessage").remove();
             div.append(h2);
             div.insertAfter($("#prevQuestionButton"));
             //$("#nextQuestionButton").removeClass("col-sm-offset-3");
