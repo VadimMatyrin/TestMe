@@ -16,9 +16,6 @@
         @Html.AntiForgeryToken()
         <fieldset id="testQuestionFieldSet" class="col-md-12">
             <legend id="questionText">
-                <div class="row">
-
-                </div>
             </legend>
         </fieldset>
         <div id="questions" class="row">
@@ -99,12 +96,12 @@
                         getIfAlreadyAswered(data);
                         $("#nextQuestionButton").prop('disabled', false);
                     }
-                    else {
-                        if (data === "bound")
-                            $("#nextQuestionButton").prop('disabled', true);
-                        else
-                            alert("nani???");
-                    }
+                    //else {
+                    //    if (data === "bound")
+                    //        $("#nextQuestionButton").prop('disabled', true);
+                    //    else
+                    //        alert("nani???");
+                    //}
                 },
                 error: function () {
                     $("#questionForm").empty();
@@ -126,13 +123,13 @@
                         getIfAlreadyAswered(data);
                         $("#prevQuestionButton").prop('disabled', false);
                     }
-                    else
-                    {
-                        if (data === "bound")
-                            $("#prevQuestionButton").prop('disabled', true);
-                        else
-                            alert("nani???");
-                    }
+                    //else
+                    //{
+                    //    if (data === "bound")
+                    //        $("#prevQuestionButton").prop('disabled', true);
+                    //    else
+                    //        alert("nani???");
+                    //}
                 },
                 error: function () {
                     $("#questionForm").empty();
@@ -204,21 +201,28 @@
             for (let i = 0; i < questionIds.length; i++) {
                 let button = $('<button/>', {
                     type: 'button',
-                    class: 'btn btn-info center-block',
+                    class: 'btn btn-info col-xs-1',
                     value: questionIds[i],
                     text: (i + 1),
                     click: function () {
+                        var prevButton = $('#questions > button.btn-primary');
+                        if (!prevButton.hasClass('btn-success') && !prevButton.hasClass('btn-danger'))
+                            prevButton.addClass('btn-info');
+
+                        prevButton.removeClass('btn-primary');
+                        $(this).removeClass('btn-info');
+                        $(this).addClass('btn-primary');
                         getQuestion($(this).attr('value'));
                     }
-                });
-                let div = $('<div/>', { class: 'col-xs-1' }).append(button);
-                div.appendTo($("div#questions"));
+                }).appendTo('div#questions');
             }
+            $('#questions > button:first-child').addClass('btn-primary');
         }  
         function ConfigureForTheFirstQuestion(question)
         {
             $("#questionForm").show(); 
             $("#startTestElem").remove();
+            $("#questionText").append("<h1></h1>");
             appendQuestion(question);
             var buttonsRow = $('<div/>', { class: 'row' });
             $('<button/>', { text: 'Prev question', id: 'prevQuestionButton', class: 'btn btn-primary col-xs-2', click: getPrevQuestion }).appendTo(buttonsRow);
@@ -227,20 +231,19 @@
             buttonsRow.insertAfter("#testQuestionFieldSet");
         }
         function appendQuestion(question) {
-            $("#testQuestionFieldSet").empty();
-            $('<legend/>', { id: 'questionText' }).appendTo("#testQuestionFieldSet");
-           // $("#testQuestionFieldSet").append()
-            //$("#questionText").empty();
-            $("#questionText").append("<h1>" + question.questionText + "</h1>");
-            $("#testQuestionFieldSet").data("testCode", question.test.testCode);
-            $("#testQuestionFieldSet").data("id", question.id);
+            $('#testQuestionFieldSet div').remove();
+            $('#answerMessage').remove();
+            $('#answerButton').show();
+            $('#questionText h1').text(question.questionText);
+            $('#testQuestionFieldSet').data('testCode', question.test.testCode);
+            $('#testQuestionFieldSet').data('id', question.id);
             question.testAnswers.forEach(function (element) {
                 var input = $('<input/>', { type: 'checkbox', name: 'answer', value: element.id });
                 var label = $('<label/>', { text: element.answerText });
                 var div = $('<div/>');
                 input.appendTo(div);
                 label.appendTo(div);
-                div.appendTo("#testQuestionFieldSet");
+                div.appendTo('#testQuestionFieldSet');
             });
         }
         function showCorrectAnswer(questionAnswers, userAnswers) {
@@ -249,26 +252,28 @@
                 $("input[type=checkbox][value='" + element + "']").prop('checked', true);
                 });
 
-                questionAnswers.forEach(function (element) {
-                    $("input[type=checkbox][value='" + element + "']").closest("div").css("color", "green");
+            questionAnswers.forEach(function (element) {
+                    $("input[type=checkbox][value='" + element + "']").closest('div').css('color', 'green');
             });
+            var navButton = $('button[value="' + $("#testQuestionFieldSet").data("id") + '"]');
+            navButton.removeClass('btn-info');
+            var div = $('<div/>', { id: 'answerMessage', class: 'text-center text-primary col-xs-offset-3 col-xs-2' });
             if (isAllCorrect(questionAnswers, userAnswers)) {
-                var div = $('<div/>', { id: 'answerMessage', class: 'text-center text-primary col-xs-offset-3 col-xs-2' });
                 var h2 = $('<h3/>', { class: 'text-success isCorrectText', text: 'Correct' });
+                navButton.addClass('btn-success');
             }
             else {
-                var div = $('<div/>', { id: 'answerMessage', class: 'text-center text-primary col-xs-offset-3 col-xs-2' });
                 var h2 = $('<h3/>', { class: 'text-danger isCorrectText', text: 'Incorrect' });
+                navButton.addClass('btn-danger');
             }
-            $("#answerButton").remove();
-            $("#answerMessage").remove();
+            $('#answerButton').hide();
+            $('#answerMessage').remove();
             div.append(h2);
-            div.insertAfter($("#prevQuestionButton"));
-            //$("#nextQuestionButton").removeClass("col-sm-offset-3");
-           //$("#nextQuestionButton").addClass("col-sm-offset-8");
+            div.insertAfter($('#prevQuestionButton'));
             $('input[name="answer"]').each(function () {
                 $(this).prop('disabled', true);
             });
+            
         }
         function isAllCorrect(questionAnswers, userAnswered) {
             if (questionAnswers.length !== userAnswered.length)
@@ -280,7 +285,7 @@
 
             return true;
         }
-        $("#startButton").on("click", startTest);
+        $('#startButton').on('click', startTest);
     </script>
 }
 

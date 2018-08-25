@@ -44,3 +44,6 @@ body {
 .correctAnsw{
     color: green;
 }
+#questionBlock {
+    min-height: 700px;
+}

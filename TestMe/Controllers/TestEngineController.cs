@@ -21,6 +21,7 @@ namespace TestMe.Controllers
         }
         public async Task<IActionResult> Index(string code)
         {
+            HttpContext.Session.Clear();
             var test = await GetTestAsync(code);
             if (test is null)
             {
