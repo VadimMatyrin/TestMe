@@ -13,6 +13,7 @@ using TestMe.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TestMe.Models;
+using TestMe.Middleware;
 
 namespace TestMe
 {
@@ -73,6 +74,7 @@ namespace TestMe
 
             app.UseAuthentication();
             app.UseSession();
+            app.UseMiddleware(typeof(ErrorHandlingMiddleware));
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

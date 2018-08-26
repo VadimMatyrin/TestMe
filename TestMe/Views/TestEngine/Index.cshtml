@@ -55,13 +55,11 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    if (data != "error") {
-                        $('#userName').remove();
-                        $('#backGround').remove();
-                    }
+                    $('#userName').remove();
+                    $('#backGround').remove();
                 },
                 error: function () {
-                    $("#questionForm").empty();
+                    //$("#questionForm").empty();
                 }
             });
         }
@@ -76,7 +74,7 @@
                     $('<h5/>', { text: 'Username: ' + data }).insertAfter('#questionText > h1');
                 },
                 error: function () {
-                    $("#questionForm").empty();
+                    //$("#questionForm").empty();
                 }
             });
         }
@@ -90,13 +88,11 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    if (data != "error") {
-                        ConfigureForTheFirstQuestion(data);
-                        getQuestionsId();
-                    }
+                    ConfigureForTheFirstQuestion(data);
+                    getQuestionsId();
                 },
                 error: function () {
-                    $("#questionForm").empty();
+                    //$("#questionForm").empty();
                 }
             });
         }
@@ -122,15 +118,10 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    if (data !== "error") {
-                        showCorrectAnswer(data, checkedArray);
-                    }
-                    else {
-                        $("#questionBlock").append('<h5> Internal error. Try again</h5>');
-                    }
+                    showCorrectAnswer(data, checkedArray);
                 },
                 error: function () {
-                    $("#questionBlock").append('<h5> Internal error. Try again</h5>');
+                    //$("#questionBlock").append('<h5> Internal error. Try again</h5>');
                 }
             });
 
@@ -145,20 +136,11 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    if (data !== "error" && data !== "bound") {
-                        appendQuestion(data);
-                        getIfAlreadyAswered(data);
-                        $("#nextQuestionButton").prop('disabled', false);
-                    }
-                    //else {
-                    //    if (data === "bound")
-                    //        $("#nextQuestionButton").prop('disabled', true);
-                    //    else
-                    //        alert("nani???");
-                    //}
+                    appendQuestion(data);
+                    getIfAlreadyAswered(data);
                 },
                 error: function () {
-                    $("#questionForm").empty();
+                    //$("#questionForm").empty();
                 }
             });
         }
@@ -172,21 +154,12 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    if (data !== "error" && data !== "bound") {
-                        appendQuestion(data);
-                        getIfAlreadyAswered(data);
-                        $("#prevQuestionButton").prop('disabled', false);
-                    }
-                    //else
-                    //{
-                    //    if (data === "bound")
-                    //        $("#prevQuestionButton").prop('disabled', true);
-                    //    else
-                    //        alert("nani???");
-                    //}
+                    appendQuestion(data);
+                    getIfAlreadyAswered(data);
+                        //$("#prevQuestionButton").prop('disabled', false);
                 },
                 error: function () {
-                    $("#questionForm").empty();
+                   // $("#questionForm").empty();
                 }
             });
         }
@@ -200,15 +173,11 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    if (data !== "error") {
-                        appendQuestion(data);
-                        getIfAlreadyAswered(data);
-                    }
-                    else
-                        alert("nani???");
+                    appendQuestion(data);
+                    getIfAlreadyAswered(data);
                 },
                 error: function () {
-                    $("#questionForm").empty();
+                    //$("#questionForm").empty();
                 }
             });
         }
@@ -222,12 +191,11 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    if (data !== "error") {
+                    if (data != "notAnswered")
                         CheckAnswer(questionAnswers, data);
-                    }
                 },
                 error: function () {
-                    $("#questionForm").empty();
+                    //$("#questionForm").empty();
                 }
             });
         }
@@ -240,14 +208,10 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    if (data !== "error") {
-                        displayQuestionNav(data);
-                    }
-                    //else
-                    //alert("nani???");
+                    displayQuestionNav(data);
                 },
                 error: function () {
-                    $("#questionForm").empty();
+                    //$("#questionForm").empty();
                 }
             });
         }
@@ -307,18 +271,18 @@
             });
             var navButton = $('button[value="' + $('#testQuestionFieldSet').data('id') + '"]');
             navButton.removeClass('btn-info');
-            var div = $('<div/>', { id: 'answerMessage', class: 'text-center text-primary col-xs-offset-3 col-xs-2' });
+            var div = $('<div/>', { id: 'answerMessage', class: 'text-center text-primary col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2' });
             if (isAllCorrect(questionAnswers, userAnswers)) {
-                var h2 = $('<h3/>', { class: 'text-success isCorrectText', text: 'Correct' });
+                var h3 = $('<h3/>', { class: 'text-center text-success isCorrectText ', text: 'Correct' });
                 navButton.addClass('btn-success');
             }
             else {
-                var h2 = $('<h3/>', { class: 'text-danger isCorrectText', text: 'Incorrect' });
+                var h3 = $('<h3/>', { class: 'text-center text-danger isCorrectText', text: 'Incorrect' });
                 navButton.addClass('btn-danger');
             }
             $('#answerButton').hide();
             $('#answerMessage').remove();
-            div.append(h2);
+            div.append(h3);
             div.insertAfter($('#prevQuestionButton'));
             $('input[name="answer"]').each(function () {
                 $(this).prop('disabled', true);
