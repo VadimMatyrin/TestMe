@@ -10,7 +10,7 @@
         <h3 class="col-md-12">Creation date: @Model.CreationDate</h3>
         <h4 class="col-md-12">Question amount: @Model.TestQuestions.Count</h4>
         <input type="hidden" value="@Model.TestCode" id="testCode" />
-        <button type="button" class="btn btn-primary btn-lg center-block col-md-12" id="startButton">Start test</button>
+        <button type="button" class="btn btn-primary btn-lg center-block col-md-12" id="startButton" onclick="star">Start test</button>
     </div>
     <div id="questionBlock" class="row" display="none">
         @Html.AntiForgeryToken()
@@ -18,6 +18,11 @@
             <legend id="questionText">
             </legend>
         </fieldset>
+        <div id="navButtons" class="row">
+            <button id="prevQuestionButton" class="btn btn-primary col-md-offset-0 col-md-2 col-xs-8 col-xs-offset-2" onclick="getPrevQuestion()">Prev question</button>
+            <button id="answerButton" class="btn btn-success col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2" onclick="CheckAnswer()">Check answer</button>
+            <button id="nextQuestionButton" class="btn btn-primary col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2" onclick="getNextQuestion()">Next question</button>
+        </div>
         <div id="questions" class="row">
 
         </div>
@@ -201,11 +206,11 @@
             for (let i = 0; i < questionIds.length; i++) {
                 let button = $('<button/>', {
                     type: 'button',
-                    class: 'btn btn-info col-xs-1',
+                    class: 'btn btn-info',
                     value: questionIds[i],
                     text: (i + 1),
                     click: function () {
-                        var prevButton = $('#questions > button.btn-primary');
+                        var prevButton = $('#questions > div > button.btn-primary');
                         if (!prevButton.hasClass('btn-success') && !prevButton.hasClass('btn-danger'))
                             prevButton.addClass('btn-info');
 
@@ -214,21 +219,17 @@
                         $(this).addClass('btn-primary');
                         getQuestion($(this).attr('value'));
                     }
-                }).appendTo('div#questions');
+                })
+                $('<div/>', { class: 'col-xs-1'}).append(button).appendTo('div#questions');
             }
             $('#questions > button:first-child').addClass('btn-primary');
         }  
         function ConfigureForTheFirstQuestion(question)
         {
-            $("#questionForm").show(); 
-            $("#startTestElem").remove();
-            $("#questionText").append("<h1></h1>");
+            $('#questionBlock').show(); 
+            $('#startTestElem').remove();
+            $('#questionText').append('<h1></h1>');
             appendQuestion(question);
-            var buttonsRow = $('<div/>', { class: 'row' });
-            $('<button/>', { text: 'Prev question', id: 'prevQuestionButton', class: 'btn btn-primary col-xs-2', click: getPrevQuestion }).appendTo(buttonsRow);
-            $('<button/>', { text: 'Check answer', id: 'answerButton', class: 'btn btn-success col-xs-offset-3 col-xs-2', click: CheckAnswer }).appendTo(buttonsRow);
-            $('<button/>', { text: 'Next question', id: 'nextQuestionButton', class: 'btn btn-primary col-xs-offset-3 col-xs-2', click: getNextQuestion }).appendTo(buttonsRow);
-            buttonsRow.insertAfter("#testQuestionFieldSet");
         }
         function appendQuestion(question) {
             $('#testQuestionFieldSet div').remove();
@@ -255,7 +256,7 @@
             questionAnswers.forEach(function (element) {
                     $("input[type=checkbox][value='" + element + "']").closest('div').css('color', 'green');
             });
-            var navButton = $('button[value="' + $("#testQuestionFieldSet").data("id") + '"]');
+            var navButton = $('button[value="' + $('#testQuestionFieldSet').data('id') + '"]');
             navButton.removeClass('btn-info');
             var div = $('<div/>', { id: 'answerMessage', class: 'text-center text-primary col-xs-offset-3 col-xs-2' });
             if (isAllCorrect(questionAnswers, userAnswers)) {
@@ -286,6 +287,7 @@
             return true;
         }
         $('#startButton').on('click', startTest);
+        $("#questionBlock").hide();
     </script>
 }
 

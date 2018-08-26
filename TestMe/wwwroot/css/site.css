@@ -47,3 +47,9 @@ body {
 #questionBlock {
     min-height: 700px;
 }
+#questions{
+    margin-top: 50px;
+}
+#questions > div > button{
+    width: 100%;
+}
