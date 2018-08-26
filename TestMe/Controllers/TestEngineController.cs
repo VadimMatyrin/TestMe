@@ -27,11 +27,38 @@ namespace TestMe.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
+            if(User.Identity.IsAuthenticated)
+                HttpContext.Session.SetString("userName", User.Identity.Name);
+
             HttpContext.Session.SetString("testCode", code);
             HttpContext.Session.SetString("correctlyAnswered", "");
             return View(test);
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SetUserName(string userName)
+        {
+            if (!(HttpContext.Session.GetString("userName") is null))
+                return Json("success");
 
+           if (userName is null)
+                    return Json("error");
+
+            HttpContext.Session.SetString("userName", userName);
+
+            return Json("success");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult GetUserName()
+        {
+            var userName = HttpContext.Session.GetString("userName");
+
+            if (userName is null)
+                throw new Exception("No user matching user was found");
+
+            return Json(userName);
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> StartTest()
