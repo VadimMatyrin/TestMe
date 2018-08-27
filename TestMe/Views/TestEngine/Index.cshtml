@@ -22,6 +22,7 @@
             <button id="prevQuestionButton" class="btn btn-primary col-md-offset-0 col-md-2 col-xs-8 col-xs-offset-2" onclick="getPrevQuestion()">Prev question</button>
             <button id="answerButton" class="btn btn-success col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2" onclick="CheckAnswer()">Check answer</button>
             <button id="nextQuestionButton" class="btn btn-primary col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2" onclick="getNextQuestion()">Next question</button>
+            <button id="finishTest" class="btn btn-primary col-md-offset-5 col-md-2 col-xs-8 col-xs-offset-2" onclick="finishTest()">Finish test</button>
         </div>
         <div id="questions" class="row">
 
@@ -33,12 +34,12 @@
     <div id="backGround">
 
     </div>
-    <div id="userName">
+    <form id="userName">
         @Html.AntiForgeryToken()
         <div id="userNameLabel" class="text-center"><label for="userNameField">Enter your name</label></div>
-        <input type="text" id="userNameField" class="form-control">
+        <input type="text" id="userNameField" class="form-control" pattern="[A-Za-z]{3}">
         <button type="button" id="userNameButton" class="btn btn-primary center-block" onclick="setUserName()">Confirm</button>
-    </div>
+    </form>
 
 }
 
@@ -298,6 +299,26 @@
             }
 
             return true;
+        }
+        function finishTest() {
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            var dataWithAntiforgeryToken = { '__RequestVerificationToken': token };
+
+            $.ajax({
+                url: "/TestEngine/FinishTest",
+                type: "POST",
+                data: dataWithAntiforgeryToken,
+                success: function (data) {
+                    showResult(data);
+                },
+                error: function () {
+                    //$("#questionForm").empty();
+                }
+            });
+        }
+        function showResult(score) {
+            $('#questionBlock').remove();
+            $('.container-fluid').append('<h1>' + score + '</h1>');
         }
         //$('#startButton').on('click', startTest);
         $("#questionBlock").hide();

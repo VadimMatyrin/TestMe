@@ -23,5 +23,7 @@ namespace TestMe.Models
         public AppUser AppUser { get; set; }
         [JsonIgnore]
         public virtual ICollection<TestQuestion> TestQuestions { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<TestResult> TestResults { get; set; }
     }
 }

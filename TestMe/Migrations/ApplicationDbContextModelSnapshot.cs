@@ -262,6 +262,25 @@ namespace TestMe.Migrations
                     b.ToTable("TestQuestions");
                 });
 
+            modelBuilder.Entity("TestMe.Models.TestResult", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Score");
+
+                    b.Property<int>("TestId");
+
+                    b.Property<string>("Username");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TestId");
+
+                    b.ToTable("TestResults");
+                });
+
             modelBuilder.Entity("TestMe.Models.AppUser", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
@@ -347,6 +366,14 @@ namespace TestMe.Migrations
 
                     b.HasOne("TestMe.Models.Test", "Test")
                         .WithMany("TestQuestions")
+                        .HasForeignKey("TestId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TestMe.Models.TestResult", b =>
+                {
+                    b.HasOne("TestMe.Models.Test")
+                        .WithMany("TestResults")
                         .HasForeignKey("TestId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

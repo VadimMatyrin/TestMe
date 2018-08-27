@@ -85,3 +85,6 @@ body {
     background-color: grey;
     opacity: 0.5;
 }
+#navButtons button{
+    margin-top: 15px;
+}

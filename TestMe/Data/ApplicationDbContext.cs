@@ -14,6 +14,7 @@ namespace TestMe.Data
         public DbSet<Test> Tests { get; set; }
         public DbSet<TestQuestion> TestQuestions { get; set; }
         public DbSet<TestAnswer> TestAnswers { get; set; }
+        public DbSet<TestResult> TestResults { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

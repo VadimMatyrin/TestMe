@@ -84,7 +84,7 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetIfAlreadyAnswered(int? questionId)
+        public IActionResult GetIfAlreadyAnswered(int? questionId)
         {
             if (questionId is null)
                 throw new QuestionNotFoundException();
@@ -266,6 +266,35 @@ namespace TestMe.Controllers
                 throw new QuestionNotFoundException();
 
             return Json(question);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FinishTest()
+        {
+            var username = HttpContext.Session.GetString("userName");
+            if (HttpContext.Session.GetString("userName") is null)
+                throw new UserNameNotFoundException();
+
+            var alreadyCorrectlyAnsweredStr = HttpContext.Session.GetString("correctlyAnswered");
+            var alreadyCorrectlyAnswered = JsonConvert.DeserializeObject<List<int>>(alreadyCorrectlyAnsweredStr);
+            int score;
+            if (alreadyCorrectlyAnswered is null)
+                score = 0;
+            else
+                score = alreadyCorrectlyAnswered.Count();
+
+            var code = HttpContext.Session.GetString("testCode");
+            if (code is null)
+                throw new TestNotFoundException();
+
+            var test = await GetTestAsync(code);
+            if (test is null)
+                throw new TestNotFoundException(code);
+
+            var testResult = new TestResult { Username = username, Score = score, TestId = test.Id };
+            await _context.AddAsync(testResult);
+            await _context.SaveChangesAsync();
+            return Json(score);
         }
         private async Task<Test> GetTestAsync(string code)
         {
