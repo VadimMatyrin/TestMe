@@ -34,12 +34,12 @@
     <div id="backGround">
 
     </div>
-    <form id="userName">
+    <div id="userName">
         @Html.AntiForgeryToken()
         <div id="userNameLabel" class="text-center"><label for="userNameField">Enter your name</label></div>
         <input type="text" id="userNameField" class="form-control">
         <button type="button" id="userNameButton" class="btn btn-primary center-block" onclick="setUserName()">Confirm</button>
-    </form>
+    </div>
 
 }
 
