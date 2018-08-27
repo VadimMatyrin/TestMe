@@ -7,11 +7,19 @@
 @if (SignInManager.IsSignedIn(User))
 {
     var user = UserManager.FindByNameAsync(User.Identity.Name).GetAwaiter().GetResult();
-
+    string username;
+    if (user.Name is null)
+    {
+        username = user.UserName;
+    }
+    else
+    {
+        username = user.Name;
+    }
     <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" id="logoutForm" class="navbar-right">
         <ul class="nav navbar-nav navbar-right">
             <li>
-                <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @user.Name!</a>
+                <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @username!</a>
             </li>
             <li>
                 <button type="submit" class="btn btn-link navbar-btn navbar-link">Logout</button>

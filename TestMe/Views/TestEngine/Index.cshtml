@@ -2,7 +2,7 @@
 @{
 
 }
-<div class="container-fluid">
+<div id="mainContainer" class="container-fluid">
     <div id="startTestElem" class="row">
         @Html.AntiForgeryToken()
         <h1 class="text-center col-md-12">@Model.TestName</h1>
@@ -37,7 +37,7 @@
     <form id="userName">
         @Html.AntiForgeryToken()
         <div id="userNameLabel" class="text-center"><label for="userNameField">Enter your name</label></div>
-        <input type="text" id="userNameField" class="form-control" pattern="[A-Za-z]{3}">
+        <input type="text" id="userNameField" class="form-control">
         <button type="button" id="userNameButton" class="btn btn-primary center-block" onclick="setUserName()">Confirm</button>
     </form>
 
@@ -217,6 +217,7 @@
             });
         }
         function displayQuestionNav(questionIds) {
+            $('#mainContainer').data('questAmount', questionIds.length);
             for (let i = 0; i < questionIds.length; i++) {
                 let button = $('<button/>', {
                     type: 'button',
@@ -318,7 +319,7 @@
         }
         function showResult(score) {
             $('#questionBlock').remove();
-            $('.container-fluid').append('<h1>' + score + '</h1>');
+            $('#mainContainer').append('<h1> Your score: ' + score + 'out of ' + $('#mainContainer').data('questAmount') + '</h1>');
         }
         //$('#startButton').on('click', startTest);
         $("#questionBlock").hide();
