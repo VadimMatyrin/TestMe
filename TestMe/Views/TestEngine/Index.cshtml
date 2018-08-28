@@ -19,10 +19,24 @@
             </legend>
         </fieldset>
         <div id="navButtons" class="row">
-            <button id="prevQuestionButton" class="btn btn-primary col-md-offset-0 col-md-2 col-xs-8 col-xs-offset-2" onclick="getPrevQuestion()">Prev question</button>
-            <button id="answerButton" class="btn btn-success col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2" onclick="CheckAnswer()">Check answer</button>
-            <button id="nextQuestionButton" class="btn btn-primary col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2" onclick="getNextQuestion()">Next question</button>
-            <button id="finishTest" class="btn btn-primary col-md-offset-5 col-md-2 col-xs-8 col-xs-offset-2" onclick="finishTest()">Finish test</button>
+            <button id="prevQuestionButton" class="btn btn-primary col-md-offset-0 col-md-2 col-xs-8 col-xs-offset-2" onclick="prevButtonClick()">Prev question</button>
+            <button id="answerButton" class="btn btn-success col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2" onclick="checkAnswerClick()">Check answer</button>
+            <button id="nextQuestionButton" class="btn btn-primary col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2" onclick="nextButtonClick()">Next question</button>
+            <button id="finishTest" class="btn btn-primary col-md-offset-5 col-md-2 col-xs-8 col-xs-offset-2" data-toggle="modal" data-target="#exampleModal">Finish test</button>
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <h3>Are you sure?</h3>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="finishTestButton()">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div id="questions" class="row">
 
@@ -38,7 +52,8 @@
         @Html.AntiForgeryToken()
         <div id="userNameLabel" class="text-center"><label for="userNameField">Enter your name</label></div>
         <input type="text" id="userNameField" class="form-control">
-        <button type="button" id="userNameButton" class="btn btn-primary center-block" onclick="setUserName()">Confirm</button>
+        <div class="errorMessage">&nbsp;<br>&nbsp;</div>
+        <button type="button" id="userNameButton" class="btn btn-primary center-block" onclick="userNameButton()">Confirm</button>
     </div>
 
 }
@@ -46,6 +61,23 @@
 
 @section Scripts{
     <script type="text/javascript">
+        function finishTestButton() {
+            $('#exampleModal').modal('toggle');
+            $('#exampleModal').on('hidden.bs.modal', function (e) {
+                finishTest();
+            })
+        }
+        function userNameButton() {
+            var userName = $('#userName > input[type="text"]').val();
+            if (userName.length < 3)
+            {
+                $('.errorMessage').empty();
+                $('.errorMessage').append('Username must be at least<br> 3 characters long');
+            }
+            else {
+                setUserName();
+            }
+        }
         function setUserName() {
             var token = $('input[name="__RequestVerificationToken"]', $('#startTestElem')).val();
             var myData = { userName: $("#userName > #userNameField").val() };
@@ -96,6 +128,23 @@
                     //$("#questionForm").empty();
                 }
             });
+        }
+        function checkAnswerClick() {
+            if ($('input[name="answer"]:checked').length == 0)
+                return;
+            CheckAnswer();
+        }
+        function prevButtonClick() {
+            var questionId = $("#testQuestionFieldSet").data("id");
+            if ($('#questions button').first().val() == questionId)
+                return;
+            getPrevQuestion();
+        }
+        function nextButtonClick() {
+            var questionId = $("#testQuestionFieldSet").data("id");
+            if ($('#questions button').last().val() == questionId)
+                return;
+            getNextQuestion();
         }
         function CheckAnswer(questionId, checkedArray) {
             var token = $('input[name="__RequestVerificationToken"]', $('#questionBlock')).val();
@@ -194,7 +243,7 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    if (data != "notAnswered")
+                    if (data !== "notAnswered")
                         CheckAnswer(questionAnswers, data);
                 },
                 error: function () {
@@ -334,7 +383,6 @@
             $('#questionBlock').remove();
             $('#mainContainer').append('<h1> Your score: ' + score + ' out of ' + $('#mainContainer').data('questAmount') + '</h1>');
         }
-        //$('#startButton').on('click', startTest);
         $("#questionBlock").hide();
     </script>
 }

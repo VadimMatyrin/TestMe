@@ -56,10 +56,10 @@ body {
 #userName {
     position: fixed;
     z-index: 10001;
-    width: 300px;
-    height: 150px;
-    left: calc(50% - 150px);
-    top: calc(50% - 75px);
+    width: 280px;
+    height: 170px;
+    left: calc(50% - 140px);
+    top: calc(50% - 85px);
     background-color: white;
     border-radius: 20px;
 }
@@ -72,9 +72,9 @@ body {
 #userNameLabel{
     margin-top: 10px;
 }
-#userNameButton {
+/*#userNameButton {
     margin-top: 20px;
-}
+}*/
 #backGround {
     z-index: 10;
     top: 0;
@@ -87,4 +87,8 @@ body {
 }
 #navButtons button{
     margin-top: 15px;
+}
+.errorMessage{
+    color: red;
+    text-align:center;
 }
