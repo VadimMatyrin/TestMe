@@ -44,13 +44,14 @@ namespace TestMe.Controllers
 
             var test = await _context.Tests
                 .Include(t => t.AppUser)
-                .Include(t=> t.TestResults)
+                .Include(t => t.TestQuestions)
+                .Include(t => t.TestResults)
                 .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
             }
-
+            ViewBag.QuestionAmount = test.TestQuestions.Count();
             return View(test.TestResults);
         }
         public async Task<IActionResult> StopSharing(int? id)

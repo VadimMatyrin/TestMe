@@ -16,6 +16,9 @@
         @Html.AntiForgeryToken()
         <fieldset id="testQuestionFieldSet" class="col-md-12">
             <legend id="questionText">
+                <h1 class="col-xs-12 col-md-6"></h1>
+                <h2 id="timer" class="col-xs-12 col-md-6"></h2>
+                <h5 class="colx-xs-12 col-md-12"></h5>
             </legend>
         </fieldset>
         <div id="navButtons" class="row">
@@ -104,7 +107,8 @@
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    $('<h5/>', { text: 'Username: ' + data }).insertAfter('#questionText > h1');
+                    $('#questionText h5').text('Username: ' + data);
+                    //$('<h5/>', { text: 'Username: ' + data }).insertAfter('#questionText > h1');
                 },
                 error: function () {
                     //$("#questionForm").empty();
@@ -267,6 +271,22 @@
                 }
             });
         }
+        function getEndTime() {
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            var dataWithAntiforgeryToken = { '__RequestVerificationToken': token };
+
+            $.ajax({
+                url: "/TestEngine/GetEndTime",
+                type: "POST",
+                data: dataWithAntiforgeryToken,
+                success: function (data) {
+                    startTimer(data);
+                },
+                error: function () {
+                    //$("#questionForm").empty();
+                }
+            });
+        }
         function changeSelectedBitton(questionId) {
             var prevButton = $('#questions > div > button.btn-primary');
             if (!prevButton.hasClass('btn-success') && !prevButton.hasClass('btn-danger'))
@@ -304,9 +324,9 @@
         function ConfigureForTheFirstQuestion(question) {
             $('#questionBlock').show();
             $('#startTestElem').remove();
-            $('#questionText').append('<h1></h1>');
             appendQuestion(question);
             getUserName();
+            getEndTime();
         }
         function appendQuestion(question) {
             $('#testQuestionFieldSet div').remove();
@@ -382,6 +402,34 @@
         function showResult(score) {
             $('#questionBlock').remove();
             $('#mainContainer').append('<h1> Your score: ' + score + ' out of ' + $('#mainContainer').data('questAmount') + '</h1>');
+        }
+        function startTimer(date) {
+            var countDownDate = new Date(date).getTime();
+
+            // Update the count down every 1 second
+            var x = setInterval(function () {
+
+                // Get todays date and time
+                var now = new Date().getTime();
+
+                // Find the distance between now and the count down date
+                var distance = countDownDate - now;
+
+                // Time calculations for days, hours, minutes and seconds
+                //var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                // Display the result in the element with id="demo"
+                $('#timer').text(hours + ":"
+                    + minutes + ":" + seconds + "s ");
+
+                // If the count down is finished, write some text 
+                if (distance <= 500) {
+                    finishTest();
+                }
+            }, 1000);
         }
         $("#questionBlock").hide();
     </script>

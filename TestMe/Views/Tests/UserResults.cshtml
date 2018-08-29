@@ -24,14 +24,16 @@
             <th>
                 @Html.DisplayNameFor(model => model.FinishTime)
             </th>
-            <th></th>
+            <th>
+                Test time
+            </th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Score)
+                <strong>@Html.DisplayFor(modelItem => item.Score)</strong> / @ViewBag.QuestionAmount
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Username)
@@ -43,9 +45,7 @@
                 @Html.DisplayFor(modelItem => item.FinishTime)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                @((item.FinishTime-item.StartTime).Duration())
             </td>
         </tr>
 }
