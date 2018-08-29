@@ -19,6 +19,7 @@ namespace TestMe.Models
         [JsonIgnore]
         public string AppUserId { get; set; }
         public string TestCode { get; set; }
+        public TimeSpan TestDuration {get;set;}
         [JsonIgnore]
         public AppUser AppUser { get; set; }
         [JsonIgnore]
