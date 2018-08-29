@@ -35,3 +35,60 @@ body {
         display: none;
     }
 }
+.isCorrectText{
+    margin: 0;
+}
+.incorrectAnsw{
+    color: red;
+}
+.correctAnsw{
+    color: green;
+}
+#questionBlock {
+    min-height: 700px;
+}
+#questions{
+    margin-top: 50px;
+}
+#questions > div > button{
+    width: 100%;
+}
+#userName {
+    position: fixed;
+    z-index: 10001;
+    width: 280px;
+    height: 170px;
+    left: calc(50% - 140px);
+    top: calc(50% - 85px);
+    background-color: white;
+    border-radius: 20px;
+}
+#userNameField {
+    display: block;
+    width: 80%;
+    margin: auto;
+    margin-top: 5px;
+}
+#userNameLabel{
+    margin-top: 10px;
+}
+/*#userNameButton {
+    margin-top: 20px;
+}*/
+#backGround {
+    z-index: 10;
+    top: 0;
+    left: 0;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: grey;
+    opacity: 0.5;
+}
+#navButtons button{
+    margin-top: 15px;
+}
+.errorMessage{
+    color: red;
+    text-align:center;
+}

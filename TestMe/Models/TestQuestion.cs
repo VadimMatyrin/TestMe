@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,9 +13,12 @@ namespace TestMe.Models
         [Required]
         [StringLength(1000)]
         public string QuestionText { get; set; }
+        [JsonIgnore]
         public int TestId { get; set; }
         public Test Test { get; set; }
+        [JsonIgnore]
         public string AppUserId { get; set; }
+        [JsonIgnore]
         public AppUser AppUser { get; set; }
         public ICollection<TestAnswer> TestAnswers { get; set; }
     }

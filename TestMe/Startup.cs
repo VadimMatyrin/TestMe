@@ -13,6 +13,7 @@ using TestMe.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TestMe.Models;
+using TestMe.Middleware;
 
 namespace TestMe
 {
@@ -41,7 +42,16 @@ namespace TestMe
             services.AddDefaultIdentity<AppUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddDistributedMemoryCache();
+            services.AddSession(options => 
+            {
+                options.IdleTimeout = TimeSpan.FromHours(3);
+            });
+
+            services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+                .AddJsonOptions(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,12 +73,18 @@ namespace TestMe
             app.UseCookiePolicy();
 
             app.UseAuthentication();
-
+            app.UseSession();
+            app.UseMiddleware(typeof(ErrorHandlingMiddleware));
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+
+                routes.MapRoute(
+                    name: "TestEngine",
+                    template: "{code}",
+                    defaults: new { controller = "TestEngine", action = "Index" });
             });
         }
     }

@@ -14,6 +14,7 @@ namespace TestMe.Data
         public DbSet<Test> Tests { get; set; }
         public DbSet<TestQuestion> TestQuestions { get; set; }
         public DbSet<TestAnswer> TestAnswers { get; set; }
+        public DbSet<TestResult> TestResults { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -23,6 +24,13 @@ namespace TestMe.Data
             modelBuilder.Entity<Test>()
                 .Property(t => t.CreationDate)
                 .HasDefaultValueSql("getdate()");
+
+            modelBuilder.Entity<Test>().HasMany(t => t.TestQuestions).WithOne(t => t.Test);
+            modelBuilder.Entity<TestQuestion>().HasMany(t => t.TestAnswers).WithOne(t => t.TestQuestion);
+
+            //modelBuilder.Entity<Test>()
+            //    .HasAlternateKey(t => t.TestCode);
+
             base.OnModelCreating(modelBuilder);
         }
     }

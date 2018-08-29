@@ -23,11 +23,26 @@
             @Html.DisplayFor(model => model.CreationDate)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.AppUser)
+            Question amount
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.AppUser.Id)
+            @Model.TestQuestions.Count
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TestDuration)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TestDuration)
+        </dd>
+        @if (!(Model.TestCode is null))
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.TestCode)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.TestCode)
+            </dd>
+        }
     </dl>
 </div>
 <div>

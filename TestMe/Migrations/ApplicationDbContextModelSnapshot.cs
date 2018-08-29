@@ -201,6 +201,10 @@ namespace TestMe.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("getdate()");
 
+                    b.Property<string>("TestCode");
+
+                    b.Property<TimeSpan>("TestDuration");
+
                     b.Property<string>("TestName")
                         .IsRequired()
                         .HasMaxLength(200);
@@ -258,6 +262,30 @@ namespace TestMe.Migrations
                     b.HasIndex("TestId");
 
                     b.ToTable("TestQuestions");
+                });
+
+            modelBuilder.Entity("TestMe.Models.TestResult", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("FinishTime");
+
+                    b.Property<int>("Score");
+
+                    b.Property<DateTime>("StartTime");
+
+                    b.Property<int>("TestId");
+
+                    b.Property<string>("Username")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TestId");
+
+                    b.ToTable("TestResults");
                 });
 
             modelBuilder.Entity("TestMe.Models.AppUser", b =>
@@ -345,6 +373,14 @@ namespace TestMe.Migrations
 
                     b.HasOne("TestMe.Models.Test", "Test")
                         .WithMany("TestQuestions")
+                        .HasForeignKey("TestId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TestMe.Models.TestResult", b =>
+                {
+                    b.HasOne("TestMe.Models.Test")
+                        .WithMany("TestResults")
                         .HasForeignKey("TestId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
