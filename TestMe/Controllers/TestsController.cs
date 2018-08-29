@@ -35,6 +35,59 @@ namespace TestMe.Controllers
 
             return View(await applicationDbContext.ToListAsync());
         }
+        public async Task<IActionResult> UserResults(int? id)
+        {
+            if (id == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var test = await _context.Tests
+                .Include(t => t.AppUser)
+                .Include(t => t.TestQuestions)
+                .Include(t => t.TestResults)
+                .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
+            if (test == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            ViewBag.QuestionAmount = test.TestQuestions.Count();
+            return View(test.TestResults);
+        }
+        public async Task<IActionResult> StopSharing(int? id)
+        {
+            if (id == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var test = await _context.Tests
+                .Include(t => t.AppUser)
+                .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
+            if (test == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            try
+            {
+                test.TestCode = null;
+                _context.Update(test);
+                _context.Entry<Test>(test).Property(x => x.TestDuration).IsModified = false;
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                if (!TestExists(test.Id))
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));
+        }
         public async Task<IActionResult> CreateCode(int? id)
         {
             if (id == null)
@@ -77,7 +130,7 @@ namespace TestMe.Controllers
             }
             return View("CreateCode", test.TestCode);
         }
-        public static string RandomString(int length)
+        private string RandomString(int length)
         {
              Random random = new Random();
              const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -94,6 +147,7 @@ namespace TestMe.Controllers
 
             var test = await _context.Tests
                 .Include(t => t.AppUser)
+                .Include(t=> t.TestQuestions)
                 .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
             if (test == null)
             {
@@ -151,7 +205,7 @@ namespace TestMe.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,TestName,CreationDate")] Test test)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,TestName,CreationDate, TestDuration")] Test test)
         {
             if (id != test.Id)
             {

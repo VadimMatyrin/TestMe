@@ -21,8 +21,7 @@
             <th>
                 Actions
             </th>
-            <th></th>
-        </tr>
+            </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
@@ -34,11 +33,20 @@
                 @Html.DisplayFor(modelItem => item.CreationDate)
             </td>
             <td>
-                <a asp-action="Create" asp-controller="TestQuestions" asp-route-id="@item.Id">Add new question</a> |
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
-                <a asp-action="CreateCode" asp-route-id="@item.Id">Share your test</a>
+                @if (item.TestCode is null)
+                {
+                    <a asp-action="Create" asp-controller="TestQuestions" asp-route-id="@item.Id">Add new question</a><span> |</span>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a><span> |</span>
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a><span> |</span>
+                    <a asp-action="CreateCode" asp-route-id="@item.Id">Share your test</a><span> |</span>
+                }
+                else
+                {
+                    <a asp-action="StopSharing" asp-route-id="@item.Id">Stop sharing </a><span> |</span>
+                    <a asp-action="UserResults" asp-route-id="@item.Id">User results </a><span> |</span>
+                }
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+
             </td>
         </tr>
 }

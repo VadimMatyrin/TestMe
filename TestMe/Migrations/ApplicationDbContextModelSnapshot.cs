@@ -203,6 +203,8 @@ namespace TestMe.Migrations
 
                     b.Property<string>("TestCode");
 
+                    b.Property<TimeSpan>("TestDuration");
+
                     b.Property<string>("TestName")
                         .IsRequired()
                         .HasMaxLength(200);
