@@ -43,8 +43,8 @@
                 else
                 {
                     <a asp-action="StopSharing" asp-route-id="@item.Id">Stop sharing </a><span> |</span>
-                    <a asp-action="UserResults" asp-route-id="@item.Id">User results </a><span> |</span>
                 }
+                <a asp-action="UserResults" asp-route-id="@item.Id">User results </a><span> |</span>
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a>
 
             </td>

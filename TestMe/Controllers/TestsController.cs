@@ -112,6 +112,8 @@ namespace TestMe.Controllers
                         throw;
                     }
                 }
+                var testResult = _testingPlatform.TestResultManager.GetAll().Where(tr => tr.TestId == test.Id);
+                await _testingPlatform.TestResultManager.DeleteRangeAsync(testResult);
                 return View("CreateCode", generatedCode);
             }
             return View("CreateCode", test.TestCode);
@@ -136,7 +138,6 @@ namespace TestMe.Controllers
         {
             return View();
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
