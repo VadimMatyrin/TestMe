@@ -24,7 +24,7 @@ namespace TestMe.Controllers
         public async Task<IActionResult> Index(string code)
         {
             HttpContext.Session.Clear();
-            var test = await GetTestAsync(code);
+            var test = await _testingPlatform.TestManager.FindAsync(t => t.TestCode == code);
             if (test is null)
                 throw new TestNotFoundException(code);
 
@@ -100,7 +100,7 @@ namespace TestMe.Controllers
             if (testCode is null)
                 throw new TestNotFoundException();
 
-            var testAnswers = await GetTestAnswersAsync(testCode);
+            var testAnswers = await _testingPlatform.TestAnswerManager.GetAll().Where(t => t.TestQuestion.Test.TestCode == testCode).ToListAsync();
 
             if (testAnswers is null)
                 throw new AnswerNotFoundException();
@@ -150,7 +150,7 @@ namespace TestMe.Controllers
                 throw new UserAnswersException();
 
 
-            var testAnswers = await GetTestAnswersAsync(testCode, questionId);
+            var testAnswers = _testingPlatform.TestAnswerManager.GetAll().Where(t => t.TestQuestion.Test.TestCode == testCode);
 
             if (testAnswers is null)
                 throw new TestNotFoundException(testCode);
@@ -216,7 +216,7 @@ namespace TestMe.Controllers
             if (testCode is null)
                 throw new TestNotFoundException();
 
-            var testAnswers = await GetTestAnswersAsync(testCode);
+            var testAnswers = await _testingPlatform.TestAnswerManager.GetAll().Where(t => t.TestQuestion.Test.TestCode == testCode).ToListAsync();
 
             if (testAnswers is null)
                 throw new AnswerNotFoundException();
@@ -245,7 +245,7 @@ namespace TestMe.Controllers
             if (questionId is null)
                 throw new QuestionNotFoundException();
 
-            var testAnswers = await GetTestAnswersAsync(testCode);
+            var testAnswers = await _testingPlatform.TestAnswerManager.GetAll().Where(t => t.TestQuestion.Test.TestCode == testCode).ToListAsync();
             var nextQuestion = testAnswers.SkipWhile(ta => ta.TestQuestionId != questionId)
                 .SkipWhile(ta => ta.TestQuestionId == questionId)
                 .FirstOrDefault()?
@@ -269,8 +269,8 @@ namespace TestMe.Controllers
             if (questionId is null)
                 throw new QuestionNotFoundException();
 
-            var testAnswers = await GetTestAnswersAsync(testCode);
-            testAnswers = testAnswers.Reverse();
+            var testAnswers = await _testingPlatform.TestAnswerManager.GetAll().Where(t => t.TestQuestion.Test.TestCode == testCode).ToListAsync();
+            testAnswers.Reverse();
             var prevQuestion = testAnswers.SkipWhile(ta => ta.TestQuestionId != questionId)
                 .SkipWhile(ta => ta.TestQuestionId == questionId)
                 .FirstOrDefault()?
@@ -293,7 +293,7 @@ namespace TestMe.Controllers
             if (questionId is null)
                 throw new QuestionNotFoundException();
 
-            var testAnswers = await GetTestAnswersAsync(testCode);
+            var testAnswers = await _testingPlatform.TestAnswerManager.GetAll().Where(t => t.TestQuestion.Test.TestCode == testCode).ToListAsync();
             var question = testAnswers
                 .FirstOrDefault(ta => ta.TestQuestionId == questionId)?
                 .TestQuestion;
@@ -334,7 +334,7 @@ namespace TestMe.Controllers
             if (code is null)
                 throw new TestNotFoundException();
 
-            var test = await GetTestAsync(code);
+            var test = await _testingPlatform.TestManager.FindAsync(t => t.TestCode == code);
             if (test is null)
                 throw new TestNotFoundException(code);
 
@@ -352,52 +352,7 @@ namespace TestMe.Controllers
             HttpContext.Session.SetString("isFinished", "true");
             var testResult = new TestResult { Username = username, Score = score, TestId = test.Id , StartTime = startTime, FinishTime = endTime };
             await _testingPlatform.TestResultManager.AddAsync(testResult);
-            //await _context.AddAsync(testResult);
-            //await _context.SaveChangesAsync();
             return Json(score);
-        }
-        private async Task<Test> GetTestAsync(string code)
-        {
-            if (code is null)
-                throw new TestNotFoundException();
-
-            var test = await _testingPlatform.TestManager.FindAsync(t => t.TestCode == code); // _context.Tests.Include(t => t.AppUser).Include(t => t.TestQuestions).FirstOrDefaultAsync(t => t.TestCode == code);
-
-            if(test is null)
-                throw new TestNotFoundException();
-
-            return test;
-        }
-        private async Task<IEnumerable<TestAnswer>> GetTestAnswersAsync(string code)
-        {
-            if (code is null)
-                throw new TestNotFoundException();
-
-            var testAnswers = _testingPlatform.TestAnswerManager.GetAll().Where(t => t.TestQuestion.Test.TestCode == code);// _context.TestAnswers.Include(t => t.AppUser).Include(t => t.TestQuestion).ThenInclude(t => t.Test).Where(t => t.TestQuestion.Test.TestCode == code);
-            if (testAnswers is null)
-                throw new AnswerNotFoundException();
-
-            return await testAnswers.ToListAsync();
-        }
-        private async Task<IEnumerable<TestAnswer>> GetTestAnswersAsync(string code, int? questionId)
-        {
-            if (code is null)
-                throw new TestNotFoundException();
-
-            if (questionId is null)
-                throw new QuestionNotFoundException();
-
-            var testAnswers = _testingPlatform.TestAnswerManager.GetAll().Where(t => t.TestQuestion.Test.TestCode == code);
-            //_context.TestAnswers
-            //    .Include(t => t.AppUser)
-            //    .Include(t => t.TestQuestion)
-            //    .ThenInclude(t => t.Test)
-            //    .Where(t => t.TestQuestion.Test.TestCode == code && t.TestQuestionId == questionId);
-
-            if (testAnswers is null)
-                throw new AnswerNotFoundException();
-
-            return await testAnswers.ToListAsync();
         }
     }
 }
