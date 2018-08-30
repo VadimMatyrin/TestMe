@@ -36,14 +36,14 @@ namespace TestMe.Controllers
 
             return View(await applicationDbContext.ToListAsync());
         }
-        public async Task<IActionResult> UserResults(int? id)
+        public IActionResult UserResults(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = await GetTestAsync(id);
+            var test = _testingPlatform.TestManager.GetTest(_userId, id);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -58,7 +58,7 @@ namespace TestMe.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = await GetTestAsync(id);
+            var test = _testingPlatform.TestManager.GetTest(_userId, id);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -70,7 +70,7 @@ namespace TestMe.Controllers
             }
             catch (DbUpdateException)
             {
-                if (GetTestAsync(test.Id) is null)
+                if (_testingPlatform.TestManager.GetTest(_userId, id) is null)
                 {
                     return RedirectToAction(nameof(Index));
                 }
@@ -88,7 +88,7 @@ namespace TestMe.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = await GetTestAsync(id);
+            var test = _testingPlatform.TestManager.GetTest(_userId, id);
                 
             if (test == null)
             {
@@ -100,12 +100,11 @@ namespace TestMe.Controllers
                 try
                 {
                     test.TestCode = generatedCode;
-                   // test.CreationDate = DateTime.Now;
                     await _testingPlatform.TestManager.UpdateAsync(test);
                 }
                 catch (DbUpdateException)
                 {
-                    if (GetTestAsync(test.Id) is null)
+                    if (_testingPlatform.TestManager.GetTest(_userId, id) is null)
                     {
                         return RedirectToAction(nameof(Index));
                     }
@@ -118,14 +117,14 @@ namespace TestMe.Controllers
             }
             return View("CreateCode", test.TestCode);
         }
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Details(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = await GetTestAsync(id);
+            var test = _testingPlatform.TestManager.GetTest(_userId, id);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -158,14 +157,14 @@ namespace TestMe.Controllers
         }
 
         // GET: Tests/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public IActionResult Edit(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = await GetTestAsync(id);
+            var test = _testingPlatform.TestManager.GetTest(_userId, id);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -191,7 +190,7 @@ namespace TestMe.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (GetTestAsync(test.Id) is null)
+                    if (_testingPlatform.TestManager.GetTest(_userId, id) is null)
                     {
                         return RedirectToAction(nameof(Index));
                     }
@@ -230,14 +229,6 @@ namespace TestMe.Controllers
             var test = await _testingPlatform.TestManager.FindAsync(m => m.Id == id && m.AppUserId == _userId);
             await _testingPlatform.TestManager.DeleteAsync(test);
             return RedirectToAction(nameof(Index));
-        }
-
-        private async Task<Test> GetTestAsync(int? id)
-        {
-            if (id is null)
-                throw new ArgumentNullException();
-
-            return await _testingPlatform.TestManager.FindAsync(m => m.Id == id && m.AppUserId == _userId);
         }
     }
 }
