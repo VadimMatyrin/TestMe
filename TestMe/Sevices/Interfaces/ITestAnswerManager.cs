@@ -9,5 +9,6 @@ namespace TestMe.Sevices.Interfaces
 {
     public interface ITestAnswerManager : IRepository<TestAnswer>
     {
+        TestAnswer GetTestAnswer(string userId, int? id);
     }
 }

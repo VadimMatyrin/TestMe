@@ -10,26 +10,26 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TestMe.Data;
 using TestMe.Models;
+using TestMe.Sevices.Interfaces;
 
 namespace TestMe.Controllers
 {
     [Authorize]
     public class TestQuestionsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ITestingPlatform _testingPlatform;
         private readonly UserManager<AppUser> _userManager;
         private string _userId;
-        public TestQuestionsController(ApplicationDbContext context, UserManager<AppUser> userManager)
+        public TestQuestionsController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager)
         {
-            _context = context;
+            _testingPlatform = testingPlatform;
             _userManager = userManager;
         }
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            //Get user id   
             _userId = _userManager.GetUserId(User);
         }
-        // GET: TestQuestions
+
         public async Task<IActionResult> Index(int? id)
         {
             if (id == null)
@@ -37,28 +37,27 @@ namespace TestMe.Controllers
                 return RedirectToAction("Index", "Tests");
             }
 
-            var test = await _context.Tests.FirstOrDefaultAsync(t => t.Id == id && t.AppUserId == _userId);
+            var test = _testingPlatform.TestManager.GetTest(_userId, id);
             if (test == null)
             {
                 return RedirectToAction("Index", "Tests");
             }
             ViewBag.TestId = test.Id;
             ViewBag.TestName = test.TestName;
-            var applicationDbContext = _context.TestQuestions.Include(t => t.Test).Where(t => t.AppUser.Id == _userId && t.TestId == id);
+            var questions = _testingPlatform.TestQuestionManager.GetAll();
+            var applicationDbContext = _testingPlatform.TestQuestionManager.GetAll().Where(t => t.AppUser.Id == _userId && t.TestId == id);
             return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: TestQuestions/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Details(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction("Index", "Tests");
             }
 
-            var testQuestion = await _context.TestQuestions
-                .Include(t => t.Test)
-                .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
+            var testQuestion = _testingPlatform.TestQuestionManager.GetTestQuestion(_userId, id);
             if (testQuestion == null)
             {
                 return RedirectToAction("Index", "Tests");
@@ -67,15 +66,14 @@ namespace TestMe.Controllers
             return View(testQuestion);
         }
 
-        // GET: TestQuestions/Create
-        public async Task<IActionResult> Create(int? id)
+        public IActionResult Create(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction("Index", "Tests");
             }
 
-            var test = await _context.Tests.FirstOrDefaultAsync(t => t.Id == id && t.AppUserId == _userId);
+            var test = _testingPlatform.TestManager.GetTest(_userId, id);
             if (test == null)
             {
                 return RedirectToAction("Index", "Tests");
@@ -85,9 +83,6 @@ namespace TestMe.Controllers
             return View();
         }
 
-        // POST: TestQuestions/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("QuestionText", "TestId")] TestQuestion testQuestion)
@@ -95,15 +90,12 @@ namespace TestMe.Controllers
             if (ModelState.IsValid)
             {
                 testQuestion.AppUserId = _userId;
-                _context.Add(testQuestion);
-                await _context.SaveChangesAsync();
+                await _testingPlatform.TestQuestionManager.AddAsync(testQuestion);
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
             }
-            // ViewData["Tests"] = new SelectList(_context.Tests, "Id", "TestName", testQuestion.TestId);
             return View();
         }
 
-        // GET: TestQuestions/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -111,7 +103,7 @@ namespace TestMe.Controllers
                 return RedirectToAction("Index", "Tests");
             }
 
-            var testQuestion = await _context.TestQuestions.FirstOrDefaultAsync(t => t.Id == id && t.AppUserId == _userId); ;
+            var testQuestion = _testingPlatform.TestQuestionManager.GetTestQuestion(_userId, id);
             if (testQuestion == null)
             {
                 return RedirectToAction("Index", "Tests");
@@ -120,9 +112,6 @@ namespace TestMe.Controllers
             return View(testQuestion);
         }
 
-        // POST: TestQuestions/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,QuestionText,TestId")] TestQuestion testQuestion)
@@ -137,12 +126,11 @@ namespace TestMe.Controllers
                 try
                 {
                     testQuestion.AppUserId = _userId;
-                    _context.Update(testQuestion);
-                    await _context.SaveChangesAsync();
+                    await _testingPlatform.TestQuestionManager.UpdateAsync(testQuestion);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TestQuestionExists(testQuestion.Id))
+                    if (_testingPlatform.TestQuestionManager.GetTestQuestion(_userId, id) is null)
                     {
                         return RedirectToAction("Index", "Tests");
                     }
@@ -156,17 +144,14 @@ namespace TestMe.Controllers
             return View(testQuestion);
         }
 
-        // GET: TestQuestions/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public IActionResult Delete(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction("Index", "Tests");
             }
 
-            var testQuestion = await _context.TestQuestions
-                .Include(t => t.Test)
-                .FirstOrDefaultAsync(m => m.Id == id && m.AppUserId == _userId);
+            var testQuestion = _testingPlatform.TestQuestionManager.GetTestQuestion(_userId, id);
             if (testQuestion == null)
             {
                 return RedirectToAction("Index", "Tests");
@@ -175,21 +160,15 @@ namespace TestMe.Controllers
             return View(testQuestion);
         }
 
-        // POST: TestQuestions/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var testQuestion = await _context.TestQuestions.FindAsync(id);
+            var testQuestion = _testingPlatform.TestQuestionManager.GetTestQuestion(_userId, id);
             var testId = testQuestion.TestId;
-            _context.TestQuestions.Remove(testQuestion);
-            await _context.SaveChangesAsync();
+            await _testingPlatform.TestQuestionManager.DeleteAsync(testQuestion);
             return RedirectToAction(nameof(Index), new { id = testId });
         }
 
-        private bool TestQuestionExists(int id)
-        {
-            return _context.TestQuestions.Any(e => e.Id == id);
-        }
     }
 }

@@ -43,7 +43,7 @@ namespace TestMe.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = await GetTest(id);
+            var test = await GetTestAsync(id);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -58,7 +58,7 @@ namespace TestMe.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = await GetTest(id);
+            var test = await GetTestAsync(id);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -70,7 +70,7 @@ namespace TestMe.Controllers
             }
             catch (DbUpdateException)
             {
-                if (GetTest(test.Id) is null)
+                if (GetTestAsync(test.Id) is null)
                 {
                     return RedirectToAction(nameof(Index));
                 }
@@ -88,7 +88,7 @@ namespace TestMe.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = await GetTest(id);
+            var test = await GetTestAsync(id);
                 
             if (test == null)
             {
@@ -105,7 +105,7 @@ namespace TestMe.Controllers
                 }
                 catch (DbUpdateException)
                 {
-                    if (GetTest(test.Id) is null)
+                    if (GetTestAsync(test.Id) is null)
                     {
                         return RedirectToAction(nameof(Index));
                     }
@@ -125,7 +125,7 @@ namespace TestMe.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = await GetTest(id);
+            var test = await GetTestAsync(id);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -165,7 +165,7 @@ namespace TestMe.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = await GetTest(id);
+            var test = await GetTestAsync(id);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -191,7 +191,7 @@ namespace TestMe.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (GetTest(test.Id) is null)
+                    if (GetTestAsync(test.Id) is null)
                     {
                         return RedirectToAction(nameof(Index));
                     }
@@ -232,7 +232,7 @@ namespace TestMe.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task<Test> GetTest(int? id)
+        private async Task<Test> GetTestAsync(int? id)
         {
             if (id is null)
                 throw new ArgumentNullException();

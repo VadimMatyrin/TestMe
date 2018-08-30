@@ -22,5 +22,12 @@ namespace TestMe.Sevices
 
         public IQueryable<TestResult> GetAll() => _repository.GetAll();
         public async Task UpdateAsync(TestResult testResult) => await _repository.UpdateAsync(testResult);
+        public TestResult GetTestResult(string userId, int? testId, int? id)
+        {
+            if (userId is null || testId is null || id is null)
+                throw new ArgumentNullException();
+
+            return GetAll().FirstOrDefault(tr => tr.Id == id && tr.TestId == testId && tr.Test.AppUserId == userId);
+        }
     }
 }
