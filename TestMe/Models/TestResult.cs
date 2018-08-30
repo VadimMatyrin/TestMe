@@ -18,7 +18,7 @@ namespace TestMe.Models
         [Required]
         public DateTime FinishTime { get; set; }
         public int TestId { get; set; }
-        public Test Test;
+        public Test Test { get; set; }
         //public string AppUserId { get; set; }
         //public AppUser AppUser { get; set; }
     }
