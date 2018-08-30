@@ -42,7 +42,22 @@
                 }
                 else
                 {
-                    <a asp-action="StopSharing" asp-route-id="@item.Id">Stop sharing </a><span> |</span>
+                    <a data-toggle="modal" data-target="#exampleModal">Stop sharing </a><span> |</span>
+                    //<button id="finishTest" class="btn btn-primary col-md-offset-5 col-md-2 col-xs-8 col-xs-offset-2" data-toggle="modal" data-target="#exampleModal">Finish test</button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <h3>If you stop sharing your test right now, next time you share a test, all it previous results are going to be deleted. Are you sure?</h3>
+                                </div>
+                                <div class="modal-footer">
+                                    <a asp-action="StopSharing" asp-route-id="@item.Id"><button type="button" class="btn btn-primary">Confirm</button></a>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 }
                 <a asp-action="UserResults" asp-route-id="@item.Id">User results </a><span> |</span>
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a>
