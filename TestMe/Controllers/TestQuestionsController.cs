@@ -37,7 +37,7 @@ namespace TestMe.Controllers
                 return RedirectToAction("Index", "Tests");
             }
 
-            var test = _testingPlatform.TestManager.GetTest(_userId, id);
+            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
             if (test == null)
             {
                 return RedirectToAction("Index", "Tests");
@@ -49,15 +49,14 @@ namespace TestMe.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: TestQuestions/Details/5
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> DetailsAsync(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction("Index", "Tests");
             }
 
-            var testQuestion = _testingPlatform.TestQuestionManager.GetTestQuestion(_userId, id);
+            var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             if (testQuestion == null)
             {
                 return RedirectToAction("Index", "Tests");
@@ -66,14 +65,14 @@ namespace TestMe.Controllers
             return View(testQuestion);
         }
 
-        public IActionResult Create(int? id)
+        public async Task<IActionResult> CreateAsync(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction("Index", "Tests");
             }
 
-            var test = _testingPlatform.TestManager.GetTest(_userId, id);
+            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
             if (test == null)
             {
                 return RedirectToAction("Index", "Tests");
@@ -96,14 +95,14 @@ namespace TestMe.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> EditAsync(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction("Index", "Tests");
             }
 
-            var testQuestion = _testingPlatform.TestQuestionManager.GetTestQuestion(_userId, id);
+            var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             if (testQuestion == null)
             {
                 return RedirectToAction("Index", "Tests");
@@ -130,7 +129,7 @@ namespace TestMe.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (_testingPlatform.TestQuestionManager.GetTestQuestion(_userId, id) is null)
+                    if (_testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id) is null)
                     {
                         return RedirectToAction("Index", "Tests");
                     }
@@ -144,14 +143,14 @@ namespace TestMe.Controllers
             return View(testQuestion);
         }
 
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> DeleteAsync(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction("Index", "Tests");
             }
 
-            var testQuestion = _testingPlatform.TestQuestionManager.GetTestQuestion(_userId, id);
+            var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             if (testQuestion == null)
             {
                 return RedirectToAction("Index", "Tests");
@@ -164,7 +163,7 @@ namespace TestMe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var testQuestion = _testingPlatform.TestQuestionManager.GetTestQuestion(_userId, id);
+            var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             var testId = testQuestion.TestId;
             await _testingPlatform.TestQuestionManager.DeleteAsync(testQuestion);
             return RedirectToAction(nameof(Index), new { id = testId });

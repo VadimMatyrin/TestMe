@@ -9,6 +9,6 @@ namespace TestMe.Sevices.Interfaces
 {
     public interface ITestQuestionManager : IRepository<TestQuestion>
     {
-        TestQuestion GetTestQuestion(string userId, int? id);
+        Task<TestQuestion> GetTestQuestionAsync(string userId, int? id);
     }
 }

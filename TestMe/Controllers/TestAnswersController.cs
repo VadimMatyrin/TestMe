@@ -10,26 +10,25 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TestMe.Data;
 using TestMe.Models;
+using TestMe.Sevices.Interfaces;
 
 namespace TestMe.Controllers
 {
     [Authorize]
     public class TestAnswersController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ITestingPlatform _testingPlatform;
         private readonly UserManager<AppUser> _userManager;
         private string _userId;
-        public TestAnswersController(ApplicationDbContext context, UserManager<AppUser> userManager)
+        public TestAnswersController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager)
         {
-            _context = context;
+            _testingPlatform = testingPlatform;
             _userManager = userManager;
         }
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            //Get user id   
             _userId = _userManager.GetUserId(User);
         }
-        // GET: TestAnswers
         public async Task<IActionResult> Index(int? id)
         {
             if (id == null)
@@ -49,7 +48,6 @@ namespace TestMe.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: TestAnswers/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -87,9 +85,6 @@ namespace TestMe.Controllers
             return View();
         }
 
-        // POST: TestAnswers/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("AnswerText,IsCorrect,TestQuestionId")] TestAnswer testAnswer)
@@ -104,7 +99,6 @@ namespace TestMe.Controllers
             return View(testAnswer);
         }
 
-        // GET: TestAnswers/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -123,9 +117,6 @@ namespace TestMe.Controllers
             return View(testAnswer);
         }
 
-        // POST: TestAnswers/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id, AnswerText,IsCorrect,TestQuestionId")] TestAnswer testAnswer)
@@ -159,7 +150,6 @@ namespace TestMe.Controllers
             return View(testAnswer);
         }
 
-        // GET: TestAnswers/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -179,7 +169,6 @@ namespace TestMe.Controllers
             return View(testAnswer);
         }
 
-        // POST: TestAnswers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -190,9 +179,5 @@ namespace TestMe.Controllers
             return RedirectToAction(nameof(Index), new { id = testAnswer.TestQuestionId });
         }
 
-        private bool TestAnswerExists(int id)
-        {
-            return _context.TestAnswers.Any(e => e.Id == id);
-        }
     }
 }

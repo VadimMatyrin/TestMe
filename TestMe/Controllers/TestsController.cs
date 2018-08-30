@@ -29,21 +29,20 @@ namespace TestMe.Controllers
         {
             _userId = _userManager.GetUserId(User);
         }
-        // GET: Tests
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == _userId);
 
             return View(await applicationDbContext.ToListAsync());
         }
-        public IActionResult UserResults(int? id)
+        public async Task<IActionResult> UserResultsAsync(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = _testingPlatform.TestManager.GetTest(_userId, id);
+            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -58,7 +57,7 @@ namespace TestMe.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = _testingPlatform.TestManager.GetTest(_userId, id);
+            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -70,7 +69,7 @@ namespace TestMe.Controllers
             }
             catch (DbUpdateException)
             {
-                if (_testingPlatform.TestManager.GetTest(_userId, id) is null)
+                if (_testingPlatform.TestManager.GetTestAsync(_userId, id) is null)
                 {
                     return RedirectToAction(nameof(Index));
                 }
@@ -88,7 +87,7 @@ namespace TestMe.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = _testingPlatform.TestManager.GetTest(_userId, id);
+            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
                 
             if (test == null)
             {
@@ -104,7 +103,7 @@ namespace TestMe.Controllers
                 }
                 catch (DbUpdateException)
                 {
-                    if (_testingPlatform.TestManager.GetTest(_userId, id) is null)
+                    if (_testingPlatform.TestManager.GetTestAsync(_userId, id) is null)
                     {
                         return RedirectToAction(nameof(Index));
                     }
@@ -117,14 +116,14 @@ namespace TestMe.Controllers
             }
             return View("CreateCode", test.TestCode);
         }
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> DetailsAsync(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = _testingPlatform.TestManager.GetTest(_userId, id);
+            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -156,15 +155,14 @@ namespace TestMe.Controllers
             return View(test);
         }
 
-        // GET: Tests/Edit/5
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> EditAsync(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            var test = _testingPlatform.TestManager.GetTest(_userId, id);
+            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -190,7 +188,7 @@ namespace TestMe.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (_testingPlatform.TestManager.GetTest(_userId, id) is null)
+                    if (_testingPlatform.TestManager.GetTestAsync(_userId, id) is null)
                     {
                         return RedirectToAction(nameof(Index));
                     }
@@ -204,7 +202,6 @@ namespace TestMe.Controllers
             return View(test);
         }
 
-        // GET: Tests/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -221,7 +218,6 @@ namespace TestMe.Controllers
             return View(test);
         }
 
-        // POST: Tests/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
