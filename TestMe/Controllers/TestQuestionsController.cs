@@ -49,7 +49,7 @@ namespace TestMe.Controllers
             return View(testQuestions);
         }
 
-        public async Task<IActionResult> DetailsAsync(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
@@ -65,7 +65,7 @@ namespace TestMe.Controllers
             return View(testQuestion);
         }
 
-        public async Task<IActionResult> CreateAsync(int? id)
+        public async Task<IActionResult> Create(int? id)
         {
             if (id == null)
             {
@@ -95,7 +95,7 @@ namespace TestMe.Controllers
             return View();
         }
 
-        public async Task<IActionResult> EditAsync(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
@@ -143,7 +143,7 @@ namespace TestMe.Controllers
             return View(testQuestion);
         }
 
-        public async Task<IActionResult> DeleteAsync(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
             {

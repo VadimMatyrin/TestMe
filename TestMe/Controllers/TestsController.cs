@@ -35,7 +35,7 @@ namespace TestMe.Controllers
 
             return View(await applicationDbContext.ToListAsync());
         }
-        public async Task<IActionResult> UserResultsAsync(int? id)
+        public async Task<IActionResult> UserResults(int? id)
         {
             if (id == null)
             {
@@ -116,7 +116,7 @@ namespace TestMe.Controllers
             }
             return View("CreateCode", test.TestCode);
         }
-        public async Task<IActionResult> DetailsAsync(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
@@ -155,7 +155,7 @@ namespace TestMe.Controllers
             return View(test);
         }
 
-        public async Task<IActionResult> EditAsync(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {

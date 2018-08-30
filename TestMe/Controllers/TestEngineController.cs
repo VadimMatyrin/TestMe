@@ -10,15 +10,16 @@ using TestMe.Data;
 using TestMe.Models;
 using Newtonsoft.Json;
 using TestMe.Exceptions;
+using TestMe.Sevices.Interfaces;
 
 namespace TestMe.Controllers
 {
     public class TestEngineController : Controller
     {
-        private ApplicationDbContext _context;
-        public TestEngineController(ApplicationDbContext context)
+        private readonly ITestingPlatform _testingPlatform;
+        public TestEngineController(ITestingPlatform testingPlatform)
         {
-            _context = context;
+            _testingPlatform = testingPlatform;
         }
         public async Task<IActionResult> Index(string code)
         {
@@ -110,7 +111,7 @@ namespace TestMe.Controllers
             var currentTime = DateTime.Now;
             var currentTimeSerialized = JsonConvert.SerializeObject(currentTime);
             HttpContext.Session.SetString("startTime", currentTimeSerialized);
-
+                
             var endTime = currentTime + testAnswers.FirstOrDefault().TestQuestion.Test.TestDuration;
             var endTimeSerialized = JsonConvert.SerializeObject(endTime);
             HttpContext.Session.SetString("endTime", endTimeSerialized);
@@ -176,7 +177,7 @@ namespace TestMe.Controllers
             if (checkedIds.Any(checkId => _answers.Count(ta => ta.Id == checkId) == 0))
                 throw new UserAnswersException();
 
-            var question = await _context.TestQuestions.FirstOrDefaultAsync(tq => tq.Id == questionId);
+            var question = await _testingPlatform.TestQuestionManager.FindAsync(tq => tq.Id == questionId);//  _context.TestQuestions.FirstOrDefaultAsync(tq => tq.Id == questionId);
             bool isCorrect = true;
             foreach(var answId in checkedIds)
             {
@@ -350,8 +351,9 @@ namespace TestMe.Controllers
 
             HttpContext.Session.SetString("isFinished", "true");
             var testResult = new TestResult { Username = username, Score = score, TestId = test.Id , StartTime = startTime, FinishTime = endTime };
-            await _context.AddAsync(testResult);
-            await _context.SaveChangesAsync();
+            await _testingPlatform.TestResultManager.AddAsync(testResult);
+            //await _context.AddAsync(testResult);
+            //await _context.SaveChangesAsync();
             return Json(score);
         }
         private async Task<Test> GetTestAsync(string code)
@@ -359,7 +361,7 @@ namespace TestMe.Controllers
             if (code is null)
                 throw new TestNotFoundException();
 
-            var test = await _context.Tests.Include(t => t.AppUser).Include(t => t.TestQuestions).FirstOrDefaultAsync(t => t.TestCode == code);
+            var test = await _testingPlatform.TestManager.FindAsync(t => t.TestCode == code); // _context.Tests.Include(t => t.AppUser).Include(t => t.TestQuestions).FirstOrDefaultAsync(t => t.TestCode == code);
 
             if(test is null)
                 throw new TestNotFoundException();
@@ -371,7 +373,7 @@ namespace TestMe.Controllers
             if (code is null)
                 throw new TestNotFoundException();
 
-            var testAnswers = _context.TestAnswers.Include(t => t.AppUser).Include(t => t.TestQuestion).ThenInclude(t => t.Test).Where(t => t.TestQuestion.Test.TestCode == code);
+            var testAnswers = _testingPlatform.TestAnswerManager.GetAll().Where(t => t.TestQuestion.Test.TestCode == code);// _context.TestAnswers.Include(t => t.AppUser).Include(t => t.TestQuestion).ThenInclude(t => t.Test).Where(t => t.TestQuestion.Test.TestCode == code);
             if (testAnswers is null)
                 throw new AnswerNotFoundException();
 
@@ -385,11 +387,12 @@ namespace TestMe.Controllers
             if (questionId is null)
                 throw new QuestionNotFoundException();
 
-            var testAnswers = _context.TestAnswers
-                .Include(t => t.AppUser)
-                .Include(t => t.TestQuestion)
-                .ThenInclude(t => t.Test)
-                .Where(t => t.TestQuestion.Test.TestCode == code && t.TestQuestionId == questionId);
+            var testAnswers = _testingPlatform.TestAnswerManager.GetAll().Where(t => t.TestQuestion.Test.TestCode == code);
+            //_context.TestAnswers
+            //    .Include(t => t.AppUser)
+            //    .Include(t => t.TestQuestion)
+            //    .ThenInclude(t => t.Test)
+            //    .Where(t => t.TestQuestion.Test.TestCode == code && t.TestQuestionId == questionId);
 
             if (testAnswers is null)
                 throw new AnswerNotFoundException();

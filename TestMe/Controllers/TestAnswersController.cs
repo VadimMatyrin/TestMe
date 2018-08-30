@@ -64,7 +64,6 @@ namespace TestMe.Controllers
             return View(testAnswer);
         }
 
-        // GET: TestAnswers/Create
         public async Task<IActionResult> Create(int? id)
         {
             if (id == null)
