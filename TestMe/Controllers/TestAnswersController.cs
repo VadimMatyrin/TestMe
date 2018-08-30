@@ -36,7 +36,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var testQuestion = await _context.TestQuestions.FindAsync(id);
+            var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             if (testQuestion == null)
             {
                 return NotFound();
@@ -44,8 +44,8 @@ namespace TestMe.Controllers
             ViewBag.TestId = testQuestion.TestId;
             ViewBag.TestQuestionId = testQuestion.Id;
             ViewBag.TestQuestionText = testQuestion.QuestionText;
-            var applicationDbContext = _context.TestAnswers.Include(t => t.AppUser).Include(t => t.TestQuestion).Where(ta => ta.TestQuestionId == id);
-            return View(await applicationDbContext.ToListAsync());
+            var testAnswers = _testingPlatform.TestAnswerManager.GetAll().Where(ta => ta.TestQuestionId == id && ta.AppUserId == _userId);
+            return View(testAnswers);
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -55,10 +55,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var testAnswer = await _context.TestAnswers
-                .Include(t => t.AppUser)
-                .Include(t => t.TestQuestion)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var testAnswer = await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id);
             if (testAnswer == null)
             {
                 return NotFound();
@@ -75,7 +72,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var testQuestion = await _context.TestQuestions.FindAsync(id);
+            var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             if (testQuestion == null)
             {
                 return NotFound();
@@ -92,8 +89,7 @@ namespace TestMe.Controllers
             if (ModelState.IsValid)
             {
                 testAnswer.AppUserId = _userId;
-                _context.Add(testAnswer);
-                await _context.SaveChangesAsync();
+                await _testingPlatform.TestAnswerManager.AddAsync(testAnswer);
                 return RedirectToAction(nameof(Index), new { id = testAnswer.TestQuestionId });
             }
             return View(testAnswer);
@@ -106,8 +102,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var testAnswer = await _context.TestAnswers.Include(t => t.AppUser)
-                .Include(t => t.TestQuestion).FirstOrDefaultAsync(t => t.Id == id);
+            var testAnswer = await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id);
             if (testAnswer == null)
             {
                 return NotFound();
@@ -131,12 +126,11 @@ namespace TestMe.Controllers
                 try
                 {
                     testAnswer.AppUserId = _userId;
-                    _context.Update(testAnswer);
-                    await _context.SaveChangesAsync();
+                    await _testingPlatform.TestAnswerManager.UpdateAsync(testAnswer);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TestAnswerExists(testAnswer.Id))
+                    if (await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id) is null)
                     {
                         return NotFound();
                     }
@@ -157,10 +151,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var testAnswer = await _context.TestAnswers
-                .Include(t => t.AppUser)
-                .Include(t => t.TestQuestion)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var testAnswer = await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id);
             if (testAnswer == null)
             {
                 return NotFound();
@@ -173,9 +164,8 @@ namespace TestMe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var testAnswer = await _context.TestAnswers.FindAsync(id);
-            _context.TestAnswers.Remove(testAnswer);
-            await _context.SaveChangesAsync();
+            var testAnswer = await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id);
+            await _testingPlatform.TestAnswerManager.DeleteAsync(testAnswer);
             return RedirectToAction(nameof(Index), new { id = testAnswer.TestQuestionId });
         }
 

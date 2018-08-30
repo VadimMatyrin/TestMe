@@ -12,6 +12,10 @@ namespace TestMe.Data.Repositories
     public class TestAnswerRepository : IRepository<TestAnswer>
     {
         private readonly ITestingPlatformDbContext _db;
+        public TestAnswerRepository(ITestingPlatformDbContext db)
+        {
+            _db = db;
+        }
         public async Task AddAsync(TestAnswer testAnswer)
         {
             if (testAnswer is null)

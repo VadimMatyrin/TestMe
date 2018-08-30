@@ -45,8 +45,8 @@ namespace TestMe.Controllers
             ViewBag.TestId = test.Id;
             ViewBag.TestName = test.TestName;
             var questions = _testingPlatform.TestQuestionManager.GetAll();
-            var applicationDbContext = _testingPlatform.TestQuestionManager.GetAll().Where(t => t.AppUser.Id == _userId && t.TestId == id);
-            return View(await applicationDbContext.ToListAsync());
+            var testQuestions = _testingPlatform.TestQuestionManager.GetAll().Where(t => t.AppUser.Id == _userId && t.TestId == id);
+            return View(testQuestions);
         }
 
         public async Task<IActionResult> DetailsAsync(int? id)
