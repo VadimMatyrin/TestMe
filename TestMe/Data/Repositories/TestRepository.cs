@@ -61,6 +61,7 @@ namespace TestMe.Data.Repositories
                 throw new ArgumentNullException(nameof(test));
 
             _db.Entry(test).State = EntityState.Modified;
+            _db.Entry<Test>(test).Property(x => x.TestDuration).IsModified = false;
             await _db.SaveChangesAsync();
         }
     }

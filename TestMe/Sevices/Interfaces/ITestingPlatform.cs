@@ -11,5 +11,6 @@ namespace TestMe.Sevices.Interfaces
         ITestQuestionManager TestQuestionManager { get; }
         ITestAnswerManager TestAnswerManager { get; }
         ITestResultManager TestResultManager { get; }
+        IRandomStringGenerator RandomStringGenerator { get; }
     }
 }

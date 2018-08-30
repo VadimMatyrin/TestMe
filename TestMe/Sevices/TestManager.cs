@@ -21,6 +21,6 @@ namespace TestMe.Sevices
         public Task<Test> FindAsync(Predicate<Test> predicate) => _repository.FindAsync(predicate);
 
         public IQueryable<Test> GetAll() => _repository.GetAll();
-        public async Task UpdateAsync(Test test) => await _repository.UpdateAsync(test);
+        public async Task UpdateAsync(Test test) => await _repository.UpdateAsync(test );
     }
 }

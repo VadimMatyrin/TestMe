@@ -12,12 +12,19 @@ namespace TestMe.Sevices
         public ITestQuestionManager TestQuestionManager { get; }
         public ITestAnswerManager TestAnswerManager { get; }
         public ITestResultManager TestResultManager { get; }
-        public TestMe(ITestManager testManager, ITestQuestionManager testQuestionManager, ITestAnswerManager testAnswerManager, ITestResultManager testResultManager)
+        public IRandomStringGenerator RandomStringGenerator { get; }
+
+        public TestMe(ITestManager testManager,
+            ITestQuestionManager testQuestionManager,
+            ITestAnswerManager testAnswerManager,
+            ITestResultManager testResultManager, 
+            IRandomStringGenerator randomStringGenerator)
         {
             TestManager = testManager;
             TestQuestionManager = testQuestionManager;
             TestAnswerManager = testAnswerManager;
             TestResultManager = testResultManager;
+            RandomStringGenerator = randomStringGenerator;
         }
     }
 }

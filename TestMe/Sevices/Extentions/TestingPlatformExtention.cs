@@ -13,10 +13,10 @@ namespace TestMe.Sevices.Extentions
 {
     public static class TestingPlatformExtention
     {
-        public static IServiceCollection AddEWork(this IServiceCollection service) =>
+        public static IServiceCollection AddTestMe(this IServiceCollection service) =>
             service.AddFreelancingPlatformDbContext()
                 .AddRepositories().AddModelManagers()
-                .AddRandomStringGenerator().
+                .AddRandomStringGenerator()
                 .AddScoped<ITestingPlatform, TestMe>();
 
         #region Managers
