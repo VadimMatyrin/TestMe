@@ -7,7 +7,7 @@ using TestMe.Models;
 
 namespace TestMe.Sevices.Interfaces
 {
-    public interface ITestManager : IRepository<Test>
+    public interface ITestQuestionManager : IRepository<TestQuestion>
     {
     }
 }

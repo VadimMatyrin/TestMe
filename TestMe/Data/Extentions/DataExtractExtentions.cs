@@ -35,7 +35,7 @@ namespace TestMe.Data.Extentions
         public static IQueryable<TestResult> ExtractAll(this DbSet<TestResult> dbSet)
         {
             return dbSet
-            .Include(tr => tr.Test)
+            .Include(tr => tr.Test);
         }
     }
 }
