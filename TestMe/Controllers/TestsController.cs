@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Filters;
 using TestMe.Sevices.Interfaces;
+using System.Text;
 
 namespace TestMe.Controllers
 {
@@ -93,6 +94,9 @@ namespace TestMe.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
+            if (HasValidationErrors(test))
+                return RedirectToAction(nameof(ValidateTest), new { id });
+
             if (test.TestCode is null)
             {
                 var generatedCode = _testingPlatform.RandomStringGenerator.RandomString(8);
@@ -133,12 +137,10 @@ namespace TestMe.Controllers
 
             return View(test);
         }
-
         public IActionResult Create()
         {
             return View();
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Test test)
@@ -155,7 +157,6 @@ namespace TestMe.Controllers
             }
             return View(test);
         }
-
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -170,7 +171,6 @@ namespace TestMe.Controllers
             }
             return View(test);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,TestName,CreationDate, TestDuration")] Test test)
@@ -202,7 +202,6 @@ namespace TestMe.Controllers
             }
             return View(test);
         }
-
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -218,7 +217,6 @@ namespace TestMe.Controllers
 
             return View(test);
         }
-
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -226,6 +224,64 @@ namespace TestMe.Controllers
             var test = await _testingPlatform.TestManager.FindAsync(m => m.Id == id && m.AppUserId == _userId);
             await _testingPlatform.TestManager.DeleteAsync(test);
             return RedirectToAction(nameof(Index));
+        }
+        public async Task<IActionResult> ValidateTest(int? id)
+        {
+            if (id is null)
+                return RedirectToAction(nameof(Index));
+            var testQuestions = await _testingPlatform.TestQuestionManager.GetAll().Where(ta => ta.AppUserId == _userId && ta.TestId == id).ToListAsync();
+            var test = testQuestions.FirstOrDefault()?.Test;
+            if (test is null)
+                return RedirectToAction(nameof(Index));
+
+            var errorModelTest = new Test();
+
+            if (test.TestQuestions.Count == 0)
+            {
+                errorModelTest.TestQuestions = new List<TestQuestion>();
+                return View(errorModelTest);
+            }
+
+
+            if (test.TestQuestions.Any(tq => tq.TestAnswers.Count == 0))
+            {
+                errorModelTest.TestQuestions = new List<TestQuestion>();
+                foreach (var testQuestion in test.TestQuestions.Where(tq => tq.TestAnswers.Count == 0))
+                {
+                    errorModelTest.TestQuestions.Add(testQuestion);
+                }
+            }
+
+            if (test.TestQuestions.Any(tq => tq.TestAnswers.All(ta => !ta.IsCorrect)))
+            {
+                errorModelTest.TestQuestions = new List<TestQuestion>();
+                foreach (var testQuestion in test.TestQuestions.Where(tq => tq.TestAnswers.All(ta => !ta.IsCorrect)))
+                {
+                    errorModelTest.TestQuestions.Add(testQuestion);
+                }
+            }
+
+            return View(errorModelTest);
+        }
+        private bool HasValidationErrors(Test test)
+        {
+            if (test is null)
+                return true;
+
+            if (test.TestQuestions.Count == 0)
+            {
+                return true;
+            }
+
+            if (test.TestQuestions.Any(tq => tq.TestAnswers.Count == 0))
+            {
+                return true;
+            }
+            if (test.TestQuestions.Any(tq => tq.TestAnswers.All(ta => !ta.IsCorrect)))
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
