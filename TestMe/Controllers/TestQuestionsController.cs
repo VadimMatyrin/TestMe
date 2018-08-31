@@ -104,7 +104,6 @@ namespace TestMe.Controllers
             {
                 return RedirectToAction("Index", "Tests");
             }
-            ViewBag.TestId = testQuestion.TestId;
             return View(testQuestion);
         }
 
