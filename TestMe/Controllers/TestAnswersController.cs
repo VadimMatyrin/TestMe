@@ -40,16 +40,13 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
-            if (testQuestion == null)
+            var testQuestion = await _testingPlatform.TestQuestionManager.GetAll().Where(tq => tq.AppUserId == _userId && tq.Id == id).FirstOrDefaultAsync();
+            var test = testQuestion.Test;
+            if (test == null)
             {
                 return NotFound();
             }
-            ViewBag.TestId = testQuestion.TestId;
-            ViewBag.TestQuestionId = testQuestion.Id;
-            ViewBag.TestQuestionText = testQuestion.QuestionText;
-            var testAnswers = _testingPlatform.TestAnswerManager.GetAll().Where(ta => ta.TestQuestionId == id && ta.AppUserId == _userId);
-            return View(testAnswers);
+            return View(test);
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -75,14 +72,13 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
+            var testQuestion = await _testingPlatform.TestQuestionManager.GetAll().Where(tq => tq.AppUserId == _userId && tq.Id == id).FirstOrDefaultAsync();
             if (testQuestion == null)
             {
                 return NotFound();
             }
-            ViewBag.TestQuestionId = testQuestion.Id;
-            ViewBag.TestQuestionText = testQuestion.QuestionText;
-            return View();
+            var testAnswer = new TestAnswer { TestQuestion = testQuestion };
+            return View(testAnswer);
         }
 
         [HttpPost]
@@ -98,7 +94,6 @@ namespace TestMe.Controllers
                     if (Image != null && Image.Length > 0)
                     {
                         var file = Image;
-                        //There is an error here
                         var uploads = Path.Combine(_appEnvironment.WebRootPath, "uploads\\answerPics");
                         if (file.Length > 0)
                         {
@@ -133,8 +128,6 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
-            //ViewBag.TestQuestionId = testAnswer.TestQuestionId;
-            //ViewBag.TestQuestionText = testAnswer.TestQuestion.QuestionText;
             return View(testAnswer);
         }
 

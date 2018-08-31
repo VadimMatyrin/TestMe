@@ -1,37 +1,40 @@
-﻿@model IEnumerable<TestMe.Models.TestAnswer>
+﻿@model Test
 @{
     ViewData["Title"] = "Index";
 }
 
-<h2>@ViewBag.TestQuestionText</h2>
+<h2>@Model.TestQuestions.First().QuestionText</h2>
 
 <p>
-    <a asp-action="Create" asp-route-id="@ViewBag.TestQuestionId">Create New</a>
+    @if(Model.TestCode is null)
+    {
+        <a asp-action="Create" asp-route-id="@Model.TestQuestions.First().Id">Create New</a>
+    }
 </p>
 <p>
-    <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@ViewBag.TestId">Return to questions</a>
+    <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@Model.Id">Return to questions</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.AnswerText)
+                @Html.DisplayNameFor(model => model.TestAnswers.First().AnswerText)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IsCorrect)
+                @Html.DisplayNameFor(model => model.TestAnswers.First().IsCorrect)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.TestQuestions.First().TestAnswers)
         {
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.AnswerText)<br />
                     @if (!(item.ImageName is null))
                     {
-                       <img src="~/uploads/answerPics/@item.ImageName" height="300"/>
+                       <img src="~/uploads/answerPics/@item.ImageName" height="100"/>
                     }
                 </td>
                 <td>
