@@ -87,14 +87,14 @@ namespace TestMe.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
-
             var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
                 
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
             }
-            if (HasValidationErrors(test))
+
+            if (HasValidationErrors(id))
                 return RedirectToAction(nameof(ValidateTest), new { id });
 
             if (test.TestCode is null)
@@ -263,8 +263,14 @@ namespace TestMe.Controllers
 
             return View(errorModelTest);
         }
-        private bool HasValidationErrors(Test test)
+        private bool HasValidationErrors(int? id)
         {
+            if (id is null)
+                return true;
+
+            var testQuestions = _testingPlatform.TestQuestionManager.GetAll().Where(tq => tq.TestId == id && tq.AppUserId == _userId).ToList();
+            var test = testQuestions.FirstOrDefault()?.Test;
+
             if (test is null)
                 return true;
 

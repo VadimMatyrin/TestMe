@@ -341,6 +341,11 @@
                 var div = $('<div/>');
                 input.appendTo(div);
                 label.appendTo(div);
+                $('<br>').appendTo(div);
+                if (element.imageName) {
+                    var image = $('<img/>', { src: '/uploads/answerPics/' + element.imageName });
+                    image.appendTo(div);
+                }
                 div.appendTo('#testQuestionFieldSet');
             });
         }
