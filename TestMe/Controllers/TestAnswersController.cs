@@ -40,7 +40,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var testQuestion = await _testingPlatform.TestQuestionManager.GetAll().Where(tq => tq.AppUserId == _userId && tq.Id == id).FirstOrDefaultAsync();
+            var testQuestion = await _testingPlatform.TestQuestionManager.GetAll().FirstAsync(tq => tq.AppUserId == _userId && tq.Id == id);
             var test = testQuestion.Test;
             if (test == null)
             {
@@ -72,7 +72,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var testQuestion = await _testingPlatform.TestQuestionManager.GetAll().Where(tq => tq.AppUserId == _userId && tq.Id == id).FirstOrDefaultAsync();
+            var testQuestion = await _testingPlatform.TestQuestionManager.GetAll().FirstAsync(tq => tq.AppUserId == _userId && tq.Id == id);
             if (testQuestion == null)
             {
                 return NotFound();
