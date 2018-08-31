@@ -338,12 +338,12 @@
             question.testAnswers.forEach(function (element) {
                 var input = $('<input/>', { type: 'checkbox', name: 'answer', value: element.id });
                 var label = $('<label/>', { text: element.answerText });
-                var div = $('<div/>');
+                var div = $('<div/>', { class : "questionAnswer"});
                 input.appendTo(div);
                 label.appendTo(div);
                 $('<br>').appendTo(div);
                 if (element.imageName) {
-                    var image = $('<img/>', { src: '/uploads/answerPics/' + element.imageName });
+                    var image = $('<img/>', { src: '/uploads/answerPics/' + element.imageName, height : "300px" });
                     image.appendTo(div);
                 }
                 div.appendTo('#testQuestionFieldSet');

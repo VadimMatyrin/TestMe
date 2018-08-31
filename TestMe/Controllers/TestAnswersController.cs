@@ -133,8 +133,8 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
-            ViewBag.TestQuestionId = testAnswer.TestQuestionId;
-            ViewBag.TestQuestionText = testAnswer.TestQuestion.QuestionText;
+            //ViewBag.TestQuestionId = testAnswer.TestQuestionId;
+            //ViewBag.TestQuestionText = testAnswer.TestQuestion.QuestionText;
             return View(testAnswer);
         }
 

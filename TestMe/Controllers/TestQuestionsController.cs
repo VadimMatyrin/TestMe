@@ -37,16 +37,14 @@ namespace TestMe.Controllers
                 return RedirectToAction("Index", "Tests");
             }
 
-            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
+            var testQuestions = await _testingPlatform.TestQuestionManager.GetAll().Where(t => t.AppUser.Id == _userId && t.TestId == id).ToListAsync();
+            var test = testQuestions.FirstOrDefault()?.Test;
             if (test == null)
             {
                 return RedirectToAction("Index", "Tests");
             }
-            ViewBag.TestId = test.Id;
-            ViewBag.TestName = test.TestName;
-            var questions = _testingPlatform.TestQuestionManager.GetAll();
-            var testQuestions = _testingPlatform.TestQuestionManager.GetAll().Where(t => t.AppUser.Id == _userId && t.TestId == id);
-            return View(testQuestions);
+
+            return View(test);
         }
 
         public async Task<IActionResult> Details(int? id)

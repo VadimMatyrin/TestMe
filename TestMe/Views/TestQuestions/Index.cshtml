@@ -1,13 +1,13 @@
-﻿@model IEnumerable<TestMe.Models.TestQuestion>
+﻿@model TestMe.Models.Test 
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h2>@ViewBag.TestName</h2>
+<h2>@Model.TestName</h2>
 
 <p>
-    <a asp-action="Create" asp-route-id="@ViewBag.TestId">Add new question</a>
+    <a asp-action="Create" asp-route-id="@Model.Id">Add new question</a>
 </p>
 <p>
     <a asp-action="Index" asp-controller="Tests">Return to tests</a>
@@ -16,16 +16,16 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.QuestionText)
+                @Html.DisplayNameFor(model => model.TestQuestions.First().QuestionText)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Test)
+                @Html.DisplayNameFor(model => model.TestQuestions.First().QuestionText)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model.TestQuestions) {
         <tr>
             <td>
                <a asp-action="Index" asp-controller="TestAnswers" asp-route-id="@item.Id"> @Html.DisplayFor(modelItem => item.QuestionText)</a>
@@ -34,9 +34,12 @@
                 @Html.DisplayFor(modelItem => item.Test.TestName)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                @if (item.Test.TestCode is null)
+                {
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a><span> |</span>
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a><span> |</span>
+                }
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a>
             </td>
         </tr>
 }

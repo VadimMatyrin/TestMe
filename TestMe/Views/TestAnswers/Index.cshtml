@@ -31,16 +31,19 @@
                     @Html.DisplayFor(modelItem => item.AnswerText)<br />
                     @if (!(item.ImageName is null))
                     {
-                       <img src="~/uploads/answerPics/@item.ImageName" />
+                       <img src="~/uploads/answerPics/@item.ImageName" height="300"/>
                     }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.IsCorrect)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    @if (item.TestQuestion.Test.TestCode is null)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a><span> |</span>
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a><span> |</span>
+                    }
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
                 </td>
             </tr>
         }
