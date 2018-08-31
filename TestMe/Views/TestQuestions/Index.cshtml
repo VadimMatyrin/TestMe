@@ -7,8 +7,11 @@
 <h2>@Model.TestName</h2>
 
 <p>
-    <a asp-action="Create" asp-route-id="@Model.Id">Add new question</a>
-</p>
+    @if (Model.TestCode is null)
+    {
+        <a asp-action="Create" asp-route-id="@Model.Id">Add new question</a>
+    }
+    </p>
 <p>
     <a asp-action="Index" asp-controller="Tests">Return to tests</a>
 </p>

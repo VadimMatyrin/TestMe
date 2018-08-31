@@ -75,9 +75,8 @@ namespace TestMe.Controllers
             {
                 return RedirectToAction("Index", "Tests");
             }
-            ViewBag.TestId = test.Id;
-            ViewBag.TestName = test.TestName;
-            return View();
+            var testQuestion = new TestQuestion { TestId = test.Id, Test = test }; 
+            return View(testQuestion);
         }
 
         [HttpPost]
