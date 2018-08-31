@@ -1,0 +1,34 @@
+﻿@model TestMe.Models.Test
+@{
+    ViewData["Title"] = "ValidateTest";
+}
+
+<h2>Test errors</h2>
+@if(Model.TestQuestions is null)
+{
+    <h3>Your test doesnt have vadlidation errors</h3>
+}
+else if (Model.TestQuestions.Count == 0)
+{
+    <h3>Your test <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@Model.Id">@Model.TestName</a> doesnt have any questions</h3>
+}
+else
+{
+    if (Model.TestQuestions.Any(tq => tq.TestAnswers.Count == 0))
+    {
+        <h3>These questions dont have any answers</h3>
+        foreach (var item in Model.TestQuestions.Where(tq => tq.TestAnswers.Count == 0))
+        {
+            <a asp-action="Index" asp-controller="TestAnswers" asp-route-id="@item.Id">@item.QuestionText</a><br/>
+        }
+    }
+    if (Model.TestQuestions.Any(tq => tq.TestAnswers.All(ta => !ta.IsCorrect) && tq.TestAnswers.Count != 0))
+    {
+        <h3>These questions dont have any correct answers</h3>
+        foreach (var item in Model.TestQuestions.Where(tq => tq.TestAnswers.All(ta => !ta.IsCorrect) && tq.TestAnswers.Count != 0))
+        {
+        <a asp-action="Index" asp-controller="TestAnswers" asp-route-id="@item.Id">@item.QuestionText</a><br/>
+        }
+    }
+}
+
