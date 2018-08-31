@@ -38,22 +38,33 @@
                     <a asp-action="Create" asp-controller="TestQuestions" asp-route-id="@item.Id">Add new question</a><span> |</span>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a><span> |</span>
                     <a asp-action="Delete" asp-route-id="@item.Id">Delete</a><span> |</span>
-                    <a asp-action="CreateCode" asp-route-id="@item.Id">Share your test</a><span> |</span>
-                }
-                else
-                {
-                    <a data-toggle="modal" data-target="#exampleModal">Stop sharing </a><span> |</span>
-                    //<button id="finishTest" class="btn btn-primary col-md-offset-5 col-md-2 col-xs-8 col-xs-offset-2" data-toggle="modal" data-target="#exampleModal">Finish test</button>
-                    <!-- Modal -->
-                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <a data-toggle="modal" data-target="#stopSharingModal">Share your test </a><span> |</span>
+                    <div class="modal fade" id="stopSharingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-body">
-                                    <h3>If you stop sharing your test right now, next time you share a test, all it previous results are going to be deleted. Are you sure?</h3>
+                                    <h4>All previous test results will be deleted. Are you sure?</h4>
                                 </div>
                                 <div class="modal-footer">
-                                    <a asp-action="StopSharing" asp-route-id="@item.Id"><button type="button" class="btn btn-primary">Confirm</button></a>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <a asp-action="CreateCode" asp-route-id="@item.Id"><button type="button" class="btn btn-primary">Yes</button></a>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <a data-toggle="modal" data-target="#stopSharingModal">Stop sharing </a><span> |</span>
+                    <div class="modal fade" id="stopSharingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <h4>If you stop sharing your test right now, next time you share a test, all it previous results will be deleted. Are you sure?</h4>
+                                </div>
+                                <div class="modal-footer">
+                                    <a asp-action="StopSharing" asp-route-id="@item.Id"><button type="button" class="btn btn-primary">Yes</button></a>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
                                 </div>
                             </div>
                         </div>
