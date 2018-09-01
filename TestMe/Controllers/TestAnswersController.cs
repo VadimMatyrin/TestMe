@@ -79,6 +79,9 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
+            if (!(testQuestion.Test.TestCode is null))
+                return RedirectToAction("Index", new { id });
+
             var testAnswer = new TestAnswer { TestQuestion = testQuestion };
             return View(testAnswer);
         }
@@ -130,6 +133,9 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
+            if (!(testAnswer.TestQuestion.Test.TestCode is null))
+                return RedirectToAction("Index", new { id });
+
             return View(testAnswer);
         }
 
@@ -208,24 +214,7 @@ namespace TestMe.Controllers
             await _testingPlatform.TestAnswerManager.DeleteAsync(testAnswer);
             return RedirectToAction(nameof(Index), new { id = testAnswer.TestQuestionId });
         }
-        //private bool UploadImage(IFormFile image)
-        //{
-        //    if (image != null && image.Length > 0)
-        //    {
-        //        var file = image;
-        //        var uploads = Path.Combine(_appEnvironment.WebRootPath, "uploads\\answerPics");
-        //        if (file.Length > 0)
-        //        {
-        //            var fileName = $"{Guid.NewGuid().ToString().Replace("-", "")}{Path.GetExtension(file.FileName)}";
-        //            using (var fileStream = new FileStream(Path.Combine(uploads, fileName), FileMode.Create))
-        //            {
-        //                await file.CopyToAsync(fileStream);
-        //                testAnswer.ImageName = fileName;
-        //            }
 
-        //        }
-        //    }
-        //}
         private bool DeleteAnswerImage(string imageName)
         {
             var filePath = Path.Combine(_appEnvironment.WebRootPath, $"uploads\\answerPics\\{imageName}");

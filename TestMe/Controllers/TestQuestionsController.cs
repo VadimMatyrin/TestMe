@@ -75,6 +75,10 @@ namespace TestMe.Controllers
             {
                 return RedirectToAction("Index", "Tests");
             }
+
+            if (!(test.TestCode is null))
+                return RedirectToAction("Index", new { id });
+
             var testQuestion = new TestQuestion { TestId = test.Id, Test = test }; 
             return View(testQuestion);
         }
@@ -104,6 +108,9 @@ namespace TestMe.Controllers
             {
                 return RedirectToAction("Index", "Tests");
             }
+            if (!(testQuestion.Test.TestCode is null))
+                return RedirectToAction("Index", new { id });
+
             return View(testQuestion);
         }
 
@@ -151,6 +158,8 @@ namespace TestMe.Controllers
             {
                 return RedirectToAction("Index", "Tests");
             }
+            if (!(testQuestion.Test.TestCode is null))
+                return RedirectToAction("Index", new { id });
 
             return View(testQuestion);
         }

@@ -169,6 +169,9 @@ namespace TestMe.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
+            if (!(test.TestCode is null))
+                return RedirectToAction("Index", new { id });
+
             return View(test);
         }
         [HttpPost]
