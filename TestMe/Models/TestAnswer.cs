@@ -13,11 +13,13 @@ namespace TestMe.Models
         [Required]
         [StringLength(1000)]
         public string AnswerText { get; set; }
+        [Display(Name = "Is correct?")]
         [JsonIgnore]
         public bool IsCorrect { get; set; }
         public int TestQuestionId { get; set; }
         [JsonIgnore]
         public TestQuestion TestQuestion { get; set; }
+        [Display(Name = "Image")]
         public string ImageName { get; set; }
         [JsonIgnore]
         public string AppUserId { get; set; }

@@ -5,12 +5,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TestMe.Data;
+using TestMe.Data.Extentions;
 using TestMe.Models;
 using TestMe.Sevices.Interfaces;
 
@@ -133,7 +135,7 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id, AnswerText,IsCorrect,TestQuestionId")] TestAnswer testAnswer)
+        public async Task<IActionResult> Edit(int id, [Bind("Id, AnswerText,IsCorrect,TestQuestionId, ImageName")] TestAnswer testAnswer)
         {
             if (id != testAnswer.Id)
             {
@@ -142,9 +144,28 @@ namespace TestMe.Controllers
 
             if (ModelState.IsValid)
             {
+
+                var files = HttpContext.Request.Form.Files;
+                if (files.Count != 0)
+                {
+                    var image = files.FirstOrDefault();
+                    if (image.IsImage() && testAnswer.ImageName is null ? true : DeleteAnswerImage(testAnswer.ImageName))
+                    {
+                        testAnswer.ImageName = null;
+                        var file = image;
+                        var uploads = Path.Combine(_appEnvironment.WebRootPath, "uploads\\answerPics");
+                        var fileName = $"{Guid.NewGuid().ToString().Replace("-", "")}{Path.GetExtension(file.FileName)}";
+                        using (var fileStream = new FileStream(Path.Combine(uploads, fileName), FileMode.Create))
+                        {
+                            await file.CopyToAsync(fileStream);
+                            testAnswer.ImageName = fileName;
+                        }
+                    }
+                }
+                testAnswer.AppUserId = _userId;
+
                 try
                 {
-                    testAnswer.AppUserId = _userId;
                     await _testingPlatform.TestAnswerManager.UpdateAsync(testAnswer);
                 }
                 catch (DbUpdateConcurrencyException)
@@ -186,6 +207,35 @@ namespace TestMe.Controllers
             var testAnswer = await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id);
             await _testingPlatform.TestAnswerManager.DeleteAsync(testAnswer);
             return RedirectToAction(nameof(Index), new { id = testAnswer.TestQuestionId });
+        }
+        //private bool UploadImage(IFormFile image)
+        //{
+        //    if (image != null && image.Length > 0)
+        //    {
+        //        var file = image;
+        //        var uploads = Path.Combine(_appEnvironment.WebRootPath, "uploads\\answerPics");
+        //        if (file.Length > 0)
+        //        {
+        //            var fileName = $"{Guid.NewGuid().ToString().Replace("-", "")}{Path.GetExtension(file.FileName)}";
+        //            using (var fileStream = new FileStream(Path.Combine(uploads, fileName), FileMode.Create))
+        //            {
+        //                await file.CopyToAsync(fileStream);
+        //                testAnswer.ImageName = fileName;
+        //            }
+
+        //        }
+        //    }
+        //}
+        private bool DeleteAnswerImage(string imageName)
+        {
+            var filePath = Path.Combine(_appEnvironment.WebRootPath, $"uploads\\answerPics\\{imageName}");
+            var file = new FileInfo(filePath);
+            if (file.Exists)
+            {
+                file.Delete();
+                return true;
+            }
+            return false;
         }
 
     }

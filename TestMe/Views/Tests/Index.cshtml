@@ -35,7 +35,7 @@
             <td>
                 @if (item.TestCode is null)
                 {
-                    <a asp-action="Create" asp-controller="TestQuestions" asp-route-id="@item.Id">Add new question</a><span> |</span>
+                    @*<a asp-action="Create" asp-controller="TestQuestions" asp-route-id="@item.Id">Add new question</a><span> |</span>*@
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a><span> |</span>
                     <a asp-action="Delete" asp-route-id="@item.Id">Delete</a><span> |</span>
                     var modalId = $"startSharingModal{item.Id}";
@@ -47,7 +47,7 @@
                                     <h4>All previous test results will be deleted. Are you sure?</h4>
                                 </div>
                                 <div class="modal-footer">
-                                    <a asp-action="CreateCode" asp-route-id="@item.Id"><button type="button" class="btn btn-default">Yes</button></a>
+                                    <a asp-action="CreateCode" asp-route-id="@item.Id"><button type="button" class="btn btn-primary">Yes</button></a>
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
                                 </div>
                             </div>
@@ -66,7 +66,7 @@
                                     <h4>If you stop sharing your test right now, next time you share a test, all it previous results will be deleted. Are you sure?</h4>
                                 </div>
                                 <div class="modal-footer">
-                                    <a asp-action="StopSharing" asp-route-id="@item.Id"><button type="button" class="btn btn-default">Yes</button></a>
+                                    <a asp-action="StopSharing" asp-route-id="@item.Id"><button type="button" class="btn btn-primary">Yes</button></a>
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
                                 </div>
                             </div>
