@@ -32,7 +32,7 @@ namespace TestMe.Controllers
                 HttpContext.Session.SetString("userName", User.Identity.Name);
 
             HttpContext.Session.SetString("testCode", code);
-            HttpContext.Session.SetString("correctlyAnswered", "");
+            HttpContext.Session.SetString("answeredQuestions", JsonConvert.SerializeObject(new Dictionary<int, bool>()));
             return View(test);
         }
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -163,12 +163,12 @@ namespace TestMe.Controllers
 
             if (!(HttpContext.Session.GetString(questionId.ToString()) is null))
             {
-                var correctAnswers = new List<int>();
+                var correctAnswersList = new List<int>();
                 foreach (var correct in _answers.Where(ta => ta.IsCorrect))
                 {
-                    correctAnswers.Add(correct.Id);
+                    correctAnswersList.Add(correct.Id);
                 }
-                return Json(correctAnswers);
+                return Json(correctAnswersList);
             }
 
             if (checkedIds.Count == 0)
@@ -179,23 +179,38 @@ namespace TestMe.Controllers
 
             var question = await _testingPlatform.TestQuestionManager.FindAsync(tq => tq.Id == questionId);//  _context.TestQuestions.FirstOrDefaultAsync(tq => tq.Id == questionId);
             bool isCorrect = true;
-            foreach(var answId in checkedIds)
+            //foreach(var answId in checkedIds)
+            //{
+            //    if (_answers.FirstOrDefault(ta => ta.Id == answId && ta.IsCorrect) is null)
+            //    {
+            //        isCorrect = false;
+            //        break;
+            //    }
+            //}
+            var correctAnswers = _answers.Where(ta => ta.IsCorrect).Select(ta => ta.Id);
+            if (correctAnswers.Except(checkedIds).Count() != 0 && correctAnswers.Count() != checkedIds.Count)
+                isCorrect = false;
+            else
+                throw new AnswerNotFoundException();
+
+            var answeredQuestionsStr = HttpContext.Session.GetString("answeredQuestions");
+            var answeredQuestions = JsonConvert.DeserializeObject<Dictionary<int, bool>>(answeredQuestionsStr);
+            if (!answeredQuestions.Keys.Contains(questionId.Value))
             {
-                if (_answers.FirstOrDefault(ta => ta.Id == answId && ta.IsCorrect) is null)
+                if (isCorrect)
                 {
-                    isCorrect = false;
-                    break;
+                    answeredQuestions[questionId.Value] = true;
+                }
+                else
+                {
+                    answeredQuestions[questionId.Value] = false;
                 }
             }
-            if (isCorrect)
-            {
-                var alreadyCorrectlyAnsweredStr = HttpContext.Session.GetString("correctlyAnswered");
-                var alreadyCorrectlyAnswered = JsonConvert.DeserializeObject<List<int>>(alreadyCorrectlyAnsweredStr);
-                if (alreadyCorrectlyAnswered is null)
-                    alreadyCorrectlyAnswered = new List<int>();
-                alreadyCorrectlyAnswered.Add(questionId.Value);
-                HttpContext.Session.SetString("correctlyAnswered", JsonConvert.SerializeObject(alreadyCorrectlyAnswered));
-            }
+            else
+                throw new AnswerNotFoundException();
+
+            HttpContext.Session.SetString("answeredQuestions", JsonConvert.SerializeObject(answeredQuestions));
+
             var serializedAnswers = JsonConvert.SerializeObject(checkedIds);
             HttpContext.Session.SetString(questionId.ToString(), serializedAnswers);
 
@@ -322,13 +337,9 @@ namespace TestMe.Controllers
             if (HttpContext.Session.GetString("userName") is null)
                 throw new UserNameNotFoundException();
 
-            var alreadyCorrectlyAnsweredStr = HttpContext.Session.GetString("correctlyAnswered");
-            var alreadyCorrectlyAnswered = JsonConvert.DeserializeObject<List<int>>(alreadyCorrectlyAnsweredStr);
-            int score;
-            if (alreadyCorrectlyAnswered is null)
-                score = 0;
-            else
-                score = alreadyCorrectlyAnswered.Count();
+            var alreadyCorrectlyAnsweredStr = HttpContext.Session.GetString("answeredQuestions");
+            var alreadyCorrectlyAnswered = JsonConvert.DeserializeObject<Dictionary<int, bool>>(alreadyCorrectlyAnsweredStr);
+            int score = alreadyCorrectlyAnswered.Values.Where(v => v).Count();
 
             var code = HttpContext.Session.GetString("testCode");
             if (code is null)
