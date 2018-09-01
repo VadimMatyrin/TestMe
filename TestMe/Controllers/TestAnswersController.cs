@@ -183,6 +183,8 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
+            if (!(testAnswer.TestQuestion.Test.TestCode is null))
+                return RedirectToAction("Index", new { id = testAnswer.TestQuestionId });
 
             return View(testAnswer);
         }
