@@ -28,6 +28,15 @@
         <dd>
             @Html.DisplayFor(model => model.TestQuestion.QuestionText)
         </dd>
+        @if(!(Model.ImageName is null))
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.ImageName)
+            </dt>
+            <dd>
+               <input type="image" src="~/uploads/answerPics/@Model.ImageName" height="200" />
+            </dd>
+        }
     </dl>
 </div>
 <div>
