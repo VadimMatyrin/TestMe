@@ -3,10 +3,10 @@
     ViewData["Title"] = "Index";
 }
 
-<h2>@Model.TestQuestions.First().QuestionText</h2>
+<h2><strong>@Html.DisplayNameFor(model => model.TestQuestions.First().QuestionText)</strong>: @Model.TestQuestions.First().QuestionText</h2>
 
 <p>
-    @if(Model.TestCode is null)
+    @if (Model.TestCode is null)
     {
         <a asp-action="Create" asp-route-id="@Model.TestQuestions.First().Id">Create New</a>
     }
@@ -17,6 +17,9 @@
 <table class="table">
     <thead>
         <tr>
+            <th>
+                №
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.TestAnswers.First().AnswerText)
             </th>
@@ -32,9 +35,13 @@
         </tr>
     </thead>
     <tbody>
+        @{var counter = 1; }
         @foreach (var item in Model.TestQuestions.First().TestAnswers)
         {
         <tr>
+            <td>
+                <b>@counter</b>
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.AnswerText)<br />
             </td>
@@ -56,6 +63,7 @@
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a>
             </td>
         </tr>
+        counter++;
         }
     </tbody>
 </table>

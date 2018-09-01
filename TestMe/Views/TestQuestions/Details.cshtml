@@ -17,10 +17,16 @@
             @Html.DisplayFor(model => model.QuestionText)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Test)
+            @Html.DisplayNameFor(model => model.Test.TestName)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.Test.TestName)
+        </dd>
+        <dt>
+            Answers amount
+        </dt>
+        <dd>
+            @Model.TestAnswers.Count
         </dd>
     </dl>
 </div>

@@ -20,6 +20,7 @@ namespace TestMe.Models
         public DateTime CreationDate { get; set; }
         [JsonIgnore]
         public string AppUserId { get; set; }
+        [Display(Name = "Test code")]
         public string TestCode { get; set; }
         [Display(Name = "Test duration")]
         [Required, DataType(DataType.Time)]
