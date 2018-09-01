@@ -17,6 +17,7 @@ namespace TestMe.Sevices.Extentions
             service.AddFreelancingPlatformDbContext()
                 .AddRepositories().AddModelManagers()
                 .AddRandomStringGenerator()
+                .AddAnswerImageManager()
                 .AddScoped<ITestingPlatform, TestMe>();
 
         #region Managers
@@ -60,6 +61,8 @@ namespace TestMe.Sevices.Extentions
 
         private static IServiceCollection AddRandomStringGenerator(this IServiceCollection service) =>
             service.AddSingleton<IRandomStringGenerator, RandomStringGenerator>();
+        private static IServiceCollection AddAnswerImageManager(this IServiceCollection service) =>
+            service.AddScoped<IAnswerImageManager, AnswerImageManager>();
 
         private static IServiceCollection AddFreelancingPlatformDbContext(this IServiceCollection service) =>
             service.AddScoped<ITestingPlatformDbContext, ApplicationDbContext>();

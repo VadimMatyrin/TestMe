@@ -94,23 +94,11 @@ namespace TestMe.Controllers
             {
 
                 var files = HttpContext.Request.Form.Files;
-                foreach (var Image in files)
+                if (files.Count != 0)
                 {
-                    if (Image != null && Image.Length > 0)
-                    {
-                        var file = Image;
-                        var uploads = Path.Combine(_appEnvironment.WebRootPath, "uploads\\answerPics");
-                        if (file.Length > 0)
-                        {
-                            var fileName = $"{Guid.NewGuid().ToString().Replace("-", "")}{Path.GetExtension(file.FileName)}";
-                            using (var fileStream = new FileStream(Path.Combine(uploads, fileName), FileMode.Create))
-                            {
-                                await file.CopyToAsync(fileStream);
-                                testAnswer.ImageName = fileName;
-                            }
-
-                        }
-                    }
+                    var imageName = $"{Guid.NewGuid().ToString().Replace("-", "")}{Path.GetExtension(files.First().FileName)}";
+                    if (await _testingPlatform.AnswerImageManager.SaveAnswerImageAsync(files.First(), imageName))
+                        testAnswer.ImageName = imageName;
                 }
 
 
@@ -154,18 +142,11 @@ namespace TestMe.Controllers
                 var files = HttpContext.Request.Form.Files;
                 if (files.Count != 0)
                 {
-                    var image = files.FirstOrDefault();
-                    if (image.IsImage() && testAnswer.ImageName is null ? true : DeleteAnswerImage(testAnswer.ImageName))
+                    if(testAnswer.ImageName is null || _testingPlatform.AnswerImageManager.DeleteAnswerImage(testAnswer.ImageName))
                     {
-                        testAnswer.ImageName = null;
-                        var file = image;
-                        var uploads = Path.Combine(_appEnvironment.WebRootPath, "uploads\\answerPics");
-                        var fileName = $"{Guid.NewGuid().ToString().Replace("-", "")}{Path.GetExtension(file.FileName)}";
-                        using (var fileStream = new FileStream(Path.Combine(uploads, fileName), FileMode.Create))
-                        {
-                            await file.CopyToAsync(fileStream);
-                            testAnswer.ImageName = fileName;
-                        }
+                        var imageName = $"{Guid.NewGuid().ToString().Replace("-", "")}{Path.GetExtension(files.First().FileName)}";
+                        if(await _testingPlatform.AnswerImageManager.SaveAnswerImageAsync(files.First(), imageName))
+                             testAnswer.ImageName = imageName;
                     }
                 }
                 testAnswer.AppUserId = _userId;
@@ -211,20 +192,11 @@ namespace TestMe.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var testAnswer = await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id);
+            if (!(testAnswer.ImageName is null))
+                _testingPlatform.AnswerImageManager.DeleteAnswerImage(testAnswer.ImageName);
+
             await _testingPlatform.TestAnswerManager.DeleteAsync(testAnswer);
             return RedirectToAction(nameof(Index), new { id = testAnswer.TestQuestionId });
-        }
-
-        private bool DeleteAnswerImage(string imageName)
-        {
-            var filePath = Path.Combine(_appEnvironment.WebRootPath, $"uploads\\answerPics\\{imageName}");
-            var file = new FileInfo(filePath);
-            if (file.Exists)
-            {
-                file.Delete();
-                return true;
-            }
-            return false;
         }
 
     }
