@@ -170,6 +170,9 @@ namespace TestMe.Controllers
         {
             var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             var testId = testQuestion.TestId;
+            foreach (var testAnswer in testQuestion.TestAnswers.Where(ta => !(ta.ImageName is null)))
+                _testingPlatform.AnswerImageManager.DeleteAnswerImage(testAnswer.ImageName);
+
             await _testingPlatform.TestQuestionManager.DeleteAsync(testQuestion);
             return RedirectToAction(nameof(Index), new { id = testId });
         }
