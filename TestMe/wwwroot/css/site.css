@@ -99,3 +99,6 @@ body {
     border-radius: 5px;
     border: 1px solid black;
 }
+#ImageName[hidden] {
+    display: none !important;
+}
