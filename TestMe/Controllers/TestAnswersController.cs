@@ -122,7 +122,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
             if (!(testAnswer.TestQuestion.Test.TestCode is null))
-                return RedirectToAction("Index", new { id });
+                return NotFound();
 
             return View(testAnswer);
         }
@@ -149,11 +149,14 @@ namespace TestMe.Controllers
                              testAnswer.ImageName = imageName;
                     }
                 }
+                else
+                {
+                    testAnswer.ImageName = (await _testingPlatform.TestAnswerManager.GetAll().AsNoTracking().Where(ta => ta.Id == id).FirstOrDefaultAsync()).ImageName;
+                }
                 testAnswer.AppUserId = _userId;
-
                 try
                 {
-                    await _testingPlatform.TestAnswerManager.UpdateAsync(testAnswer);
+                    _testingPlatform.TestAnswerManager.UpdateAsync(testAnswer).GetAwaiter().GetResult();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -199,6 +202,25 @@ namespace TestMe.Controllers
 
             await _testingPlatform.TestAnswerManager.DeleteAsync(testAnswer);
             return RedirectToAction(nameof(Index), new { id = testAnswer.TestQuestionId });
+        }
+
+        public async Task<IActionResult> DeletePhoto(int? id)
+        {
+            if (id is null)
+                return NotFound();
+
+            var testAnswer = await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id);
+            if(testAnswer is null)
+                return NotFound();
+
+            if (!(testAnswer.ImageName is null))
+                if (_testingPlatform.AnswerImageManager.DeleteAnswerImage(testAnswer.ImageName))
+                {
+                    testAnswer.ImageName = null;
+                    await _testingPlatform.TestAnswerManager.UpdateAsync(testAnswer);
+                }
+
+            return RedirectToAction("Index", new { id = testAnswer.TestQuestionId });
         }
 
     }

@@ -55,13 +55,13 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
             if (test == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
             try
             {
@@ -85,13 +85,13 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
             var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
                 
             if (test == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             if (HasValidationErrors(id))
@@ -109,7 +109,7 @@ namespace TestMe.Controllers
                 {
                     if (_testingPlatform.TestManager.GetTestAsync(_userId, id) is null)
                     {
-                        return RedirectToAction(nameof(Index));
+                        return NotFound();
                     }
                     else
                     {
@@ -126,13 +126,13 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
             if (test == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             return View(test);
@@ -161,7 +161,7 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
@@ -170,7 +170,7 @@ namespace TestMe.Controllers
                 return RedirectToAction(nameof(Index));
             }
             if (!(test.TestCode is null))
-                return RedirectToAction("Index", new { id });
+                return NotFound();
 
             return View(test);
         }
@@ -180,7 +180,7 @@ namespace TestMe.Controllers
         {
             if (id != test.Id)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             if (ModelState.IsValid)
@@ -194,7 +194,7 @@ namespace TestMe.Controllers
                 {
                     if (_testingPlatform.TestManager.GetTestAsync(_userId, id) is null)
                     {
-                        return RedirectToAction(nameof(Index));
+                        return NotFound();
                     }
                     else
                     {
@@ -209,13 +209,13 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             var test = await _testingPlatform.TestManager.FindAsync(m => m.Id == id && m.AppUserId == _userId);
             if (test == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             return View(test);
@@ -235,11 +235,13 @@ namespace TestMe.Controllers
         public async Task<IActionResult> ValidateTest(int? id)
         {
             if (id is null)
-                return RedirectToAction(nameof(Index));
+                return NotFound();
+
             var testQuestions = await _testingPlatform.TestQuestionManager.GetAll().Where(ta => ta.AppUserId == _userId && ta.TestId == id).ToListAsync();
             var test = testQuestions.FirstOrDefault()?.Test;
+
             if (test is null)
-                return RedirectToAction(nameof(Index));
+                return NotFound();
 
             var errorModelTest = new Test();
 

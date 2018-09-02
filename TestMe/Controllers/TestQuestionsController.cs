@@ -34,14 +34,14 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             var testQuestions = await _testingPlatform.TestQuestionManager.GetAll().Where(t => t.AppUser.Id == _userId && t.TestId == id).ToListAsync();
             var test = testQuestions.FirstOrDefault()?.Test;
             if (test == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             return View(test);
@@ -51,13 +51,13 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             if (testQuestion == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             return View(testQuestion);
@@ -67,17 +67,17 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
             if (test == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             if (!(test.TestCode is null))
-                return RedirectToAction("Index", new { id });
+                return NotFound();
 
             var testQuestion = new TestQuestion { TestId = test.Id, Test = test }; 
             return View(testQuestion);
@@ -100,16 +100,16 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             if (testQuestion == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
             if (!(testQuestion.Test.TestCode is null))
-                return RedirectToAction("Index", new { id });
+                return NotFound();
 
             return View(testQuestion);
         }
@@ -120,7 +120,7 @@ namespace TestMe.Controllers
         {
             if (id != testQuestion.Id)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             if (ModelState.IsValid)
@@ -134,7 +134,7 @@ namespace TestMe.Controllers
                 {
                     if (_testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id) is null)
                     {
-                        return RedirectToAction("Index", "Tests");
+                        return NotFound();
                     }
                     else
                     {
@@ -150,16 +150,16 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             if (testQuestion == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
             if (!(testQuestion.Test.TestCode is null))
-                return RedirectToAction("Index", new { id });
+                return NotFound();
 
             return View(testQuestion);
         }
