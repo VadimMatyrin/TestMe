@@ -112,9 +112,9 @@ namespace TestMe.Controllers
                 }
                 var testResult = _testingPlatform.TestResultManager.GetAll().Where(tr => tr.TestId == test.Id);
                 await _testingPlatform.TestResultManager.DeleteRangeAsync(testResult);
-                return View("CreateCode", generatedCode);
+                return View("CreateCode", test);
             }
-            return View("CreateCode", test.TestCode);
+            return View("CreateCode", test);
         }
         public async Task<IActionResult> Details(int? id)
         {
