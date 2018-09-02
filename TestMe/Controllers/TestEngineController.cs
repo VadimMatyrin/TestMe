@@ -32,7 +32,6 @@ namespace TestMe.Controllers
                 HttpContext.Session.SetString("userName", User.Identity.Name);
 
             HttpContext.Session.SetString("testCode", code);
-            HttpContext.Session.SetString("answeredQuestions", JsonConvert.SerializeObject(new Dictionary<int, bool>()));
             return View(test);
         }
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -115,7 +114,7 @@ namespace TestMe.Controllers
             var endTime = currentTime + testAnswers.FirstOrDefault().TestQuestion.Test.TestDuration;
             var endTimeSerialized = JsonConvert.SerializeObject(endTime);
             HttpContext.Session.SetString("endTime", endTimeSerialized);
-
+            HttpContext.Session.SetString("answeredQuestions", JsonConvert.SerializeObject(new Dictionary<int, bool>()));
             return Json(testAnswers.FirstOrDefault().TestQuestion);
         }
         [HttpPost]
@@ -179,19 +178,9 @@ namespace TestMe.Controllers
 
             var question = await _testingPlatform.TestQuestionManager.FindAsync(tq => tq.Id == questionId);//  _context.TestQuestions.FirstOrDefaultAsync(tq => tq.Id == questionId);
             bool isCorrect = true;
-            //foreach(var answId in checkedIds)
-            //{
-            //    if (_answers.FirstOrDefault(ta => ta.Id == answId && ta.IsCorrect) is null)
-            //    {
-            //        isCorrect = false;
-            //        break;
-            //    }
-            //}
             var correctAnswers = _answers.Where(ta => ta.IsCorrect).Select(ta => ta.Id);
             if (correctAnswers.Except(checkedIds).Count() != 0 && correctAnswers.Count() != checkedIds.Count)
                 isCorrect = false;
-            else
-                throw new AnswerNotFoundException();
 
             var answeredQuestionsStr = HttpContext.Session.GetString("answeredQuestions");
             var answeredQuestions = JsonConvert.DeserializeObject<Dictionary<int, bool>>(answeredQuestionsStr);
