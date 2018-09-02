@@ -227,6 +227,8 @@ namespace TestMe.Migrations
 
                     b.Property<string>("AppUserId");
 
+                    b.Property<string>("ImageName");
+
                     b.Property<bool>("IsCorrect");
 
                     b.Property<int?>("TestId");

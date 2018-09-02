@@ -12,6 +12,7 @@ namespace TestMe.Models
         public int Id { get; set; }
         [Required]
         [StringLength(1000)]
+        [Display(Name = "Question")]
         public string QuestionText { get; set; }
         [JsonIgnore]
         public int TestId { get; set; }

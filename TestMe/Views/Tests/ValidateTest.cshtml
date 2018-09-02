@@ -2,21 +2,19 @@
 @{
     ViewData["Title"] = "ValidateTest";
 }
-
-<h2>Test errors</h2>
 @if(Model.TestQuestions is null)
 {
-    <h3>Your test doesnt have any validation errors</h3>
+    <h2 class="text-success">Your test doesn't have any validation errors</h2>
 }
 else if (Model.TestQuestions.Count == 0)
 {
-    <h3>Your test <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@Model.Id">@Model.TestName</a> doesnt have any questions</h3>
+    <h2 class="text-danger">Your test <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@Model.Id">@Model.TestName</a> doesn't have any questions</h2>
 }
 else
 {
     if (Model.TestQuestions.Any(tq => tq.TestAnswers.Count == 0))
     {
-        <h3>These questions dont have any answers</h3>
+        <h2 class="text-danger">These questions don't have any answers</h2>
         foreach (var item in Model.TestQuestions.Where(tq => tq.TestAnswers.Count == 0))
         {
             <a asp-action="Index" asp-controller="TestAnswers" asp-route-id="@item.Id">@item.QuestionText</a><br/>
@@ -24,11 +22,15 @@ else
     }
     if (Model.TestQuestions.Any(tq => tq.TestAnswers.All(ta => !ta.IsCorrect) && tq.TestAnswers.Count != 0))
     {
-        <h3>These questions dont have any correct answers</h3>
+        <h2 class="text-danger">These questions don't have any correct answers</h2>
         foreach (var item in Model.TestQuestions.Where(tq => tq.TestAnswers.All(ta => !ta.IsCorrect) && tq.TestAnswers.Count != 0))
         {
         <a asp-action="Index" asp-controller="TestAnswers" asp-route-id="@item.Id">@item.QuestionText</a><br/>
         }
     }
 }
+<br/>
+<div>
+    <a asp-action="Index">Back to tests</a>
+</div>
 

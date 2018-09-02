@@ -34,32 +34,30 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
-            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
+            var testQuestions = await _testingPlatform.TestQuestionManager.GetAll().Where(t => t.AppUser.Id == _userId && t.TestId == id).ToListAsync();
+            var test = testQuestions.FirstOrDefault()?.Test;
             if (test == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
-            ViewBag.TestId = test.Id;
-            ViewBag.TestName = test.TestName;
-            var questions = _testingPlatform.TestQuestionManager.GetAll();
-            var testQuestions = _testingPlatform.TestQuestionManager.GetAll().Where(t => t.AppUser.Id == _userId && t.TestId == id);
-            return View(testQuestions);
+
+            return View(test);
         }
 
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             if (testQuestion == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             return View(testQuestion);
@@ -69,17 +67,20 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
             if (test == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
-            ViewBag.TestId = test.Id;
-            ViewBag.TestName = test.TestName;
-            return View();
+
+            if (!(test.TestCode is null))
+                return NotFound();
+
+            var testQuestion = new TestQuestion { TestId = test.Id, Test = test }; 
+            return View(testQuestion);
         }
 
         [HttpPost]
@@ -99,15 +100,17 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             if (testQuestion == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
-            ViewBag.TestId = testQuestion.TestId;
+            if (!(testQuestion.Test.TestCode is null))
+                return NotFound();
+
             return View(testQuestion);
         }
 
@@ -117,7 +120,7 @@ namespace TestMe.Controllers
         {
             if (id != testQuestion.Id)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             if (ModelState.IsValid)
@@ -131,7 +134,7 @@ namespace TestMe.Controllers
                 {
                     if (_testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id) is null)
                     {
-                        return RedirectToAction("Index", "Tests");
+                        return NotFound();
                     }
                     else
                     {
@@ -147,14 +150,16 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
 
             var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             if (testQuestion == null)
             {
-                return RedirectToAction("Index", "Tests");
+                return NotFound();
             }
+            if (!(testQuestion.Test.TestCode is null))
+                return NotFound();
 
             return View(testQuestion);
         }
@@ -165,6 +170,9 @@ namespace TestMe.Controllers
         {
             var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             var testId = testQuestion.TestId;
+            foreach (var testAnswer in testQuestion.TestAnswers.Where(ta => !(ta.ImageName is null)))
+                _testingPlatform.AnswerImageManager.DeleteAnswerImage(testAnswer.ImageName);
+
             await _testingPlatform.TestQuestionManager.DeleteAsync(testQuestion);
             return RedirectToAction(nameof(Index), new { id = testId });
         }

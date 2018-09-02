@@ -55,13 +55,13 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
             if (test == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
             try
             {
@@ -85,16 +85,16 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
-
             var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
                 
             if (test == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
-            if (HasValidationErrors(test))
+
+            if (HasValidationErrors(id))
                 return RedirectToAction(nameof(ValidateTest), new { id });
 
             if (test.TestCode is null)
@@ -109,7 +109,7 @@ namespace TestMe.Controllers
                 {
                     if (_testingPlatform.TestManager.GetTestAsync(_userId, id) is null)
                     {
-                        return RedirectToAction(nameof(Index));
+                        return NotFound();
                     }
                     else
                     {
@@ -126,13 +126,13 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
             if (test == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             return View(test);
@@ -161,7 +161,7 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
@@ -169,6 +169,9 @@ namespace TestMe.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
+            if (!(test.TestCode is null))
+                return NotFound();
+
             return View(test);
         }
         [HttpPost]
@@ -177,7 +180,7 @@ namespace TestMe.Controllers
         {
             if (id != test.Id)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             if (ModelState.IsValid)
@@ -191,7 +194,7 @@ namespace TestMe.Controllers
                 {
                     if (_testingPlatform.TestManager.GetTestAsync(_userId, id) is null)
                     {
-                        return RedirectToAction(nameof(Index));
+                        return NotFound();
                     }
                     else
                     {
@@ -206,13 +209,13 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             var test = await _testingPlatform.TestManager.FindAsync(m => m.Id == id && m.AppUserId == _userId);
             if (test == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             return View(test);
@@ -221,18 +224,24 @@ namespace TestMe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var test = await _testingPlatform.TestManager.FindAsync(m => m.Id == id && m.AppUserId == _userId);
+            var testQuestions = await _testingPlatform.TestQuestionManager.GetAll().Where(tq => tq.TestId == id).ToListAsync();
+            var test = testQuestions.FirstOrDefault()?.Test;// await _testingPlatform.TestManager.FindAsync(m => m.Id == id && m.AppUserId == _userId);
+            foreach (var testAnswer in test.TestAnswers.Where(ta => !(ta.ImageName is null)))
+                _testingPlatform.AnswerImageManager.DeleteAnswerImage(testAnswer.ImageName);
+
             await _testingPlatform.TestManager.DeleteAsync(test);
             return RedirectToAction(nameof(Index));
         }
         public async Task<IActionResult> ValidateTest(int? id)
         {
             if (id is null)
-                return RedirectToAction(nameof(Index));
+                return NotFound();
+
             var testQuestions = await _testingPlatform.TestQuestionManager.GetAll().Where(ta => ta.AppUserId == _userId && ta.TestId == id).ToListAsync();
             var test = testQuestions.FirstOrDefault()?.Test;
+
             if (test is null)
-                return RedirectToAction(nameof(Index));
+                return NotFound();
 
             var errorModelTest = new Test();
 
@@ -263,8 +272,14 @@ namespace TestMe.Controllers
 
             return View(errorModelTest);
         }
-        private bool HasValidationErrors(Test test)
+        private bool HasValidationErrors(int? id)
         {
+            if (id is null)
+                return true;
+
+            var testQuestions = _testingPlatform.TestQuestionManager.GetAll().Where(tq => tq.TestId == id && tq.AppUserId == _userId).ToList();
+            var test = testQuestions.FirstOrDefault()?.Test;
+
             if (test is null)
                 return true;
 

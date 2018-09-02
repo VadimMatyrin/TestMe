@@ -13,40 +13,66 @@
     <thead>
         <tr>
             <th>
+                №
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.TestName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CreationDate)
             </th>
             <th>
+                Question amount
+            </th>
+            @if (Model.Any(t => !(t.TestCode is null)))
+            {
+                <th>
+                    @Html.DisplayNameFor(model => model.First().TestCode)
+                </th>
+            }
+            <th>
                 Actions
             </th>
-            </tr>
+        </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+        @{var counter = 1; }
+        @foreach (var item in Model)
+        {
         <tr>
             <td>
-               <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.TestName)</a>
+                <b>@counter</b>
+            </td>
+            <td>
+                <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.TestName)</a>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreationDate)
             </td>
             <td>
+                @item.TestQuestions.Count
+            </td>
+            @if (Model.Any(t => !(t.TestCode is null)))
+            {
+                <td>
+                    @item.TestCode
+                </td>
+            }
+            <td>
                 @if (item.TestCode is null)
                 {
-                    <a asp-action="Create" asp-controller="TestQuestions" asp-route-id="@item.Id">Add new question</a><span> |</span>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a><span> |</span>
                     <a asp-action="Delete" asp-route-id="@item.Id">Delete</a><span> |</span>
-                    <a data-toggle="modal" data-target="#stopSharingModal">Share your test </a><span> |</span>
-                    <div class="modal fade" id="stopSharingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    var modalId = $"startSharingModal{item.Id}";
+                    <a data-toggle="modal" data-target="#@modalId">Share your test </a><span> |</span>
+                    <div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labelledby="@modalId" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-body">
                                     <h4>All previous test results will be deleted. Are you sure?</h4>
                                 </div>
                                 <div class="modal-footer">
-                                    <a asp-action="ValidateTest" asp-route-id="@item.Id"><button type="button" class="btn btn-primary">Yes</button></a>
+                                    <a asp-action="CreateCode" asp-route-id="@item.Id"><button type="button" class="btn btn-primary">Yes</button></a>
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
                                 </div>
                             </div>
@@ -56,8 +82,9 @@
                 }
                 else
                 {
-                    <a data-toggle="modal" data-target="#stopSharingModal">Stop sharing </a><span> |</span>
-                    <div class="modal fade" id="stopSharingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    var modalId = $"stopSharingModal{item.Id}";
+                    <a data-toggle="modal" data-target="#@modalId">Stop sharing </a><span> |</span>
+                    <div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labelledby="@modalId" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-body">
@@ -76,6 +103,7 @@
 
             </td>
         </tr>
-}
+            counter++;
+        }
     </tbody>
 </table>

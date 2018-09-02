@@ -6,11 +6,11 @@
 
 <h2>Edit</h2>
 
-<h4>TestAnswer</h4>
+<h3>@Model.TestQuestion.QuestionText</h3>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
@@ -26,7 +26,27 @@
                 </div>
             </div>
             <div class="form-group">
-                <input type="hidden" asp-for="TestQuestionId" value="@ViewBag.TestQuestionId" />
+                <input type="hidden" asp-for="TestQuestionId" value="@Model.TestQuestion.TestId" />
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageName" class="control-label"></label><br />
+                @if (!(Model.ImageName is null))
+                {
+                    <img id="answerImage" src="~/uploads/answerPics/@Model.ImageName" height="200" alt="your image" data-src="/uploads/answerPics/@Model.ImageName" /><br />
+                    <a asp-action="DeletePhoto" asp-route-id="@Model.Id"><button type="button" class="btn btn-primary">Delete photo</button></a>
+                }
+                else
+                {
+                    <img id="answerImage" height="200" alt="your image" data-src="" style="display: none;"/><br />
+                }
+                <button type="button" class="btn btn-default" id="resetPhotoButton" onclick="resetPhotoButtonClick()" style="display: none;">Reset</button>
+                <label class="btn btn-default">
+                    Browse  <input asp-for="ImageName" type="file" accept="image/*" hidden />
+                </label>
+                <span asp-validation-for="ImageName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input asp-for="ImageName" type="hidden" class="form-control" value="@Model.ImageName"/>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />

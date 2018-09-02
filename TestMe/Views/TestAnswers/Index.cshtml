@@ -1,44 +1,69 @@
-﻿@model IEnumerable<TestMe.Models.TestAnswer>
-
+﻿@model Test
 @{
     ViewData["Title"] = "Index";
 }
 
-<h2>@ViewBag.TestQuestionText</h2>
+<h2><strong>@Html.DisplayNameFor(model => model.TestQuestions.First().QuestionText)</strong>: @Model.TestQuestions.First().QuestionText</h2>
 
 <p>
-    <a asp-action="Create" asp-route-id="@ViewBag.TestQuestionId">Create New</a>
+    @if (Model.TestCode is null)
+    {
+        <a asp-action="Create" asp-route-id="@Model.TestQuestions.First().Id">Add new answer</a>
+    }
 </p>
 <p>
-    <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@ViewBag.TestId">Return to questions</a>
+    <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@Model.Id">Return to questions</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.AnswerText)
+                №
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IsCorrect)
+                @Html.DisplayNameFor(model => model.TestAnswers.First().AnswerText)
             </th>
-            <th></th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestAnswers.First().ImageName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestAnswers.First().IsCorrect)
+            </th>
+            <th>
+                Actions
+            </th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+        @{var counter = 1; }
+        @foreach (var item in Model.TestQuestions.First().TestAnswers)
+        {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.AnswerText)
+                <b>@counter</b>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AnswerText)<br />
+            </td>
+            <td>
+                @if (!(item.ImageName is null))
+                {
+                    <img src="~/uploads/answerPics/@item.ImageName" height="100" />
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.IsCorrect)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                @if (item.TestQuestion.Test.TestCode is null)
+                {
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a><span> |</span>
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a><span> |</span>
+                }
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a>
             </td>
         </tr>
-}
+        counter++;
+        }
     </tbody>
 </table>
