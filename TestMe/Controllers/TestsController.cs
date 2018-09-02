@@ -40,16 +40,10 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
-            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
-            if (test == null)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            ViewBag.QuestionAmount = test.TestQuestions.Count();
-            return View(test.TestResults);
+            return RedirectToAction("Index", "TestResults", new { id });
         }
         public async Task<IActionResult> StopSharing(int? id)
         {
