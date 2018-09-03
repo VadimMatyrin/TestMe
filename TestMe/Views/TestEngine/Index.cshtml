@@ -1,6 +1,6 @@
 ﻿@model TestMe.Models.Test
 @{
-
+    ViewData["Title"] = Model.TestName;
 }
 <div id="mainContainer" class="container-fluid">
     <div id="startTestElem" class="row">
@@ -167,10 +167,10 @@
                     appendQuestion(data);
                     getIfAlreadyAswered(data);
                     changeSelectedBitton(data.id);
-                        //$("#prevQuestionButton").prop('disabled', false);
+                    //$("#prevQuestionButton").prop('disabled', false);
                 },
                 error: function () {
-                   // $("#questionForm").empty();
+                    // $("#questionForm").empty();
                 }
             });
         }
@@ -293,7 +293,7 @@
             question.testAnswers.forEach(function (element) {
                 var input = $('<input/>', { type: 'checkbox', name: 'answer', value: element.id });
                 var label = $('<label/>', { text: element.answerText });
-                var div = $('<div/>', { class : "questionAnswer"});
+                var div = $('<div/>', { class: "questionAnswer" });
                 input.appendTo(div);
                 label.appendTo(div);
                 $('<br>').appendTo(div);

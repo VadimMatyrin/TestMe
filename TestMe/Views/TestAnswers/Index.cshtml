@@ -1,6 +1,6 @@
 ﻿@model Test
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Test answer manager";
 }
 
 <h2><strong>@Html.DisplayNameFor(model => model.TestQuestions.First().QuestionText)</strong>: @Model.TestQuestions.First().QuestionText</h2>
@@ -23,9 +23,12 @@
             <th>
                 @Html.DisplayNameFor(model => model.TestAnswers.First().AnswerText)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TestAnswers.First().ImageName)
-            </th>
+            @if (Model.TestQuestions.First().TestAnswers.Any(ta => !(ta.ImageName is null)))
+            {
+                <th>
+                    @Html.DisplayNameFor(model => model.TestAnswers.First().ImageName)
+                </th>
+            }
             <th>
                 @Html.DisplayNameFor(model => model.TestAnswers.First().IsCorrect)
             </th>
@@ -45,12 +48,15 @@
             <td>
                 @Html.DisplayFor(modelItem => item.AnswerText)<br />
             </td>
-            <td>
-                @if (!(item.ImageName is null))
-                {
-                    <img src="~/uploads/answerPics/@item.ImageName" height="100" />
-                }
-            </td>
+            @if (Model.TestQuestions.First().TestAnswers.Any(ta => !(ta.ImageName is null)))
+            {
+                <td>
+                    @if (!(item.ImageName is null))
+                    {
+                        <img src="~/uploads/answerPics/@item.ImageName" height="100" />
+                    }
+                </td>
+            }
             <td>
                 @Html.DisplayFor(modelItem => item.IsCorrect)
             </td>
