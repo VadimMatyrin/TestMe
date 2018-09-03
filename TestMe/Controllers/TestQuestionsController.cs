@@ -39,10 +39,10 @@ namespace TestMe.Controllers
 
             var testQuestions = await _testingPlatform.TestQuestionManager.GetAll().Where(t => t.AppUser.Id == _userId && t.TestId == id).ToListAsync();
             var test = testQuestions.FirstOrDefault()?.Test;
-            if (test == null)
-            {
+            if (testQuestions.Count == 0)
+                test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
+            else if(test is null)
                 return NotFound();
-            }
 
             return View(test);
         }
