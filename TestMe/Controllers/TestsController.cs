@@ -30,8 +30,9 @@ namespace TestMe.Controllers
         {
             if (User.IsInRole("Admin"))
             {
-                if (Int32.TryParse(context.RouteData.Values["id"].ToString(), out int testId))
-                    _userId = _testingPlatform.TestManager.GetAll().AsNoTracking().Where(t => t.Id == testId).ToList().FirstOrDefault()?.AppUserId;
+                if (!(context.RouteData.Values["id"] is null))
+                    if (Int32.TryParse(context.RouteData.Values["id"].ToString(), out int testId))
+                        _userId = _testingPlatform.TestManager.GetAll().AsNoTracking().Where(t => t.Id == testId).ToList().FirstOrDefault()?.AppUserId;
             }
             _userId = _userId ?? _userManager.GetUserId(User);
         }

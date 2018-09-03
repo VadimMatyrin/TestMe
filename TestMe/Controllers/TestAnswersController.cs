@@ -82,7 +82,7 @@ namespace TestMe.Controllers
             if (!(testQuestion.Test.TestCode is null))
                 return RedirectToAction("Index", new { id });
 
-            var testAnswer = new TestAnswer { TestQuestion = testQuestion };
+            var testAnswer = new TestAnswer { TestQuestion = testQuestion, TestQuestionId = testQuestion.Id };
             return View(testAnswer);
         }
 
