@@ -326,9 +326,9 @@ namespace TestMe.Controllers
             if (HttpContext.Session.GetString("userName") is null)
                 throw new UserNameNotFoundException();
 
-            var alreadyCorrectlyAnsweredStr = HttpContext.Session.GetString("answeredQuestions");
-            var alreadyCorrectlyAnswered = JsonConvert.DeserializeObject<Dictionary<int, bool>>(alreadyCorrectlyAnsweredStr);
-            int score = alreadyCorrectlyAnswered.Values.Where(v => v).Count();
+            var alreadyAnsweredStr = HttpContext.Session.GetString("answeredQuestions");
+            var alreadyAnswered = JsonConvert.DeserializeObject<Dictionary<int, bool>>(alreadyAnsweredStr);
+            int score = alreadyAnswered.Values.Where(v => v).Count();
 
             var code = HttpContext.Session.GetString("testCode");
             if (code is null)
@@ -352,7 +352,7 @@ namespace TestMe.Controllers
             HttpContext.Session.SetString("isFinished", "true");
             var testResult = new TestResult { Username = username, Score = score, TestId = test.Id , StartTime = startTime, FinishTime = endTime };
             await _testingPlatform.TestResultManager.AddAsync(testResult);
-            return Json(score);
+            return Json(new { score, testId = test.Id });
         }
     }
 }
