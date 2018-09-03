@@ -12,14 +12,12 @@ namespace TestMe.Models
         [Required]
         public int Score { get; set; }
         [Required]
-        public string Username { get; set; }
-        [Required]
         public DateTime StartTime { get; set; }
         [Required]
         public DateTime FinishTime { get; set; }
         public int TestId { get; set; }
         public Test Test { get; set; }
-        //public string AppUserId { get; set; }
-        //public AppUser AppUser { get; set; }
+        public string AppUserId { get; set; }
+        public AppUser AppUser { get; set; }
     }
 }

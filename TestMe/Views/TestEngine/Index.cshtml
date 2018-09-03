@@ -45,20 +45,6 @@
         </div>
     </div>
 </div>
-@if (!User.Identity.IsAuthenticated)
-{
-    <div id="backGround">
-
-    </div>
-    <div id="userName">
-        @Html.AntiForgeryToken()
-        <div id="userNameLabel" class="text-center"><label for="userNameField">Enter your name</label></div>
-        <input type="text" id="userNameField" class="form-control">
-        <div class="errorMessage">&nbsp;<br>&nbsp;</div>
-        <button type="button" id="userNameButton" class="btn btn-primary center-block" onclick="userNameButton()">Confirm</button>
-    </div>
-
-}
 
 
 @section Scripts{
@@ -68,35 +54,6 @@
             $('#finishTestModal').on('hidden.bs.modal', function (e) {
                 finishTest();
             })
-        }
-        function userNameButton() {
-            var userName = $('#userName > input[type="text"]').val();
-            if (userName.length < 3)
-            {
-                $('.errorMessage').empty();
-                $('.errorMessage').append('Username must be at least<br> 3 characters long');
-            }
-            else {
-                setUserName();
-            }
-        }
-        function setUserName() {
-            var token = $('input[name="__RequestVerificationToken"]', $('#startTestElem')).val();
-            var myData = { userName: $("#userName > #userNameField").val() };
-            var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
-
-            $.ajax({
-                url: "/TestEngine/SetUserName",
-                type: "POST",
-                data: dataWithAntiforgeryToken,
-                success: function (data) {
-                    $('#userName').remove();
-                    $('#backGround').remove();
-                },
-                error: function () {
-                    //$("#questionForm").empty();
-                }
-            });
         }
         function getUserName() {
             var token = $('input[name="__RequestVerificationToken"]', $('#questionBlock')).val();

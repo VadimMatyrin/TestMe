@@ -40,7 +40,6 @@ namespace TestMe.Middleware
             }
             else if (exception is QuestionNotFoundException ||
                 exception is AnswerNotFoundException ||
-                exception is UserNameNotFoundException ||
                 exception is UserAnswersException||
                 exception is TestTimeException)
             {
