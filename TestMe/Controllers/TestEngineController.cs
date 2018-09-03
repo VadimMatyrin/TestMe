@@ -11,15 +11,20 @@ using TestMe.Models;
 using Newtonsoft.Json;
 using TestMe.Exceptions;
 using TestMe.Sevices.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace TestMe.Controllers
 {
+    [Authorize]
     public class TestEngineController : Controller
     {
         private readonly ITestingPlatform _testingPlatform;
-        public TestEngineController(ITestingPlatform testingPlatform)
+        private readonly UserManager<AppUser> _userManager;
+        public TestEngineController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager)
         {
             _testingPlatform = testingPlatform;
+            _userManager = userManager;
         }
         public async Task<IActionResult> Index(string code)
         {
@@ -27,9 +32,6 @@ namespace TestMe.Controllers
             var test = await _testingPlatform.TestManager.FindAsync(t => t.TestCode == code);
             if (test is null)
                 throw new TestNotFoundException(code);
-
-            if(User.Identity.IsAuthenticated)
-                HttpContext.Session.SetString("userName", User.Identity.Name);
 
             HttpContext.Session.SetString("testCode", code);
             return View(test);
@@ -41,8 +43,6 @@ namespace TestMe.Controllers
             {
                 if (HttpContext.Session.Get("isFinished") is null)
                 {
-                    if (HttpContext.Session.GetString("userName") is null)
-                        throw new UserNameNotFoundException();
 
                     var startTimeStr = HttpContext.Session.GetString("startTime");
                     var endTimeStr = HttpContext.Session.GetString("endTime");
@@ -65,30 +65,12 @@ namespace TestMe.Controllers
                     throw new TestTimeException();
             }
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult SetUserName(string userName)
-        {
-            if (!(HttpContext.Session.GetString("userName") is null))
-                return Json("success");
 
-            if (userName is null)
-                throw new UserNameNotFoundException();
-
-            HttpContext.Session.SetString("userName", userName);
-
-            return Json("success");
-        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult GetUserName()
         {
-            var userName = HttpContext.Session.GetString("userName");
-
-            if (userName is null)
-                throw new UserNameNotFoundException();
-
-            return Json(userName);
+            return Json(User.Identity.Name);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -176,7 +158,7 @@ namespace TestMe.Controllers
             if (checkedIds.Any(checkId => _answers.Count(ta => ta.Id == checkId) == 0))
                 throw new UserAnswersException();
 
-            var question = await _testingPlatform.TestQuestionManager.FindAsync(tq => tq.Id == questionId);//  _context.TestQuestions.FirstOrDefaultAsync(tq => tq.Id == questionId);
+            var question = await _testingPlatform.TestQuestionManager.FindAsync(tq => tq.Id == questionId);
             bool isCorrect = true;
             var correctAnswers = _answers.Where(ta => ta.IsCorrect).Select(ta => ta.Id);
             if (correctAnswers.Except(checkedIds).Count() != 0 && correctAnswers.Count() != checkedIds.Count)
@@ -322,13 +304,9 @@ namespace TestMe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FinishTest()
         {
-            var username = HttpContext.Session.GetString("userName");
-            if (HttpContext.Session.GetString("userName") is null)
-                throw new UserNameNotFoundException();
-
-            var alreadyCorrectlyAnsweredStr = HttpContext.Session.GetString("answeredQuestions");
-            var alreadyCorrectlyAnswered = JsonConvert.DeserializeObject<Dictionary<int, bool>>(alreadyCorrectlyAnsweredStr);
-            int score = alreadyCorrectlyAnswered.Values.Where(v => v).Count();
+            var alreadyAnsweredStr = HttpContext.Session.GetString("answeredQuestions");
+            var alreadyAnswered = JsonConvert.DeserializeObject<Dictionary<int, bool>>(alreadyAnsweredStr);
+            int score = alreadyAnswered.Values.Where(v => v).Count();
 
             var code = HttpContext.Session.GetString("testCode");
             if (code is null)
@@ -350,9 +328,17 @@ namespace TestMe.Controllers
                 endTime = endTestTime;
 
             HttpContext.Session.SetString("isFinished", "true");
-            var testResult = new TestResult { Username = username, Score = score, TestId = test.Id , StartTime = startTime, FinishTime = endTime };
-            await _testingPlatform.TestResultManager.AddAsync(testResult);
-            return Json(score);
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var testResult = new TestResult {/* AppUser = user,*/ AppUserId = user.Id, Score = score, TestId = test.Id , StartTime = startTime, FinishTime = endTime };
+            try
+            {
+                await _testingPlatform.TestResultManager.AddAsync(testResult);
+            }
+            catch(Exception e)
+            {
+                var message = e.Message;
+            }
+            return Json(new { score, testId = test.Id });
         }
     }
 }

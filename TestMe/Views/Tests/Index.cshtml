@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<TestMe.Models.Test>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Test manager";
 }
 
-<h2>Index</h2>
+<h2>Test manager</h2>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -58,50 +58,51 @@
                     @item.TestCode
                 </td>
             }
-            <td>
-                @if (item.TestCode is null)
-                {
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a><span> |</span>
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a><span> |</span>
-                    var modalId = $"startSharingModal{item.Id}";
-                    <a data-toggle="modal" data-target="#@modalId">Share your test </a><span> |</span>
-                    <div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labelledby="@modalId" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-body">
-                                    <h4>All previous test results will be deleted. Are you sure?</h4>
-                                </div>
-                                <div class="modal-footer">
-                                    <a asp-action="CreateCode" asp-route-id="@item.Id"><button type="button" class="btn btn-primary">Yes</button></a>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <a asp-action="ValidateTest" asp-route-id="@item.Id">Validate test</a><span> |</span>
-                }
-                else
-                {
-                    var modalId = $"stopSharingModal{item.Id}";
-                    <a data-toggle="modal" data-target="#@modalId">Stop sharing </a><span> |</span>
-                    <div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labelledby="@modalId" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-body">
-                                    <h4>If you stop sharing your test right now, next time you share a test, all it previous results will be deleted. Are you sure?</h4>
-                                </div>
-                                <div class="modal-footer">
-                                    <a asp-action="StopSharing" asp-route-id="@item.Id"><button type="button" class="btn btn-primary">Yes</button></a>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <td>
+                    @if (item.TestCode is null)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a><span> |</span>
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a><span> |</span>
+                        var modalId = $"startSharingModal{item.Id}";
+                        <a data-toggle="modal" data-target="#@modalId">Share your test </a><span> |</span>
+                        <div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labelledby="@modalId" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <h4>All previous test results will be deleted. Are you sure?</h4>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a asp-action="CreateCode" asp-route-id="@item.Id"><button type="button" class="btn btn-primary">Yes</button></a>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                }
-                <a asp-action="UserResults" asp-route-id="@item.Id">User results </a><span> |</span>
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        <a asp-action="ValidateTest" asp-route-id="@item.Id">Validate test</a><span> |</span>
+                    }
+                    else
+                    {
+                        <a asp-action="Index" asp-controller="TestEngine" asp-route-code="@item.TestCode">Try your test out</a><span> |</span>
+                        var modalId = $"stopSharingModal{item.Id}";
+                        <a data-toggle="modal" data-target="#@modalId">Stop sharing </a><span> |</span>
+                        <div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labelledby="@modalId" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <h4>If you stop sharing your test right now, next time you share a test, all it previous results will be deleted. Are you sure?</h4>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a asp-action="StopSharing" asp-route-id="@item.Id"><button type="button" class="btn btn-primary">Yes</button></a>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <a asp-action="UserResults" asp-route-id="@item.Id">User results </a><span> |</span>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
 
-            </td>
+                </td>
         </tr>
             counter++;
         }

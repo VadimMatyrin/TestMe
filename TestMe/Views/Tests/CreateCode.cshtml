@@ -1,8 +1,10 @@
-﻿@model string
+﻿@model Test
 @{
     ViewData["Title"] = "CreateCode";
 }
 <h1>Share this link with other people</h1>
-<h2>test-me.ua/@Model</h2>
-<a asp-action="Index">Back to tests</a>
+<h2>test-me.ua/@Model.TestCode</h2>
+<h3><a asp-action="Index" asp-controller="TestEngine" asp-route-code="@Model.TestCode">Try your test out</a></h3>
+<a asp-action="Index">Back to tests</a><br />
+
 

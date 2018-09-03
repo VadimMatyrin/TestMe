@@ -40,16 +40,10 @@ namespace TestMe.Controllers
         {
             if (id == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
-            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
-            if (test == null)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            ViewBag.QuestionAmount = test.TestQuestions.Count();
-            return View(test.TestResults);
+            return RedirectToAction("Index", "TestResults", new { id });
         }
         public async Task<IActionResult> StopSharing(int? id)
         {
@@ -118,9 +112,9 @@ namespace TestMe.Controllers
                 }
                 var testResult = _testingPlatform.TestResultManager.GetAll().Where(tr => tr.TestId == test.Id);
                 await _testingPlatform.TestResultManager.DeleteRangeAsync(testResult);
-                return View("CreateCode", generatedCode);
+                return View("CreateCode", test);
             }
-            return View("CreateCode", test.TestCode);
+            return View("CreateCode", test);
         }
         public async Task<IActionResult> Details(int? id)
         {

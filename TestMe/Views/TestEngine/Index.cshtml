@@ -1,6 +1,6 @@
 ﻿@model TestMe.Models.Test
 @{
-
+    ViewData["Title"] = Model.TestName;
 }
 <div id="mainContainer" class="container-fluid">
     <div id="startTestElem" class="row">
@@ -45,20 +45,6 @@
         </div>
     </div>
 </div>
-@if (!User.Identity.IsAuthenticated)
-{
-    <div id="backGround">
-
-    </div>
-    <div id="userName">
-        @Html.AntiForgeryToken()
-        <div id="userNameLabel" class="text-center"><label for="userNameField">Enter your name</label></div>
-        <input type="text" id="userNameField" class="form-control">
-        <div class="errorMessage">&nbsp;<br>&nbsp;</div>
-        <button type="button" id="userNameButton" class="btn btn-primary center-block" onclick="userNameButton()">Confirm</button>
-    </div>
-
-}
 
 
 @section Scripts{
@@ -68,35 +54,6 @@
             $('#finishTestModal').on('hidden.bs.modal', function (e) {
                 finishTest();
             })
-        }
-        function userNameButton() {
-            var userName = $('#userName > input[type="text"]').val();
-            if (userName.length < 3)
-            {
-                $('.errorMessage').empty();
-                $('.errorMessage').append('Username must be at least<br> 3 characters long');
-            }
-            else {
-                setUserName();
-            }
-        }
-        function setUserName() {
-            var token = $('input[name="__RequestVerificationToken"]', $('#startTestElem')).val();
-            var myData = { userName: $("#userName > #userNameField").val() };
-            var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
-
-            $.ajax({
-                url: "/TestEngine/SetUserName",
-                type: "POST",
-                data: dataWithAntiforgeryToken,
-                success: function (data) {
-                    $('#userName').remove();
-                    $('#backGround').remove();
-                },
-                error: function () {
-                    //$("#questionForm").empty();
-                }
-            });
         }
         function getUserName() {
             var token = $('input[name="__RequestVerificationToken"]', $('#questionBlock')).val();
@@ -210,10 +167,10 @@
                     appendQuestion(data);
                     getIfAlreadyAswered(data);
                     changeSelectedBitton(data.id);
-                        //$("#prevQuestionButton").prop('disabled', false);
+                    //$("#prevQuestionButton").prop('disabled', false);
                 },
                 error: function () {
-                   // $("#questionForm").empty();
+                    // $("#questionForm").empty();
                 }
             });
         }
@@ -336,7 +293,7 @@
             question.testAnswers.forEach(function (element) {
                 var input = $('<input/>', { type: 'checkbox', name: 'answer', value: element.id });
                 var label = $('<label/>', { text: element.answerText });
-                var div = $('<div/>', { class : "questionAnswer"});
+                var div = $('<div/>', { class: "questionAnswer" });
                 input.appendTo(div);
                 label.appendTo(div);
                 $('<br>').appendTo(div);
@@ -402,9 +359,12 @@
                 }
             });
         }
-        function showResult(score) {
+        function showResult(data) {
             $('#questionBlock').remove();
-            $('#mainContainer').append('<h1> Your score: ' + score + ' out of ' + $('#mainContainer').data('questAmount') + '</h1>');
+            var link = $('<a/>', { href: "/Tests/UserResults/" + data.testId, text: "Other users results" });
+            $('#mainContainer').append('<h1> Your score: ' + data.score + ' out of ' + $('#mainContainer').data('questAmount') + '</h1>');
+            $('#mainContainer').append(link);
+
         }
         function startTimer(date) {
             var countDownDate = new Date(date).getTime();

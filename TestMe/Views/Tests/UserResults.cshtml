@@ -19,7 +19,7 @@
                 @Html.DisplayNameFor(model => model.Score)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Username)
+                @Html.DisplayNameFor(model => model.First().AppUser.UserName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.StartTime)
@@ -36,10 +36,10 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                <strong>@Html.DisplayFor(modelItem => item.Score)</strong> / @ViewBag.QuestionAmount
+                <strong>@Html.DisplayFor(modelItem => item.Score)</strong> / @Model.First().Test.TestQuestions.Count
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Username)
+                @Html.DisplayFor(modelItem => item.AppUser.UserName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.StartTime)
