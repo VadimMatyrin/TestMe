@@ -38,6 +38,10 @@
                         <li><a asp-area="" asp-controller="Tests" asp-action="Create">Create new test</a></li>
                         <li><a asp-area="" asp-controller="Tests" asp-action="Index">Your tests</a></li>
                     }
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li><a asp-area="" asp-controller="Admin" asp-action="Index">Administrator page</a></li>
+                    }
                 </ul>
                 <partial name="_LoginPartial" />
             </div>
