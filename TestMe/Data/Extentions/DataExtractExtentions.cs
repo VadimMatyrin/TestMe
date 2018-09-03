@@ -22,6 +22,7 @@ namespace TestMe.Data.Extentions
         {
             return dbSet
                 .Include(tq => tq.Test)
+                .ThenInclude(t => t.TestResults)
                 .Include(tq => tq.TestAnswers)
                 .Include(tq => tq.AppUser);
         }
@@ -36,7 +37,8 @@ namespace TestMe.Data.Extentions
         public static IQueryable<TestResult> ExtractAll(this DbSet<TestResult> dbSet)
         {
             return dbSet
-            .Include(tr => tr.Test);
+            .Include(tr => tr.Test)
+            .Include(tr => tr.AppUser);
         }
     }
 }
