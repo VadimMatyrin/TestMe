@@ -6,12 +6,12 @@
 }
 
 <h2>Test manager</h2>
-<form>
+<form asp-controller="Admin" asp-action="Index" method="get">
     <div class="form-group">
-        <label for="usr">Test name:</label>
+        <label for="SearchString">Test name:</label>
         <div class="row">
             <div class="col-xs-12 col-md-7">
-                <input type="text" class="form-control" id="usr">
+                <input type="text" class="form-control" name="SearchString" id="SearchString">
             </div>
             <div class="col-xs-12 col-md-offset-2 col-md-3">
                 <input type="submit" class="form-control " id="submit" value="Search">

@@ -30,6 +30,19 @@ namespace TestMe.Controllers
             return View(tests);
         }
 
+        [HttpGet]
+        [ActionName("Index")]
+        public async Task<IActionResult> IndexGet(string searchString)
+        {
+            if (searchString is null)
+                searchString = "";
+
+            var tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestName.ToUpper().Contains(searchString.ToUpper())).Take(10).ToListAsync();
+            if (tests is null)
+                return NotFound();
+
+            return View(tests);
+        }
         public async Task <IActionResult> Users()
         {
             var appUsers = await _userManager.Users.AsNoTracking().Take(10).ToListAsync();//_testingPlatform.TestManager.GetAll().Take(10);
