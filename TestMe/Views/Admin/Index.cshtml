@@ -6,7 +6,19 @@
 }
 
 <h2>Test manager</h2>
-
+<form>
+    <div class="form-group">
+        <label for="usr">Test name:</label>
+        <div class="row">
+            <div class="col-xs-12 col-md-7">
+                <input type="text" class="form-control" id="usr">
+            </div>
+            <div class="col-xs-12 col-md-offset-2 col-md-3">
+                <input type="submit" class="form-control " id="submit" value="Search">
+            </div>
+        </div>
+    </div>
+</form>
 <table class="table">
     <thead>
         <tr>
@@ -44,8 +56,8 @@
                 @Html.DisplayFor(modelItem => item.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TestName)
-            </td>
+                <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.TestName)</a>
+</td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreationDate)
             </td>

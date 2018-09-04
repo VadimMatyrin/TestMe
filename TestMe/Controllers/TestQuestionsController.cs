@@ -27,7 +27,13 @@ namespace TestMe.Controllers
         }
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            _userId = _userManager.GetUserId(User);
+            if (User.IsInRole("Admin"))
+            {
+                if (!(context.RouteData.Values["id"] is null))
+                    if (Int32.TryParse(context.RouteData.Values["id"].ToString(), out int testId))
+                        _userId = _testingPlatform.TestManager.GetAll().AsNoTracking().Where(t => t.Id == testId).ToList().FirstOrDefault()?.AppUserId;
+            }
+            _userId = _userId ?? _userManager.GetUserId(User);
         }
 
         public async Task<IActionResult> Index(int? id)
