@@ -35,7 +35,6 @@
                     <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <li><a asp-area="" asp-controller="Tests" asp-action="Create">Create new test</a></li>
                         <li><a asp-area="" asp-controller="Tests" asp-action="Index">Your tests</a></li>
                     }
                     @if (User.IsInRole("Admin"))

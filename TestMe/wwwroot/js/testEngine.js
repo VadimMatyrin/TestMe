@@ -249,14 +249,6 @@ function appendQuestion(question) {
         if (element.imageName) {
             var image = $('<img />', { src: '/uploads/answerPics/' + element.imageName, height: "200",class: 'answerImage' });
             image.appendTo(div);
-
-            //image.click(function () {
-            //    $(this).toggle(function () {
-            //        $(this).animate({ height: 200 }, 200);
-            //    }, function () {
-            //        $(this).animate({ height: 600 }, 200);
-            //    })
-            //});
             image.click(function () {
                 if ($(this).hasClass('max')) {
                     $(this).animate({ height: 200 }, 200).removeClass('max');

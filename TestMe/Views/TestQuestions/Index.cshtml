@@ -1,4 +1,4 @@
-﻿@model TestMe.Models.Test 
+﻿@model TestMe.Models.Test
 
 @{
     ViewData["Title"] = "Test question manager";
@@ -12,9 +12,18 @@
         <a asp-action="Create" asp-route-id="@Model.Id">Add new question</a>
     }
 </p>
-<p>
-    <a asp-action="Index" asp-controller="Tests">Return to tests</a>
-</p>
+@if (User.Identity.Name == Model.AppUser.UserName)
+{
+    <div>
+        <a asp-action="Index" asp-controller="Tests">Return to tests</a>
+    </div>
+}
+else
+{
+    <div>
+        <a asp-action="Index" asp-controller="Admin">Back to administration</a>
+    </div>
+}
 <table class="table">
     <thead>
         <tr>

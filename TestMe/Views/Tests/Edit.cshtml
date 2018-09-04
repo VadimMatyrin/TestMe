@@ -29,10 +29,18 @@
         </form>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to tests</a>
-</div>
+@if (User.Identity.Name == Model.AppUser.UserName)
+{
+    <div>
+        <a asp-action="Index">Back to tests</a>
+    </div>
+}
+else
+{
+    <div>
+        <a asp-action="Index" asp-controller="Admin">Back to administration</a>
+    </div>
+}
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
