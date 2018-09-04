@@ -39,8 +39,13 @@ namespace TestMe
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDefaultIdentity<AppUser>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            //services.AddDefaultIdentity<AppUser>()
+            //    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddIdentity<AppUser, IdentityRole>()
+               .AddEntityFrameworkStores<ApplicationDbContext>()
+               .AddDefaultTokenProviders()
+               .AddDefaultUI();
 
             services.AddDistributedMemoryCache();
             services.AddSession(options => 
@@ -57,7 +62,7 @@ namespace TestMe
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -77,6 +82,7 @@ namespace TestMe
             app.UseAuthentication();
             app.UseSession();
             app.UseMiddleware(typeof(ErrorHandlingMiddleware));
+            CreateRoles(serviceProvider).Wait();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
@@ -88,6 +94,41 @@ namespace TestMe
                     template: "{code}",
                     defaults: new { controller = "TestEngine", action = "Index" });
             });
+        }
+        private async Task CreateRoles(IServiceProvider serviceProvider)
+        {
+            var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var UserManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
+            string[] roleNames = { "Admin" };
+            IdentityResult roleResult;
+
+            foreach (var roleName in roleNames)
+            {
+                var roleExist = await RoleManager.RoleExistsAsync(roleName);
+                if (!roleExist)
+                {
+                    roleResult = await RoleManager.CreateAsync(new IdentityRole(roleName));
+                }
+            }
+
+            var poweruser = new AppUser
+            {
+                UserName = Configuration["AppSettings:UserName"],
+                Email = Configuration["AppSettings:UserEmail"],
+            };
+            string userPWD = Configuration["AppSettings:UserPassword"];
+            var _user = await UserManager.FindByEmailAsync(Configuration["AppSettings:AdminUserEmail"]);
+
+            if (_user == null)
+            {
+                var createPowerUser = await UserManager.CreateAsync(poweruser, userPWD);
+                if (createPowerUser.Succeeded)
+                {
+                    await UserManager.AddToRoleAsync(poweruser, "Admin");
+
+                }
+               var errors =  createPowerUser.Errors;
+            }
         }
     }
 }

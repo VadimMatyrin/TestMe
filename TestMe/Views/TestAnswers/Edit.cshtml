@@ -26,7 +26,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <input type="hidden" asp-for="TestQuestionId" value="@Model.TestQuestion.TestId" />
+                <input type="hidden" asp-for="TestQuestionId" value="@Model.TestQuestionId" />
             </div>
             <div class="form-group">
                 <label asp-for="ImageName" class="control-label"></label><br />
@@ -37,7 +37,7 @@
                 }
                 else
                 {
-                    <img id="answerImage" height="200" alt="your image" data-src="" style="display: none;"/><br />
+                    <img id="answerImage" height="200" alt="your image" data-src="" style="display: none;" /><br />
                 }
                 <button type="button" class="btn btn-default" id="resetPhotoButton" onclick="resetPhotoButtonClick()" style="display: none;">Reset</button>
                 <label class="btn btn-default">
@@ -46,7 +46,7 @@
                 <span asp-validation-for="ImageName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input asp-for="ImageName" type="hidden" class="form-control" value="@Model.ImageName"/>
+                <input asp-for="ImageName" type="hidden" class="form-control" value="@Model.ImageName" />
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />
@@ -61,4 +61,5 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/answerPhoto.js"></script>
 }

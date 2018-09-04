@@ -1,0 +1,96 @@
+﻿@model IEnumerable<TestMe.Models.Test>
+
+@{
+    ViewData["ActivePage"] = "Index";
+    ViewData["Title"] = "Test manager";
+}
+
+<h2>Test manager</h2>
+<form asp-controller="Admin" asp-action="Index" method="get">
+    <div class="form-group">
+        <label for="SearchString">Test name:</label>
+        <div class="row">
+            <div class="col-xs-12 col-md-7">
+                <input type="text" class="form-control" name="SearchString" id="SearchString">
+            </div>
+            <div class="col-xs-12 col-md-offset-2 col-md-3">
+                <input type="submit" class="form-control " id="submit" value="Search">
+            </div>
+        </div>
+    </div>
+</form>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                Name
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreationDate)
+            </th>
+            @if (Model.Any(t => !(t.TestCode is null)))
+            {
+                <th>
+                    @Html.DisplayNameFor(model => model.TestCode)
+                </th>
+            }
+            <th>
+                Duration
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AppUser)
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.TestName)</a>
+</td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreationDate)
+            </td>
+            @if (Model.Any(t => !(t.TestCode is null)))
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item.TestCode)
+                </td>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.TestDuration)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AppUser.UserName)
+            </td>
+            <td>
+                @if (item.TestCode is null)
+                {
+                    <a asp-action="Edit" asp-route-id="@item.Id" asp-controller="Tests">Edit</a><span> |</span>
+                    <a asp-action="Delete" asp-route-id="@item.Id" asp-controller="Tests">Delete</a><span> |</span>
+                    <a asp-action="CreateCode" asp-route-id="@item.Id" asp-controller="Tests">Share test</a><span> |</span>
+                    <a asp-action="ValidateTest" asp-route-id="@item.Id" asp-controller="Tests">Validate test</a><span> |</span>
+                }
+                else
+                {
+                    <a asp-action="Index" asp-controller="TestEngine" asp-route-code="@item.TestCode">Try test out</a><span> |</span>
+                    <a asp-action="StopSharing" asp-route-id="@item.Id" asp-controller="Tests">Stop sharing</a><span> |</span>
+                }
+                <a asp-action="UserResults" asp-route-id="@item.Id" asp-controller="Tests">User results </a><span> |</span>
+                <a asp-action="Details" asp-route-id="@item.Id" asp-controller="Tests">Details</a>
+
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,69 @@
+﻿@model IEnumerable<AppUser>
+@inject UserManager<AppUser> UserManager
+@{
+    ViewData["ActivePage"] = "Users";
+    ViewData["Title"] = "Users manager";
+}
+
+<h2>User manager</h2>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.First().UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Surname)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().PhoneNumber)
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Surname)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PhoneNumber)
+                </td>
+                <td>
+                    @if (await UserManager.IsInRoleAsync(item, "Admin"))
+                    {
+                        if (User.Identity.Name != item.UserName)
+                        {
+                           <a asp-action="RemoveFromAdmins" asp-route-id="@item.Id">Remove from admins</a>
+                        }
+                    }
+                    else
+                    {
+                        <a asp-action="AddToAdmins" asp-route-id="@item.Id">Add to admins</a>
+                    }
+                </td>
+                </tr>
+    }
+    </tbody>
+</table>

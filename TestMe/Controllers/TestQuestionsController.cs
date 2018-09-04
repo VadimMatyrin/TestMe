@@ -27,7 +27,13 @@ namespace TestMe.Controllers
         }
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            _userId = _userManager.GetUserId(User);
+            if (User.IsInRole("Admin"))
+            {
+                if (!(context.RouteData.Values["id"] is null))
+                    if (Int32.TryParse(context.RouteData.Values["id"].ToString(), out int testId))
+                        _userId = _testingPlatform.TestManager.GetAll().AsNoTracking().Where(t => t.Id == testId).ToList().FirstOrDefault()?.AppUserId;
+            }
+            _userId = _userId ?? _userManager.GetUserId(User);
         }
 
         public async Task<IActionResult> Index(int? id)
@@ -39,10 +45,10 @@ namespace TestMe.Controllers
 
             var testQuestions = await _testingPlatform.TestQuestionManager.GetAll().Where(t => t.AppUser.Id == _userId && t.TestId == id).ToListAsync();
             var test = testQuestions.FirstOrDefault()?.Test;
-            if (test == null)
-            {
+            if (testQuestions.Count == 0)
+                test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
+            else if(test is null)
                 return NotFound();
-            }
 
             return View(test);
         }
