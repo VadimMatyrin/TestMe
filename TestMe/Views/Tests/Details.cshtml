@@ -46,6 +46,20 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to tests</a>
+    @if (User.Identity.Name == Model.AppUser.UserName || User.IsInRole("Admin"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+    }
+    @if (User.Identity.Name == Model.AppUser.UserName)
+    {
+        <div>
+            <a asp-action="Index" asp-controller="Tests">Backs to tests</a>
+        </div>
+    }
+    else
+    {
+        <div>
+            <a asp-action="Index" asp-controller="Admin">Back to administration</a>
+        </div>
+    }
 </div>

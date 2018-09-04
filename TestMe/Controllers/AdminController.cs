@@ -11,7 +11,7 @@ using TestMe.Sevices.Interfaces;
 
 namespace TestMe.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, Moderator")]
     public class AdminController : Controller
     {
         private readonly ITestingPlatform _testingPlatform;
@@ -21,6 +21,7 @@ namespace TestMe.Controllers
             _testingPlatform = testingPlatform;
             _userManager = userManager;
         }
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             var tests = await _testingPlatform.TestManager.GetAll().Take(10).ToListAsync();
@@ -32,6 +33,7 @@ namespace TestMe.Controllers
 
         [HttpGet]
         [ActionName("Index")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> IndexGet(string searchString)
         {
             if (searchString is null)
@@ -43,6 +45,7 @@ namespace TestMe.Controllers
 
             return View(tests);
         }
+        [Authorize(Roles = "Admin")]
         public async Task <IActionResult> Users()
         {
             var appUsers = await _userManager.Users.AsNoTracking().Take(10).ToListAsync();//_testingPlatform.TestManager.GetAll().Take(10);
@@ -51,6 +54,7 @@ namespace TestMe.Controllers
 
             return View(appUsers);
         }
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddToAdmins(string id)
         {
             if (String.IsNullOrEmpty(id))
@@ -65,6 +69,7 @@ namespace TestMe.Controllers
 
             return RedirectToAction(nameof(Users));
         }
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RemoveFromAdmins(string id)
         {
             if (String.IsNullOrEmpty(id))
@@ -78,6 +83,15 @@ namespace TestMe.Controllers
                 await _userManager.RemoveFromRoleAsync(user, "Admin");
 
             return RedirectToAction(nameof(Users));
+        }
+        [Authorize(Roles = "Admin, Moderator")]
+        public async Task<IActionResult> ReportedTests()
+        {
+            var tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestReports.Count >= 1).OrderByDescending(t => t.TestReports.Count).Take(10).ToListAsync();
+            if (tests is null)
+                return NotFound();
+
+            return View(tests);
         }
     }
 }

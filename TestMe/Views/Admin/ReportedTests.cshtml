@@ -1,0 +1,59 @@
+﻿@model IEnumerable<Test>
+
+@{
+    ViewData["ActivePage"] = "ReportedTests";
+    ViewData["Title"] = "Reported tests";
+}
+
+<h2>Reported tests</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                Name
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AppUser)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestReports)
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.TestName)</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AppUser.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TestReports.Count)
+                </td>
+                <td>
+                    <a asp-action="DeleteReports" asp-controller="TestReports">Ingore reports</a><span> |</span>
+                    <a asp-action="Delete" asp-route-id="@item.Id" asp-controller="Tests">Delete test</a><span> |</span>
+                    @if (!(item.TestCode is null))
+                    {
+                        <a asp-action="Index" asp-controller="TestEngine" asp-route-code="@item.TestCode">Try test out</a><span> |</span>
+                    }
+                    <a asp-action="Details" asp-route-id="@item.Id" asp-controller="Tests">Details</a><span> |</span>
+                    <a asp-action="Index" asp-route-id="@item.Id" asp-controller="TestReports">Reports</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

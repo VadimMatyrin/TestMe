@@ -17,6 +17,7 @@ namespace TestMe.Data
         public DbSet<TestQuestion> TestQuestions { get; set; }
         public DbSet<TestAnswer> TestAnswers { get; set; }
         public DbSet<TestResult> TestResults { get; set; }
+        public DbSet<TestReport> TestReports { get; set; }
 
         async Task ITestingPlatformDbContext.SaveChangesAsync() => await SaveChangesAsync();
 

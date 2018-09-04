@@ -1,0 +1,36 @@
+﻿@model TestMe.Models.Test
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2><strong>@Html.DisplayNameFor(model => model.TestName):</strong> <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@Model.Id">@Model.TestName</a></h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TestReports.First().Message)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestReports.First().AppUser)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.TestReports) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Message)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AppUser.Id)
+            </td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

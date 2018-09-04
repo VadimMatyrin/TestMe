@@ -24,7 +24,8 @@ namespace TestMe.Sevices.Extentions
 
         private static IServiceCollection AddModelManagers(this IServiceCollection service) =>
             service.AddTestManager().AddTestQuestionManager()
-            .AddTestAnswerManager().AddTestResultManager();
+            .AddTestAnswerManager().AddTestResultManager()
+            .AddTestReportManager();
 
         private static IServiceCollection AddTestManager(this IServiceCollection service) =>
             service.AddScoped<ITestManager, TestManager>();
@@ -37,6 +38,8 @@ namespace TestMe.Sevices.Extentions
 
         private static IServiceCollection AddTestResultManager(this IServiceCollection service) =>
             service.AddScoped<ITestResultManager, TestResultManager>();
+        private static IServiceCollection AddTestReportManager(this IServiceCollection service) =>
+            service.AddScoped<ITestReportManager, TestReportManager>();
 
         #endregion
 
@@ -44,7 +47,8 @@ namespace TestMe.Sevices.Extentions
 
         private static IServiceCollection AddRepositories(this IServiceCollection service) =>
             service.AddTestRepository().AddTestAnswerRepository()
-                .AddTestQuestionRepository().AddTestResultRepository();
+                .AddTestQuestionRepository().AddTestResultRepository()
+            .AddTestReportRepository();
 
         private static IServiceCollection AddTestRepository(this IServiceCollection service) =>
             service.AddScoped<IRepository<Test>, TestRepository>();
@@ -57,6 +61,8 @@ namespace TestMe.Sevices.Extentions
 
         private static IServiceCollection AddTestResultRepository(this IServiceCollection service) =>
             service.AddScoped<IRepository<TestResult>, TestResultRepository>();
+        private static IServiceCollection AddTestReportRepository(this IServiceCollection service) =>
+            service.AddScoped<IRepository<TestReport>, TestReportRepository>();
         #endregion
 
         private static IServiceCollection AddRandomStringGenerator(this IServiceCollection service) =>
