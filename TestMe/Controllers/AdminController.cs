@@ -51,5 +51,33 @@ namespace TestMe.Controllers
 
             return View(appUsers);
         }
+        public async Task<IActionResult> AddToAdmins(string id)
+        {
+            if (String.IsNullOrEmpty(id))
+                return RedirectToAction(nameof(Users));
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user is null)
+                return NotFound();
+
+            if (!(await _userManager.IsInRoleAsync(user, "Admin")))
+               await _userManager.AddToRoleAsync(user, "Admin");
+
+            return RedirectToAction(nameof(Users));
+        }
+        public async Task<IActionResult> RemoveFromAdmins(string id)
+        {
+            if (String.IsNullOrEmpty(id))
+                return RedirectToAction(nameof(Users));
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user is null)
+                return NotFound();
+
+            if(await _userManager.IsInRoleAsync(user, "Admin") && user.UserName != User.Identity.Name && user.UserName != "admin")
+                await _userManager.RemoveFromRoleAsync(user, "Admin");
+
+            return RedirectToAction(nameof(Users));
+        }
     }
 }

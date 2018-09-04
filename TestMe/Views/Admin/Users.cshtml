@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<AppUser>
-
+@inject UserManager<AppUser> UserManager
 @{
     ViewData["ActivePage"] = "Users";
     ViewData["Title"] = "Users manager";
@@ -26,7 +26,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.First().PhoneNumber)
             </th>
-            <th></th>
+            <th>
+                Actions
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -49,11 +51,19 @@
                     @Html.DisplayFor(modelItem => item.PhoneNumber)
                 </td>
                 <td>
-                    @*<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>*@
+                    @if (await UserManager.IsInRoleAsync(item, "Admin"))
+                    {
+                        if (User.Identity.Name != item.UserName)
+                        {
+                           <a asp-action="RemoveFromAdmins" asp-route-id="@item.Id">Remove from admins</a>
+                        }
+                    }
+                    else
+                    {
+                        <a asp-action="AddToAdmins" asp-route-id="@item.Id">Add to admins</a>
+                    }
                 </td>
-            </tr>
-        }
+                </tr>
+    }
     </tbody>
 </table>

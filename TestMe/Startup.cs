@@ -111,7 +111,6 @@ namespace TestMe
                 }
             }
 
-            //Here you could create a super user who will maintain the web app
             var poweruser = new AppUser
             {
                 UserName = Configuration["AppSettings:UserName"],
