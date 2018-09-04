@@ -161,21 +161,14 @@ namespace TestMe.Controllers
             var question = await _testingPlatform.TestQuestionManager.FindAsync(tq => tq.Id == questionId);
             bool isCorrect = true;
             var correctAnswers = _answers.Where(ta => ta.IsCorrect).Select(ta => ta.Id);
-            if (correctAnswers.Except(checkedIds).Count() != 0 && correctAnswers.Count() != checkedIds.Count)
+            if (correctAnswers.Except(checkedIds).Count() != 0 || correctAnswers.Count() != checkedIds.Count)
                 isCorrect = false;
 
             var answeredQuestionsStr = HttpContext.Session.GetString("answeredQuestions");
             var answeredQuestions = JsonConvert.DeserializeObject<Dictionary<int, bool>>(answeredQuestionsStr);
             if (!answeredQuestions.Keys.Contains(questionId.Value))
             {
-                if (isCorrect)
-                {
-                    answeredQuestions[questionId.Value] = true;
-                }
-                else
-                {
-                    answeredQuestions[questionId.Value] = false;
-                }
+                 answeredQuestions[questionId.Value] = isCorrect;
             }
             else
                 throw new AnswerNotFoundException();
