@@ -55,11 +55,22 @@
                     {
                         if (User.Identity.Name != item.UserName)
                         {
-                           <a asp-action="RemoveFromAdmins" asp-route-id="@item.Id">Remove from admins</a>
+                            <a asp-action="RemoveFromAdmins" asp-route-id="@item.Id">Remove from admins</a><span> |</span>
                         }
                     }
                     else
                     {
+                        @if (await UserManager.IsInRoleAsync(item, "Moderator"))
+                        {
+                            if (User.Identity.Name != item.UserName)
+                            {
+                                <a asp-action="RemoveFromModerators" asp-route-id="@item.Id">Remove from moderators</a><span> |</span>
+                            }
+                        }
+                        else
+                        {
+                            <a asp-action="AddToModerators" asp-route-id="@item.Id">Add to moderators</a><span> |</span>
+                        }
                         <a asp-action="AddToAdmins" asp-route-id="@item.Id">Add to admins</a>
                     }
                 </td>

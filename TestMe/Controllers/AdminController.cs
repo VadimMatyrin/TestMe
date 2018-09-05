@@ -84,6 +84,36 @@ namespace TestMe.Controllers
 
             return RedirectToAction(nameof(Users));
         }
+         [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddToModerators(string id)
+        {
+            if (String.IsNullOrEmpty(id))
+                return RedirectToAction(nameof(Users));
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user is null)
+                return NotFound();
+
+            if (!(await _userManager.IsInRoleAsync(user, "Moderator")))
+               await _userManager.AddToRoleAsync(user, "Moderator");
+
+            return RedirectToAction(nameof(Users));
+        }
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RemoveFromModerators(string id)
+        {
+            if (String.IsNullOrEmpty(id))
+                return RedirectToAction(nameof(Users));
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user is null)
+                return NotFound();
+
+            if(await _userManager.IsInRoleAsync(user, "Moderator"))
+                await _userManager.RemoveFromRoleAsync(user, "Moderator");
+
+            return RedirectToAction(nameof(Users));
+        }
         [Authorize(Roles = "Admin, Moderator")]
         public async Task<IActionResult> ReportedTests()
         {

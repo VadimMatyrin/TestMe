@@ -41,6 +41,10 @@
                     {
                         <li><a asp-area="" asp-controller="Admin" asp-action="Index">Administrator page</a></li>
                     }
+                    @if (User.IsInRole("Moderator"))
+                    {
+                        <li><a asp-area="" asp-controller="Admin" asp-action="ReportedTests">Moderation page</a></li>
+                    }
                 </ul>
                 <partial name="_LoginPartial" />
             </div>
