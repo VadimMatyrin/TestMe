@@ -79,6 +79,10 @@ namespace TestMe.Controllers
                     throw;
                 }
             }
+            if (_userId != _userManager.GetUserId(User))
+            {
+                return RedirectToAction("Index", "Admin");
+            }
             return RedirectToAction(nameof(Index));
         }
         public async Task<IActionResult> CreateCode(int? id)
@@ -233,9 +237,6 @@ namespace TestMe.Controllers
                 return NotFound();
             var testAnswers = await _testingPlatform.TestAnswerManager.GetAll().Where(ta => ta.AppUserId == _userId && ta.TestQuestion.TestId == id).ToListAsync();
             if (testAnswers is null)
-                return NotFound();
-            //if(testQuestions?.Count ?? )
-            //var test = testQuestions.FirstOrDefault()?.Test;
             
             test.TestQuestions = testQuestions;
             test.TestAnswers = testAnswers;
@@ -243,6 +244,12 @@ namespace TestMe.Controllers
                 _testingPlatform.AnswerImageManager.DeleteAnswerImage(testAnswer.ImageName);
 
             await _testingPlatform.TestManager.DeleteAsync(test);
+            if(_userId != _userManager.GetUserId(User))
+            {
+                if (User.IsInRole("Admin"))
+                    return RedirectToAction("Index", "Admin");
+                return RedirectToAction("ReportedTests", "Admin");
+            }
             return RedirectToAction(nameof(Index));
         }
         public async Task<IActionResult> ValidateTest(int? id)
