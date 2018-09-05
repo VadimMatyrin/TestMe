@@ -322,17 +322,19 @@ function showResult(data) {
     $('#questionBlock').remove();
     var link = $('<a />', { href: "/Tests/UserResults/" + data.testId, text: "Other users results" });
     $('#mainContainer').append('<h1> Your score: ' + data.score + ' out of ' + $('#mainContainer').data('questAmount') + '</h1>');
-    $('#mainContainer').append(link);
     showRateButtons();
+    $('#mainContainer').append(link);
+
 }
 function showRateButtons() {
     var likeButton = $('<button/>', { type: 'button', class: 'btn btn-default btn-sm' });
     $('<span/>', { class: 'glyphicon glyphicon-thumbs-up', test: 'Like' }).appendTo(likeButton);
     var dislikeButton = $('<button/>', { type: 'button', class: 'btn btn-default btn-sm' });
     $('<span/>', { class: 'glyphicon glyphicon-thumbs-down', test: 'Dislike' }).appendTo(dislikeButton);
-
+    $('#mainContainer').append('<p>Rate this test:</p>')
     $('#mainContainer').append(likeButton);
     $('#mainContainer').append(dislikeButton);
+    $('#mainContainer').append('<br/>');
 }
 function startTimer(date) {
     var countDownDate = new Date(date).getTime();
