@@ -93,5 +93,20 @@ namespace TestMe.Controllers
 
             return View(tests);
         }
+        [Authorize(Roles = "Admin, Moderator")]
+        public async Task<IActionResult> DeleteReports(int? id)
+        {
+            if (id is null)
+                return NotFound();
+
+            var testReports = await _testingPlatform.TestReportManager.GetAll().Where(tr => tr.TestId == id).ToListAsync();
+            if (testReports is null)
+                return NotFound();
+
+            await _testingPlatform.TestReportManager.DeleteRangeAsync(testReports);
+
+            return RedirectToAction(nameof(ReportedTests));
+        }
+        
     }
 }

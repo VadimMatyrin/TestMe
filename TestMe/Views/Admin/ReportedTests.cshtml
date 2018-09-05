@@ -44,7 +44,7 @@
                     @Html.DisplayFor(modelItem => item.TestReports.Count)
                 </td>
                 <td>
-                    <a asp-action="DeleteReports" asp-controller="TestReports">Ingore reports</a><span> |</span>
+                    <a asp-action="DeleteReports" asp-route-id="@item.Id">Ingore reports</a><span> |</span>
                     <a asp-action="Delete" asp-route-id="@item.Id" asp-controller="Tests">Delete test</a><span> |</span>
                     @if (!(item.TestCode is null))
                     {
