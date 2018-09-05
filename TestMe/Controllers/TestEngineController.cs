@@ -42,30 +42,25 @@ namespace TestMe.Controllers
         public override void OnActionExecuting(ActionExecutingContext context)
         {
 
-            if (context.RouteData.Values["action"].ToString() != "Index" && context.RouteData.Values["action"].ToString() != "SetUserName")
+            if (context.RouteData.Values["action"].ToString() != "Index" && context.RouteData.Values["action"].ToString() != "FinishTest")
             {
-                if (HttpContext.Session.Get("isFinished") is null)
+                var startTimeStr = HttpContext.Session.GetString("startTime");
+                var endTimeStr = HttpContext.Session.GetString("endTime");
+
+                if (context.RouteData.Values["action"].ToString() != "StartTest" &&
+                    startTimeStr is null)
+                    throw new TestTimeException();
+
+                if (!(startTimeStr is null) && !(endTimeStr is null))
                 {
-
-                    var startTimeStr = HttpContext.Session.GetString("startTime");
-                    var endTimeStr = HttpContext.Session.GetString("endTime");
-
-                    if (context.RouteData.Values["action"].ToString() != "StartTest" &&
-                        startTimeStr is null)
-                        throw new TestTimeException();
-
-                    if (!(startTimeStr is null) && !(endTimeStr is null))
+                    var endTime = JsonConvert.DeserializeObject<DateTime>(endTimeStr);
+                    if (DateTime.Compare(endTime.AddSeconds(1), DateTime.Now) < 0)
                     {
-                        var endTime = JsonConvert.DeserializeObject<DateTime>(endTimeStr);
-                        if (DateTime.Compare(endTime.AddSeconds(1), DateTime.Now) < 0)
-                        {
-                            FinishTest().GetAwaiter().GetResult();
-                            throw new TestTimeException();
-                        }
+                        FinishTest().GetAwaiter().GetResult();
+                        throw new TestTimeException();
                     }
                 }
-                else
-                    throw new TestTimeException();
+
             }
         }
 
@@ -312,6 +307,9 @@ namespace TestMe.Controllers
             if (test is null)
                 throw new TestNotFoundException(code);
 
+            if (!(HttpContext.Session.GetString("isFinished") is null))
+                return Json(new { score, testId = test.Id });
+
             var startTimeStr = HttpContext.Session.GetString("startTime");
             if (startTimeStr is null)
                 throw new TestTimeException();
@@ -326,15 +324,31 @@ namespace TestMe.Controllers
             HttpContext.Session.SetString("isFinished", "true");
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
             var testResult = new TestResult {/* AppUser = user,*/ AppUserId = user.Id, Score = score, TestId = test.Id , StartTime = startTime, FinishTime = endTime };
-            try
-            {
-                await _testingPlatform.TestResultManager.AddAsync(testResult);
-            }
-            catch(Exception e)
-            {
-                var message = e.Message;
-            }
+            await _testingPlatform.TestResultManager.AddAsync(testResult);
             return Json(new { score, testId = test.Id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RateTest(bool? mark)
+        {
+            if (mark is null)
+                return BadRequest();
+
+            var code = HttpContext.Session.GetString("testCode");
+            if (code is null)
+                throw new TestNotFoundException();
+
+            var test = await _testingPlatform.TestManager.FindAsync(t => t.TestCode == code);
+            if (test is null)
+                throw new TestNotFoundException(code);
+
+            if (HttpContext.Session.GetString("isFinished") is null)
+                return BadRequest();
+
+            var testMark = new TestMark { TestId = test.Id, AppUserId = _userManager.GetUserId(User), EnjoyedTest = mark.HasValue };
+            await _testingPlatform.TestMarkManager.AddAsync(testMark);
+            return Json(mark);
         }
     }
 }
