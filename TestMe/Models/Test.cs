@@ -35,5 +35,7 @@ namespace TestMe.Models
         public virtual ICollection<TestAnswer> TestAnswers { get; set; }
         [JsonIgnore]
         public virtual ICollection<TestResult> TestResults { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<TestReport> TestReports { get; set; }
     }
 }

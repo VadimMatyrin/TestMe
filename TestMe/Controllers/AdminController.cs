@@ -11,7 +11,7 @@ using TestMe.Sevices.Interfaces;
 
 namespace TestMe.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, Moderator")]
     public class AdminController : Controller
     {
         private readonly ITestingPlatform _testingPlatform;
@@ -21,6 +21,7 @@ namespace TestMe.Controllers
             _testingPlatform = testingPlatform;
             _userManager = userManager;
         }
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             var tests = await _testingPlatform.TestManager.GetAll().Take(10).ToListAsync();
@@ -32,6 +33,7 @@ namespace TestMe.Controllers
 
         [HttpGet]
         [ActionName("Index")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> IndexGet(string searchString)
         {
             if (searchString is null)
@@ -43,6 +45,7 @@ namespace TestMe.Controllers
 
             return View(tests);
         }
+        [Authorize(Roles = "Admin")]
         public async Task <IActionResult> Users()
         {
             var appUsers = await _userManager.Users.AsNoTracking().Take(10).ToListAsync();//_testingPlatform.TestManager.GetAll().Take(10);
@@ -51,6 +54,7 @@ namespace TestMe.Controllers
 
             return View(appUsers);
         }
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddToAdmins(string id)
         {
             if (String.IsNullOrEmpty(id))
@@ -65,6 +69,7 @@ namespace TestMe.Controllers
 
             return RedirectToAction(nameof(Users));
         }
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RemoveFromAdmins(string id)
         {
             if (String.IsNullOrEmpty(id))
@@ -79,5 +84,59 @@ namespace TestMe.Controllers
 
             return RedirectToAction(nameof(Users));
         }
+         [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddToModerators(string id)
+        {
+            if (String.IsNullOrEmpty(id))
+                return RedirectToAction(nameof(Users));
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user is null)
+                return NotFound();
+
+            if (!(await _userManager.IsInRoleAsync(user, "Moderator")))
+               await _userManager.AddToRoleAsync(user, "Moderator");
+
+            return RedirectToAction(nameof(Users));
+        }
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RemoveFromModerators(string id)
+        {
+            if (String.IsNullOrEmpty(id))
+                return RedirectToAction(nameof(Users));
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user is null)
+                return NotFound();
+
+            if(await _userManager.IsInRoleAsync(user, "Moderator"))
+                await _userManager.RemoveFromRoleAsync(user, "Moderator");
+
+            return RedirectToAction(nameof(Users));
+        }
+        [Authorize(Roles = "Admin, Moderator")]
+        public async Task<IActionResult> ReportedTests()
+        {
+            var tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestReports.Count >= 1).OrderByDescending(t => t.TestReports.Count).Take(10).ToListAsync();
+            if (tests is null)
+                return NotFound();
+
+            return View(tests);
+        }
+        [Authorize(Roles = "Admin, Moderator")]
+        public async Task<IActionResult> DeleteReports(int? id)
+        {
+            if (id is null)
+                return NotFound();
+
+            var testReports = await _testingPlatform.TestReportManager.GetAll().Where(tr => tr.TestId == id).ToListAsync();
+            if (testReports is null)
+                return NotFound();
+
+            await _testingPlatform.TestReportManager.DeleteRangeAsync(testReports);
+
+            return RedirectToAction(nameof(ReportedTests));
+        }
+        
     }
 }

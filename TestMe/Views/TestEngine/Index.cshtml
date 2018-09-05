@@ -45,7 +45,10 @@
         </div>
     </div>
 </div>
-
+@if (Model.AppUser.UserName != User.Identity.Name)
+{
+    <a asp-action="Create" asp-controller="TestReports" asp-route-id="@Model.Id">Report test</a>
+}
 @section Scripts{
     <script src="~/js/testEngine.js"></script>
 }

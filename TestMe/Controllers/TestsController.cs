@@ -224,8 +224,21 @@ namespace TestMe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var testQuestions = await _testingPlatform.TestQuestionManager.GetAll().Where(tq => tq.TestId == id).ToListAsync();
-            var test = testQuestions.FirstOrDefault()?.Test;// await _testingPlatform.TestManager.FindAsync(m => m.Id == id && m.AppUserId == _userId);
+            var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
+            if (test is null)
+                return NotFound();
+
+            var testQuestions = await _testingPlatform.TestQuestionManager.GetAll().Where(tq => tq.AppUserId == _userId && tq.TestId == id).ToListAsync();
+            if (testQuestions is null)
+                return NotFound();
+            var testAnswers = await _testingPlatform.TestAnswerManager.GetAll().Where(ta => ta.AppUserId == _userId && ta.TestQuestion.TestId == id).ToListAsync();
+            if (testAnswers is null)
+                return NotFound();
+            //if(testQuestions?.Count ?? )
+            //var test = testQuestions.FirstOrDefault()?.Test;
+            
+            test.TestQuestions = testQuestions;
+            test.TestAnswers = testAnswers;
             foreach (var testAnswer in test.TestAnswers.Where(ta => !(ta.ImageName is null)))
                 _testingPlatform.AnswerImageManager.DeleteAnswerImage(testAnswer.ImageName);
 

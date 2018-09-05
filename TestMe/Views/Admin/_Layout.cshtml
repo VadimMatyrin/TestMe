@@ -2,9 +2,14 @@
     Layout = "/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Test management";
 }
-
-<h2>Administration</h2>
-
+@if (User.IsInRole("Admin"))
+{
+    <h2>Administration</h2>
+}
+@if (User.IsInRole("Moderator"))
+{
+    <h2>Moderation</h2>
+}
 <div>
     <hr />
     <div class="row">

@@ -13,5 +13,6 @@ namespace TestMe.Sevices.Interfaces
         ITestResultManager TestResultManager { get; }
         IRandomStringGenerator RandomStringGenerator { get; }
         IAnswerImageManager AnswerImageManager { get; }
+        ITestReportManager TestReportManager { get; }
     }
 }
