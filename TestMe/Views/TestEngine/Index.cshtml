@@ -49,6 +49,12 @@
 {
     <a asp-action="Create" asp-controller="TestReports" asp-route-id="@Model.Id">Report test</a>
 }
+else{
+    if (Model.AppUser.UserName != User.Identity.Name)
+    {   
+        <h6 class="text-danger">You have already reported this test</h6>
+    }
+}
 @section Scripts{
     <script src="~/js/testEngine.js"></script>
 }
