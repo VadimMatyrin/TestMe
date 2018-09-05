@@ -32,7 +32,10 @@ namespace TestMe.Controllers
             var test = await _testingPlatform.TestManager.FindAsync(t => t.TestCode == code);
             if (test is null)
                 throw new TestNotFoundException(code);
-
+            var testReports = await _testingPlatform.TestReportManager.GetAll().Where(tr => tr.TestId == test.Id && tr.AppUserId == _userManager.GetUserId(User)).ToListAsync();
+            if (testReports is null)
+                return NotFound();
+            test.TestReports = testReports;
             HttpContext.Session.SetString("testCode", code);
             return View(test);
         }

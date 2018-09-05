@@ -45,7 +45,7 @@
         </div>
     </div>
 </div>
-@if (Model.AppUser.UserName != User.Identity.Name)
+@if (Model.AppUser.UserName != User.Identity.Name && Model.TestReports.Count == 0)
 {
     <a asp-action="Create" asp-controller="TestReports" asp-route-id="@Model.Id">Report test</a>
 }
