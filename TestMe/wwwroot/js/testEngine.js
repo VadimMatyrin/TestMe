@@ -315,8 +315,25 @@ function finishTest() {
         }
     });
 }
-function RateTest() {
+function rateTest(mark) {
+    var token = $('input[name="__RequestVerificationToken"]').val();
+    var myData = { mark: mark };
+    var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
 
+    $.ajax({
+        url: "/TestEngine/RateTest",
+        type: "POST",
+        data: dataWithAntiforgeryToken,
+        success: function (data) {
+            if (data.mark)
+                $('#likeButton').addClass('btn-primary');
+            else
+                $('#dislikeButton').addClass('btn-primary');
+        },
+        error: function () {
+            //$("#questionForm").empty();
+        }
+    });
 }
 function showResult(data) {
     $('#questionBlock').remove();
@@ -327,9 +344,15 @@ function showResult(data) {
 
 }
 function showRateButtons() {
-    var likeButton = $('<button/>', { type: 'button', class: 'btn btn-default btn-sm' });
+    var likeButton = $('<button/>', { type: 'button', class: 'btn btn-default btn-sm', id: 'likeButton' });
+    likeButton.click(function () {
+        rateTest(true);
+    });
     $('<span/>', { class: 'glyphicon glyphicon-thumbs-up', test: 'Like' }).appendTo(likeButton);
-    var dislikeButton = $('<button/>', { type: 'button', class: 'btn btn-default btn-sm' });
+    var dislikeButton = $('<button/>', { type: 'button', class: 'btn btn-default btn-sm', id: 'dislikeButton' });
+    dislikeButton.click(function () {
+        rateTest(false);
+    });
     $('<span/>', { class: 'glyphicon glyphicon-thumbs-down', test: 'Dislike' }).appendTo(dislikeButton);
     $('#mainContainer').append('<p>Rate this test:</p>')
     $('#mainContainer').append(likeButton);

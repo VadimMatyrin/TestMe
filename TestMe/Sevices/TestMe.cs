@@ -23,7 +23,7 @@ namespace TestMe.Sevices
             IRandomStringGenerator randomStringGenerator,
             IAnswerImageManager answerImageManager,
             ITestReportManager testReportManager,
-            ITestReportManager testReportManage)
+            ITestMarkManager testMarkManager)
         {
             TestManager = testManager;
             TestQuestionManager = testQuestionManager;
@@ -32,7 +32,7 @@ namespace TestMe.Sevices
             RandomStringGenerator = randomStringGenerator;
             AnswerImageManager = answerImageManager;
             TestReportManager = testReportManager;
-            TestReportManager = testReportManage;
+            TestMarkManager = testMarkManager;
         }
     }
 }

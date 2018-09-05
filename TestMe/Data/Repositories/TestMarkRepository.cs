@@ -16,30 +16,30 @@ namespace TestMe.Data.Repositories
         {
             _db = db;
         }
-        public async Task AddAsync(TestMark testResult)
+        public async Task AddAsync(TestMark testMark)
         {
-            if (testResult is null)
-                throw new ArgumentNullException(nameof(testResult));
+            if (testMark is null)
+                throw new ArgumentNullException(nameof(testMark));
 
-            await _db.TestMarks.AddAsync(testResult);
+            await _db.TestMarks.AddAsync(testMark);
             await _db.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(TestMark testResult)
+        public async Task DeleteAsync(TestMark testMark)
         {
-            if (testResult is null)
-                throw new ArgumentNullException(nameof(testResult));
+            if (testMark is null)
+                throw new ArgumentNullException(nameof(testMark));
 
-            _db.TestMarks.Remove(testResult);
+            _db.TestMarks.Remove(testMark);
             await _db.SaveChangesAsync();
         }
 
-        public async Task DeleteRangeAsync(IEnumerable<TestMark> testResult)
+        public async Task DeleteRangeAsync(IEnumerable<TestMark> testMark)
         {
-            if (testResult is null)
-                throw new ArgumentNullException(nameof(testResult));
+            if (testMark is null)
+                throw new ArgumentNullException(nameof(testMark));
 
-            _db.TestMarks.RemoveRange(testResult);
+            _db.TestMarks.RemoveRange(testMark);
             await _db.SaveChangesAsync();
         }
 
@@ -53,12 +53,12 @@ namespace TestMe.Data.Repositories
             return _db.TestMarks.ExtractAll();
         }
 
-        public async Task UpdateAsync(TestMark testResult)
+        public async Task UpdateAsync(TestMark testMark)
         {
-            if (testResult is null)
-                throw new ArgumentNullException(nameof(testResult));
+            if (testMark is null)
+                throw new ArgumentNullException(nameof(testMark));
 
-            _db.Entry(testResult).State = EntityState.Modified;
+            _db.Entry(testMark).State = EntityState.Modified;
             await _db.SaveChangesAsync();
         }
     }
