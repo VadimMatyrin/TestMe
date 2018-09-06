@@ -310,6 +310,11 @@ namespace TestMe.Controllers
             if (!(HttpContext.Session.GetString("isFinished") is null))
                 return Json(new { score, testId = test.Id });
 
+            var isAlreadyPassed = _testingPlatform.TestResultManager.GetAll()
+                .Any(tr => tr.AppUser.Id == _userManager.GetUserId(User) && tr.TestId == test.Id);
+            if(isAlreadyPassed)
+                return Json(new { score, testId = test.Id });
+
             var startTimeStr = HttpContext.Session.GetString("startTime");
             if (startTimeStr is null)
                 throw new TestTimeException();
