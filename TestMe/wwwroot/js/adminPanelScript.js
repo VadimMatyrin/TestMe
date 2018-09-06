@@ -24,7 +24,8 @@ function appendTests(tests) {
         var testNameRef = $('<a/>', { href: '/TestQuestions/Index/' + element.id, text: element.testName});
         var testNameTd = $('<td/>').append(testNameRef);
         tr.append(testNameTd);
-        tr.append($('<td/>', { text: element.creationDate }));
+        var formattedDate = new Date(element.creationDate);
+        tr.append($('<td/>', { text: formattedDate.toLocaleString() }));
         tr.append($('<td/>', { text: element.testCode }));
         tr.append($('<td/>', { text: element.duration.slice(0, -3) }));
         tr.append($('<td/>', { text: element.testRating }));
