@@ -39,7 +39,6 @@ namespace TestMe.Controllers
         public async Task<IActionResult> Index()
         {
             var tests = await _testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == _userId).ToListAsync();
-
             return View(tests);
         }
         public async Task<IActionResult> UserResults(int? id)
