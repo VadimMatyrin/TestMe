@@ -32,12 +32,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.CreationDate)
             </th>
-            @if (Model.Any(t => !(t.TestCode is null)))
-            {
-                <th>
-                    @Html.DisplayNameFor(model => model.TestCode)
-                </th>
-            }
+            <th>
+                @Html.DisplayNameFor(model => model.TestCode)
+            </th>
             <th>
                 Duration
             </th>
@@ -65,12 +62,9 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.CreationDate)
                 </td>
-                @if (Model.Any(t => !(t.TestCode is null)))
-                {
-                    <td>
+                <td>
                         @Html.DisplayFor(modelItem => item.TestCode)
-                    </td>
-                }
+                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.TestDuration)
                 </td>
@@ -119,3 +113,4 @@
         <button type="button" class="btn btn-primary" onclick="getTests()">Load more tests</button>
     </div>
 </div>
+

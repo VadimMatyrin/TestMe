@@ -294,7 +294,9 @@ namespace TestMe.Controllers
             return View(errorModelTest);
         }
 
+
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public IActionResult GetTests(int? skipAmount, int? amount)
         {
@@ -315,6 +317,31 @@ namespace TestMe.Controllers
                 duration = t.TestDuration,
                 testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
                 userName = t.AppUser.UserName
+            }
+            );
+            return Json(optimizedTests);
+        }
+        [HttpPost]
+        [Authorize(Roles = "Admin, Moderator")]
+        [ValidateAntiForgeryToken]
+        public IActionResult GetReportedTests(int? skipAmount, int? amount)
+        {
+            if (skipAmount is null)
+                return BadRequest();
+
+            if (amount is null)
+                return BadRequest();
+
+            var tests = _testingPlatform.TestManager.GetAll().Where(t => t.TestReports.Count >= 1).Skip(skipAmount.Value - 1).Take(amount.Value);
+            var optimizedTests = tests.Select(t =>
+            new
+            {
+                id = t.Id,
+                testName = t.TestName,
+                userName = t.AppUser.UserName,
+                testCode = t.TestCode,
+                reportAmount = t.TestReports.Count,
+                testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
             }
             );
             return Json(optimizedTests);

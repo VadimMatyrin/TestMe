@@ -117,7 +117,7 @@ namespace TestMe.Controllers
         [Authorize(Roles = "Admin, Moderator")]
         public async Task<IActionResult> ReportedTests()
         {
-            var tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestReports.Count >= 1).OrderByDescending(t => t.TestReports.Count).Take(10).ToListAsync();
+            var tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestReports.Count >= 1).OrderByDescending(t => t.TestReports.Count).Take(1).ToListAsync();
             if (tests is null)
                 return NotFound();
 
