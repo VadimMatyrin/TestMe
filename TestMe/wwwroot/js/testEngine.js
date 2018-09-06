@@ -2,7 +2,7 @@
     $('#finishTestModal').modal('toggle');
     $('#finishTestModal').on('hidden.bs.modal', function (e) {
         finishTest();
-    })
+    });
 }
 function getUserName() {
     var token = $('input[name="__RequestVerificationToken"]', $('#questionBlock')).val();
@@ -219,7 +219,7 @@ function displayQuestionNav(questionIds) {
                 $(this).addClass('btn-primary');
                 getQuestion($(this).attr('value'));
             }
-        })
+        });
         changeSelectedBitton(questionIds[0]);
         $('<div />', { class: 'col-xs-1' }).append(button).appendTo('div#questions');
     }

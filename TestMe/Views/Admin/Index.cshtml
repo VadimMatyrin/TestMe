@@ -19,7 +19,8 @@
         </div>
     </div>
 </form>
-<table class="table">
+<table class="table" id="testTable">
+    @Html.AntiForgeryToken()
     <thead>
         <tr>
             <th>
@@ -54,62 +55,67 @@
     <tbody>
         @foreach (var item in Model)
         {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td>
-                <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.TestName)</a>
-</td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreationDate)
-            </td>
-            @if (Model.Any(t => !(t.TestCode is null)))
-            {
+            <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.TestCode)
+                    @Html.DisplayFor(modelItem => item.Id)
                 </td>
-            }
-            <td>
-                @Html.DisplayFor(modelItem => item.TestDuration)
-            </td>
-            <td>
-                @{var rating = item.TestMarks.Count(tm => tm.EnjoyedTest) - item.TestMarks.Count(tm => !tm.EnjoyedTest); }
-                @if (rating > 0)
+                <td>
+                    <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.TestName)</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreationDate)
+                </td>
+                @if (Model.Any(t => !(t.TestCode is null)))
                 {
-                    <span class="text-success">@rating</span>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TestCode)
+                    </td>
                 }
-                else if (rating < 0)
-                {
-                    <span class="text-danger">@rating</span>
-                }
-                else
-                {
-                    <span>@rating</span>
-                }
+                <td>
+                    @Html.DisplayFor(modelItem => item.TestDuration)
+                </td>
+                <td>
+                    @{var rating = item.TestMarks.Count(tm => tm.EnjoyedTest) - item.TestMarks.Count(tm => !tm.EnjoyedTest); }
+                    @if (rating > 0)
+                    {
+                        <span class="text-success">@rating</span>
+                    }
+                    else if (rating < 0)
+                    {
+                        <span class="text-danger">@rating</span>
+                    }
+                    else
+                    {
+                        <span>@rating</span>
+                    }
 
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AppUser.UserName)
-            </td>
-            <td>
-                @if (item.TestCode is null)
-                {
-                    <a asp-action="Edit" asp-route-id="@item.Id" asp-controller="Tests">Edit</a><span> |</span>
-                    <a asp-action="Delete" asp-route-id="@item.Id" asp-controller="Tests">Delete</a><span> |</span>
-                    <a asp-action="CreateCode" asp-route-id="@item.Id" asp-controller="Tests">Share test</a><span> |</span>
-                    <a asp-action="ValidateTest" asp-route-id="@item.Id" asp-controller="Tests">Validate test</a><span> |</span>
-                }
-                else
-                {
-                    <a asp-action="Index" asp-controller="TestEngine" asp-route-code="@item.TestCode">Try test out</a><span> |</span>
-                    <a asp-action="StopSharing" asp-route-id="@item.Id" asp-controller="Tests">Stop sharing</a><span> |</span>
-                }
-                <a asp-action="UserResults" asp-route-id="@item.Id" asp-controller="Tests">User results </a><span> |</span>
-                <a asp-action="Details" asp-route-id="@item.Id" asp-controller="Tests">Details</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AppUser.UserName)
+                </td>
+                <td>
+                    @if (item.TestCode is null)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id" asp-controller="Tests">Edit</a><span> |</span>
+                        <a asp-action="Delete" asp-route-id="@item.Id" asp-controller="Tests">Delete</a><span> |</span>
+                        <a asp-action="CreateCode" asp-route-id="@item.Id" asp-controller="Tests">Share test</a><span> |</span>
+                        <a asp-action="ValidateTest" asp-route-id="@item.Id" asp-controller="Tests">Validate test</a><span> |</span>
+                    }
+                    else
+                    {
+                        <a asp-action="Index" asp-controller="TestEngine" asp-route-code="@item.TestCode">Try test out</a><span> |</span>
+                        <a asp-action="StopSharing" asp-route-id="@item.Id" asp-controller="Tests">Stop sharing</a><span> |</span>
+                    }
+                    <a asp-action="UserResults" asp-route-id="@item.Id" asp-controller="Tests">User results </a><span> |</span>
+                    <a asp-action="Details" asp-route-id="@item.Id" asp-controller="Tests">Details</a>
 
-            </td>
-        </tr>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
+<div class="row">
+    <div class="col-md-offset-3 col-md-6 text-center">
+        <button type="button" class="btn btn-primary" onclick="getTests()">Load more tests</button>
+    </div>
+</div>

@@ -24,7 +24,7 @@ namespace TestMe.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
-            var tests = await _testingPlatform.TestManager.GetAll().Take(10).ToListAsync();
+            var tests = await _testingPlatform.TestManager.GetAll().Take(5).ToListAsync();
             if (tests is null)
                 return NotFound();
 
@@ -39,7 +39,7 @@ namespace TestMe.Controllers
             if (searchString is null)
                 searchString = "";
 
-            var tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestName.ToUpper().Contains(searchString.ToUpper())).Take(10).ToListAsync();
+            var tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestName.ToUpper().Contains(searchString.ToUpper())).Take(5).ToListAsync();
             if (tests is null)
                 return NotFound();
 

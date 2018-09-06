@@ -293,6 +293,32 @@ namespace TestMe.Controllers
 
             return View(errorModelTest);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult GetTests(int? skipAmount, int? amount)
+        {
+            if (skipAmount is null)
+                return BadRequest();
+
+            if (amount is null)
+                return BadRequest();
+
+            var tests = _testingPlatform.TestManager.GetAll().Skip(skipAmount.Value - 1).Take(amount.Value);
+            var optimizedTests = tests.Select(t =>
+            new
+            {
+                id = t.Id,
+                testName = t.TestName,
+                creationDate = t.CreationDate,
+                testCode = t.TestCode,
+                duration = t.TestDuration,
+                testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
+                userName = t.AppUser.UserName
+            }
+            );
+            return Json(optimizedTests);
+        }
         private bool HasValidationErrors(int? id)
         {
             if (id is null)
