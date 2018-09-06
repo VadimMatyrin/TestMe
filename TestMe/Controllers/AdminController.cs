@@ -117,7 +117,21 @@ namespace TestMe.Controllers
         [Authorize(Roles = "Admin, Moderator")]
         public async Task<IActionResult> ReportedTests()
         {
-            var tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestReports.Count >= 1).OrderByDescending(t => t.TestReports.Count).Take(1).ToListAsync();
+            var tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestReports.Count >= 1).OrderByDescending(t => t.TestReports.Count).Take(2).ToListAsync();
+            if (tests is null)
+                return NotFound();
+
+            return View(tests);
+        }
+        [HttpGet]
+        [ActionName("ReportedTests")]
+        [Authorize(Roles = "Admin, Moderator")]
+        public async Task<IActionResult> ReportedTests(string searchString)
+        {
+            if (searchString is null)
+                searchString = "";
+
+            var tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString)).OrderByDescending(t => t.TestReports.Count).Take(2).ToListAsync();
             if (tests is null)
                 return NotFound();
 

@@ -110,7 +110,15 @@
 </table>
 <div class="row">
     <div class="col-md-offset-3 col-md-6 text-center">
-        <button type="button" class="btn btn-primary" onclick="getTests()">Load more tests</button>
+        @if (Context.Request.Query["SearchString"].Count == 0 || Context.Request.Query["SearchString"][0] == "")
+        {
+            <button type="button" class="btn btn-primary" onclick="getTests()">Load more tests</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-primary" disabled>Load more tests</button>
+        }
+
     </div>
 </div>
 

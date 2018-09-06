@@ -111,14 +111,9 @@ function appendReportedTestControlls(tr, test) {
     td.append(deleteRef);
     td.append('<span> | </span>');
     if (test.testCode !== null) {
-        var editRef = $('<a/>', { href: '/Tests/Edit/' + test.id, text: 'Edit' });
-        td.append(editRef);
-        td.append('<span> | </span>');
-        var shareTestRef = $('<a/>', { href: '/Tests/CreateCode/' + test.id, text: 'Share test' });
-        td.append(shareTestRef);
-        td.append('<span> | </span>');
-        var validateTestRef = $('<a/>', { href: '/Tests/ValidateTest/' + test.id, text: 'Validate test' });
-        td.append(validateTestRef);
+     
+        var tryTestRef = $('<a/>', { href: '/TestEngine?code=' + test.testCode, text: 'Try test out' });
+        td.append(tryTestRef);
         td.append('<span> | </span>');
     }
     var detailsRef = $('<a/>', { href: '/Tests/Details/' + test.id, text: 'Details' });
