@@ -309,6 +309,12 @@ function finishTest() {
         data: dataWithAntiforgeryToken,
         success: function (data) {
             showResult(data);
+            if ('isRated' in data) {
+                if (data.isRated)
+                    $('#likeButton').addClass('btn-primary');
+                else
+                    $('#dislikeButton').addClass('btn-primary');
+            }
         },
         error: function () {
             //$("#questionForm").empty();

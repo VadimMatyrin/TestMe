@@ -323,9 +323,14 @@ namespace TestMe.Controllers
 
             HttpContext.Session.SetString("isFinished", "true");
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            var testResult = new TestResult {/* AppUser = user,*/ AppUserId = user.Id, Score = score, TestId = test.Id , StartTime = startTime, FinishTime = endTime };
+            var testResult = new TestResult { AppUserId = user.Id, Score = score, TestId = test.Id , StartTime = startTime, FinishTime = endTime };
             await _testingPlatform.TestResultManager.AddAsync(testResult);
-            return Json(new { score, testId = test.Id });
+            var prevMark = await _testingPlatform.TestMarkManager
+                .FindAsync(tm => tm.AppUserId == _userManager.GetUserId(User) && tm.TestId == test.Id);
+            if (prevMark is null)
+                return Json(new { score, testId = test.Id });
+            else
+                return Json(new { score, testId = test.Id, isRated = prevMark.EnjoyedTest });
         }
 
         [HttpPost]
@@ -350,12 +355,12 @@ namespace TestMe.Controllers
                 .FindAsync(tm => tm.AppUserId == _userManager.GetUserId(User) && tm.TestId == test.Id);
             if (prevMark is null)
             {
-                var testMark = new TestMark { TestId = test.Id, AppUserId = _userManager.GetUserId(User), EnjoyedTest = mark.HasValue };
+                var testMark = new TestMark { TestId = test.Id, AppUserId = _userManager.GetUserId(User), EnjoyedTest = mark.Value };
                 await _testingPlatform.TestMarkManager.AddAsync(testMark);
             }
             else
             {
-               prevMark.EnjoyedTest = mark.HasValue;
+               prevMark.EnjoyedTest = mark.Value;
                await _testingPlatform.TestMarkManager.UpdateAsync(prevMark);
              }
             return Json(mark);
