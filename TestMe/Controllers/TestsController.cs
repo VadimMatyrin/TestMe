@@ -39,7 +39,6 @@ namespace TestMe.Controllers
         public async Task<IActionResult> Index()
         {
             var tests = await _testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == _userId).ToListAsync();
-
             return View(tests);
         }
         public async Task<IActionResult> UserResults(int? id)
@@ -78,6 +77,10 @@ namespace TestMe.Controllers
                 {
                     throw;
                 }
+            }
+            if (_userId != _userManager.GetUserId(User))
+            {
+                return RedirectToAction("Index", "Admin");
             }
             return RedirectToAction(nameof(Index));
         }
@@ -118,6 +121,8 @@ namespace TestMe.Controllers
                 }
                 var testResult = _testingPlatform.TestResultManager.GetAll().Where(tr => tr.TestId == test.Id);
                 await _testingPlatform.TestResultManager.DeleteRangeAsync(testResult);
+                var testMarks = _testingPlatform.TestMarkManager.GetAll().Where(tm => tm.TestId == test.Id);
+                await _testingPlatform.TestMarkManager.DeleteRangeAsync(testMarks);
                 return View("CreateCode", test);
             }
             return View("CreateCode", test);
@@ -233,9 +238,6 @@ namespace TestMe.Controllers
                 return NotFound();
             var testAnswers = await _testingPlatform.TestAnswerManager.GetAll().Where(ta => ta.AppUserId == _userId && ta.TestQuestion.TestId == id).ToListAsync();
             if (testAnswers is null)
-                return NotFound();
-            //if(testQuestions?.Count ?? )
-            //var test = testQuestions.FirstOrDefault()?.Test;
             
             test.TestQuestions = testQuestions;
             test.TestAnswers = testAnswers;
@@ -243,6 +245,12 @@ namespace TestMe.Controllers
                 _testingPlatform.AnswerImageManager.DeleteAnswerImage(testAnswer.ImageName);
 
             await _testingPlatform.TestManager.DeleteAsync(test);
+            if(_userId != _userManager.GetUserId(User))
+            {
+                if (User.IsInRole("Admin"))
+                    return RedirectToAction("Index", "Admin");
+                return RedirectToAction("ReportedTests", "Admin");
+            }
             return RedirectToAction(nameof(Index));
         }
         public async Task<IActionResult> ValidateTest(int? id)

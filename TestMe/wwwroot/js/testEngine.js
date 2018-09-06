@@ -309,19 +309,67 @@ function finishTest() {
         data: dataWithAntiforgeryToken,
         success: function (data) {
             showResult(data);
+            if ('isRated' in data) {
+                if (data.isRated)
+                    $('#likeButton').addClass('btn-primary');
+                else
+                    $('#dislikeButton').addClass('btn-primary');
+            }
         },
         error: function () {
             //$("#questionForm").empty();
         }
     });
 }
-        function showResult(data) {
-            $('#questionBlock').remove();
-        var link = $('<a />', {href: "/Tests/UserResults/" + data.testId, text: "Other users results" });
-            $('#mainContainer').append('<h1> Your score: ' + data.score + ' out of ' + $('#mainContainer').data('questAmount') + '</h1>');
-        $('#mainContainer').append(link);
+function rateTest(mark) {
+    var token = $('input[name="__RequestVerificationToken"]').val();
+    var myData = { mark: mark };
+    var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
 
-    }
+    $.ajax({
+        url: "/TestEngine/RateTest",
+        type: "POST",
+        data: dataWithAntiforgeryToken,
+        success: function (data) {
+            if (data) {
+                $('#dislikeButton').removeClass('btn-primary');
+                $('#likeButton').addClass('btn-primary');
+            }
+            else
+            {
+                $('#likeButton').removeClass('btn-primary');
+                $('#dislikeButton').addClass('btn-primary');
+            }
+        },
+        error: function () {
+            //$("#questionForm").empty();
+        }
+    });
+}
+function showResult(data) {
+    $('#questionBlock').remove();
+    var link = $('<a />', { href: "/Tests/UserResults/" + data.testId, text: "Other users results" });
+    $('#mainContainer').append('<h1> Your score: ' + data.score + ' out of ' + $('#mainContainer').data('questAmount') + '</h1>');
+    showRateButtons();
+    $('#mainContainer').append(link);
+
+}
+function showRateButtons() {
+    var likeButton = $('<button/>', { type: 'button', class: 'btn btn-default btn-sm', id: 'likeButton' });
+    likeButton.click(function () {
+        rateTest(true);
+    });
+    $('<span/>', { class: 'glyphicon glyphicon-thumbs-up', test: 'Like' }).appendTo(likeButton);
+    var dislikeButton = $('<button/>', { type: 'button', class: 'btn btn-default btn-sm', id: 'dislikeButton' });
+    dislikeButton.click(function () {
+        rateTest(false);
+    });
+    $('<span/>', { class: 'glyphicon glyphicon-thumbs-down', test: 'Dislike' }).appendTo(dislikeButton);
+    $('#mainContainer').append('<p>Rate this test:</p>')
+    $('#mainContainer').append(likeButton);
+    $('#mainContainer').append(dislikeButton);
+    $('#mainContainer').append('<br/>');
+}
 function startTimer(date) {
     var countDownDate = new Date(date).getTime();
 

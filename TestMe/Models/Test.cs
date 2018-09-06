@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,6 +30,8 @@ namespace TestMe.Models
         public TimeSpan TestDuration { get; set; }
         [JsonIgnore]
         public AppUser AppUser { get; set; }
+        [NotMapped]
+        public int TestScore { get; set; }
         [JsonIgnore]
         public virtual ICollection<TestQuestion> TestQuestions { get; set; }
         [JsonIgnore]
@@ -37,5 +40,7 @@ namespace TestMe.Models
         public virtual ICollection<TestResult> TestResults { get; set; }
         [JsonIgnore]
         public virtual ICollection<TestReport> TestReports { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<TestMark> TestMarks { get; set; }
     }
 }

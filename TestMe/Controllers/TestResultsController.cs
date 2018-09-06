@@ -19,13 +19,11 @@ namespace TestMe.Controllers
             if (id is null)
                 return NotFound();
 
-            //var testResults = _testingPlatform.TestResultManager.GetAll().Where(t => t.TestId == id).ToList();  //TestManager.FindAsync(t => t.Id == id);
-            //var test = testResults.FirstOrDefault()?.Test;
             var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
             if (test is null)
                 return NotFound();
 
-            var questionAmount = _testingPlatform.TestQuestionManager.GetAll().Where(tq => tq.TestId == id).Count();
+            var questionAmount = _testingPlatform.TestQuestionManager.GetAll().Count(tq => tq.TestId == id);
             ViewBag.questionAmount = questionAmount;
             return View(test);
         }

@@ -242,6 +242,27 @@ namespace TestMe.Migrations
                     b.ToTable("TestAnswers");
                 });
 
+            modelBuilder.Entity("TestMe.Models.TestMark", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AppUserId");
+
+                    b.Property<bool>("EnjoyedTest");
+
+                    b.Property<int>("TestId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("TestId");
+
+                    b.ToTable("TestMarks");
+                });
+
             modelBuilder.Entity("TestMe.Models.TestQuestion", b =>
                 {
                     b.Property<int>("Id")
@@ -381,6 +402,18 @@ namespace TestMe.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("TestMe.Models.TestMark", b =>
+                {
+                    b.HasOne("TestMe.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId");
+
+                    b.HasOne("TestMe.Models.Test", "Test")
+                        .WithMany("TestMarks")
+                        .HasForeignKey("TestId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("TestMe.Models.TestQuestion", b =>
                 {
                     b.HasOne("TestMe.Models.AppUser", "AppUser")
@@ -400,7 +433,7 @@ namespace TestMe.Migrations
                         .HasForeignKey("AppUserId");
 
                     b.HasOne("TestMe.Models.Test", "Test")
-                        .WithMany("Reports")
+                        .WithMany("TestReports")
                         .HasForeignKey("TestId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

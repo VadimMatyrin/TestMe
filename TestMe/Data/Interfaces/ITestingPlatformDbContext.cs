@@ -16,6 +16,7 @@ namespace TestMe.Data.Interfaces
         DbSet<TestAnswer> TestAnswers { get; set; }
         DbSet<TestResult> TestResults { get; set; }
         DbSet<TestReport> TestReports { get; set; }
+        DbSet<TestMark> TestMarks { get; set; }
         Task SaveChangesAsync();
         EntityEntry<T> Entry<T>(T obj) where T : class;
     }

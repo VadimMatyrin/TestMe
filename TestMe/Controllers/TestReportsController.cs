@@ -43,10 +43,15 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var test = await _testingPlatform.TestManager.FindAsync(t => t.AppUserId == _userId && t.Id == id);
+            var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
             if (test == null)
             {
                 return NotFound();
+            }
+            var reports = _testingPlatform.TestReportManager.GetAll().Where(tr => tr.AppUserId == _userId && tr.TestId == test.Id).ToList();
+            if (reports.Count() != 0)
+            {
+                return RedirectToAction(nameof(Index), "TestEngine", new { code = test.TestCode });
             }
 
             var testAnswer = new TestReport { Test = test, TestId = test.Id };

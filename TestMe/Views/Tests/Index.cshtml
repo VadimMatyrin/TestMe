@@ -31,6 +31,9 @@
                 </th>
             }
             <th>
+                Test rating
+            </th>
+            <th>
                 Actions
             </th>
         </tr>
@@ -58,6 +61,21 @@
                     @item.TestCode
                 </td>
             }
+                <td>
+                    @{var rating = item.TestMarks.Count(tm => tm.EnjoyedTest) - item.TestMarks.Count(tm => !tm.EnjoyedTest); }
+                    @if (rating > 0)
+                    {
+                        <span class="text-success">@rating</span>
+                    }
+                    else if (rating < 0)
+                    {
+                        <span class="text-danger">@rating</span>
+                    }
+                    else
+                    {
+                        <span>@rating</span>
+                    }
+                </td>
                 <td>
                     @if (item.TestCode is null)
                     {

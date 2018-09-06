@@ -15,13 +15,15 @@ namespace TestMe.Sevices
         public IRandomStringGenerator RandomStringGenerator { get; }
         public IAnswerImageManager AnswerImageManager { get; }
         public ITestReportManager TestReportManager { get; }
+        public ITestMarkManager TestMarkManager { get; }
         public TestMe(ITestManager testManager,
             ITestQuestionManager testQuestionManager,
             ITestAnswerManager testAnswerManager,
             ITestResultManager testResultManager, 
             IRandomStringGenerator randomStringGenerator,
             IAnswerImageManager answerImageManager,
-            ITestReportManager testReportManager)
+            ITestReportManager testReportManager,
+            ITestMarkManager testMarkManager)
         {
             TestManager = testManager;
             TestQuestionManager = testQuestionManager;
@@ -30,6 +32,7 @@ namespace TestMe.Sevices
             RandomStringGenerator = randomStringGenerator;
             AnswerImageManager = answerImageManager;
             TestReportManager = testReportManager;
+            TestMarkManager = testMarkManager;
         }
     }
 }

@@ -25,7 +25,7 @@ namespace TestMe.Sevices.Extentions
         private static IServiceCollection AddModelManagers(this IServiceCollection service) =>
             service.AddTestManager().AddTestQuestionManager()
             .AddTestAnswerManager().AddTestResultManager()
-            .AddTestReportManager();
+            .AddTestReportManager().AddTestMarkManager();
 
         private static IServiceCollection AddTestManager(this IServiceCollection service) =>
             service.AddScoped<ITestManager, TestManager>();
@@ -40,6 +40,8 @@ namespace TestMe.Sevices.Extentions
             service.AddScoped<ITestResultManager, TestResultManager>();
         private static IServiceCollection AddTestReportManager(this IServiceCollection service) =>
             service.AddScoped<ITestReportManager, TestReportManager>();
+        private static IServiceCollection AddTestMarkManager(this IServiceCollection service) =>
+            service.AddScoped<ITestMarkManager, TestMarkManager>();
 
         #endregion
 
@@ -48,7 +50,7 @@ namespace TestMe.Sevices.Extentions
         private static IServiceCollection AddRepositories(this IServiceCollection service) =>
             service.AddTestRepository().AddTestAnswerRepository()
                 .AddTestQuestionRepository().AddTestResultRepository()
-            .AddTestReportRepository();
+            .AddTestReportRepository().AddTestMarkRepository();
 
         private static IServiceCollection AddTestRepository(this IServiceCollection service) =>
             service.AddScoped<IRepository<Test>, TestRepository>();
@@ -63,6 +65,8 @@ namespace TestMe.Sevices.Extentions
             service.AddScoped<IRepository<TestResult>, TestResultRepository>();
         private static IServiceCollection AddTestReportRepository(this IServiceCollection service) =>
             service.AddScoped<IRepository<TestReport>, TestReportRepository>();
+        private static IServiceCollection AddTestMarkRepository(this IServiceCollection service) =>
+            service.AddScoped<IRepository<TestMark>, TestMarkRepository>();
         #endregion
 
         private static IServiceCollection AddRandomStringGenerator(this IServiceCollection service) =>
