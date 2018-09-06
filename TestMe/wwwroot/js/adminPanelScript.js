@@ -84,7 +84,6 @@ function getReportedTests() {
         }
     });
 }
-
 function appendReportedTests(tests)
 {
     var table = $('#reportedTestTable');
@@ -101,7 +100,6 @@ function appendReportedTests(tests)
         table.append(tr);
     });
 }
-
 function appendReportedTestControlls(tr, test) {
     var td = $('<td/>');
     var ignoreRef = $('<a/>', { href: '/Admin/DeleteReports/' + test.id, text: 'Ignore reports' });
@@ -121,5 +119,65 @@ function appendReportedTestControlls(tr, test) {
     td.append('<span> | </span>');
     var reportsRef = $('<a/>', { href: '/TestReports/Index/' + test.id, text: 'Reports' });
     td.append(reportsRef);
+    tr.append(td);
+}
+
+function getUsers() {
+    var token = $('input[name="__RequestVerificationToken"]', $('#userTable')).val();
+    var skipAmount = { skipAmount: $('#userTable tr').length };
+    var amount = { amount: 1 };
+    var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
+    dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
+    $.ajax({
+        url: "/Admin/GetUsers",
+        type: "POST",
+        data: dataWithAntiforgeryToken,
+        success: function (data) {
+            appendUsers(data);
+        },
+        error: function () {
+
+        }
+    });
+}
+
+function appendUsers(users) {
+    var table = $('#userTable');
+    users.forEach(function (element) {
+        var tr = $('<tr/>');
+        tr.append($('<td/>', { text: element.userName }));
+        tr.append($('<td/>', { text: element.name }));
+        tr.append($('<td/>', { text: element.surname }));
+        tr.append($('<td/>', { text: element.email }));
+        tr.append($('<td/>', { text: element.phoneNumber }));
+        appendUsersControlls(tr, element);
+        table.append(tr);
+    });
+}
+function appendUsersControlls(tr, user) {
+    var td = $('<td/>');
+    if (user.role === "Admin") {
+        if (user.currentUserUsername !== user.UserName) {
+            var removeFromAdminsRef = $('<a/>', { href: '/Admin/RemoveFromAdmins/' + user.id, text: 'Remove from admins' });
+            td.append(removeFromAdminsRef);
+            td.append('<span> | </span>');
+         }
+    }
+    else {
+        if (user.role === "Moderator") {
+            if (user.currentUserUsername !== user.userName) {
+                var removeFromModeratorsRef = $('<a/>', { href: '/Admin/RemoveFromModerators/' + user.id, text: 'Remove from moderators' });
+                td.append(removeFromModeratorsRef);
+                td.append('<span> | </span>');
+            }
+        }
+        else {
+            var addToModeratorsRef = $('<a/>', { href: '/Admin/AddToModerators/' + user.id, text: 'Add to moderators' });
+            td.append(addToModeratorsRef);
+            td.append('<span> | </span>');
+        }
+        var addToAdminsRef = $('<a/>', { href: '/Admin/AddToAdmins/' + user.id, text: 'Add to admins' });
+        td.append(addToAdminsRef);
+    }
     tr.append(td);
 }
