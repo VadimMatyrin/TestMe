@@ -309,11 +309,12 @@ namespace TestMe.Controllers
 
             if (!(HttpContext.Session.GetString("isFinished") is null))
                 return Json(new { score, testId = test.Id });
-            var prevMark = await _testingPlatform.TestMarkManager
-                .FindAsync(tm => tm.AppUserId == _userManager.GetUserId(User) && tm.TestId == test.Id);
-            var isAlreadyPassed = _testingPlatform.TestResultManager.GetAll()
-                .Any(tr => tr.AppUser.Id == _userManager.GetUserId(User) && tr.TestId == test.Id);
-            if (isAlreadyPassed)
+
+            var prevMark = await _testingPlatform.TestMarkManager.GetAll()
+                .FirstOrDefaultAsync(tm => tm.AppUserId == _userManager.GetUserId(User) && tm.TestId == test.Id);
+            var prevResult = await _testingPlatform.TestResultManager.GetAll() 
+                .FirstOrDefaultAsync(tr => tr.AppUser.Id == _userManager.GetUserId(User) && tr.TestId == test.Id);
+            if (prevResult is null)
             {
                 var startTimeStr = HttpContext.Session.GetString("startTime");
                 if (startTimeStr is null)
