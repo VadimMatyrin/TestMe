@@ -309,29 +309,28 @@ namespace TestMe.Controllers
 
             if (!(HttpContext.Session.GetString("isFinished") is null))
                 return Json(new { score, testId = test.Id });
-
-            var isAlreadyPassed = _testingPlatform.TestResultManager.GetAll()
-                .Any(tr => tr.AppUser.Id == _userManager.GetUserId(User) && tr.TestId == test.Id);
-            if(isAlreadyPassed)
-                return Json(new { score, testId = test.Id });
-
-            var startTimeStr = HttpContext.Session.GetString("startTime");
-            if (startTimeStr is null)
-                throw new TestTimeException();
-            var endTimeStr = HttpContext.Session.GetString("endTime");
-
-            var startTime = JsonConvert.DeserializeObject<DateTime>(startTimeStr);
-            var endTime = DateTime.Now;
-            var endTestTime = JsonConvert.DeserializeObject<DateTime>(endTimeStr);
-            if (DateTime.Compare(endTestTime, DateTime.Now) < 0)
-                endTime = endTestTime;
-
-            HttpContext.Session.SetString("isFinished", "true");
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            var testResult = new TestResult { AppUserId = user.Id, Score = score, TestId = test.Id , StartTime = startTime, FinishTime = endTime };
-            await _testingPlatform.TestResultManager.AddAsync(testResult);
             var prevMark = await _testingPlatform.TestMarkManager
                 .FindAsync(tm => tm.AppUserId == _userManager.GetUserId(User) && tm.TestId == test.Id);
+            var isAlreadyPassed = _testingPlatform.TestResultManager.GetAll()
+                .Any(tr => tr.AppUser.Id == _userManager.GetUserId(User) && tr.TestId == test.Id);
+            if (isAlreadyPassed)
+            {
+                var startTimeStr = HttpContext.Session.GetString("startTime");
+                if (startTimeStr is null)
+                    throw new TestTimeException();
+                var endTimeStr = HttpContext.Session.GetString("endTime");
+
+                var startTime = JsonConvert.DeserializeObject<DateTime>(startTimeStr);
+                var endTime = DateTime.Now;
+                var endTestTime = JsonConvert.DeserializeObject<DateTime>(endTimeStr);
+                if (DateTime.Compare(endTestTime, DateTime.Now) < 0)
+                    endTime = endTestTime;
+
+                HttpContext.Session.SetString("isFinished", "true");
+                var user = await _userManager.FindByNameAsync(User.Identity.Name);
+                var testResult = new TestResult { AppUserId = user.Id, Score = score, TestId = test.Id, StartTime = startTime, FinishTime = endTime };
+                await _testingPlatform.TestResultManager.AddAsync(testResult);
+            }
             if (prevMark is null)
                 return Json(new { score, testId = test.Id });
             else
