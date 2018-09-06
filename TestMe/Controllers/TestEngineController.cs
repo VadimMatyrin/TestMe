@@ -346,8 +346,18 @@ namespace TestMe.Controllers
             if (HttpContext.Session.GetString("isFinished") is null)
                 return BadRequest();
 
-            var testMark = new TestMark { TestId = test.Id, AppUserId = _userManager.GetUserId(User), EnjoyedTest = mark.HasValue };
-            await _testingPlatform.TestMarkManager.AddAsync(testMark);
+            var prevMark = await _testingPlatform.TestMarkManager
+                .FindAsync(tm => tm.AppUserId == _userManager.GetUserId(User) && tm.TestId == test.Id);
+            if (prevMark is null)
+            {
+                var testMark = new TestMark { TestId = test.Id, AppUserId = _userManager.GetUserId(User), EnjoyedTest = mark.HasValue };
+                await _testingPlatform.TestMarkManager.AddAsync(testMark);
+            }
+            else
+            {
+               prevMark.EnjoyedTest = mark.HasValue;
+               await _testingPlatform.TestMarkManager.UpdateAsync(prevMark);
+             }
             return Json(mark);
         }
     }

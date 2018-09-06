@@ -325,10 +325,15 @@ function rateTest(mark) {
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {
-            if (data.mark)
+            if (data) {
+                $('#dislikeButton').removeClass('btn-primary');
                 $('#likeButton').addClass('btn-primary');
+            }
             else
+            {
+                $('#likeButton').removeClass('btn-primary');
                 $('#dislikeButton').addClass('btn-primary');
+            }
         },
         error: function () {
             //$("#questionForm").empty();

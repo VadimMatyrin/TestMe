@@ -25,7 +25,7 @@ namespace TestMe.Controllers
             if (test is null)
                 return NotFound();
 
-            var questionAmount = _testingPlatform.TestQuestionManager.GetAll().Where(tq => tq.TestId == id).Count();
+            var questionAmount = _testingPlatform.TestQuestionManager.GetAll().Count(tq => tq.TestId == id);
             ViewBag.questionAmount = questionAmount;
             return View(test);
         }
