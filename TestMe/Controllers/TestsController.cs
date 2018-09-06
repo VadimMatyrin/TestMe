@@ -133,8 +133,12 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
+            Test test;
+            if(User.IsInRole("Moderator"))
+                test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
+            else
+              test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
 
-            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
             if (test == null)
             {
                 return NotFound();

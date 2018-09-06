@@ -58,8 +58,17 @@
     }
     else
     {
-        <div>
-            <a asp-action="Index" asp-controller="Admin">Back to administration</a>
-        </div>
+        if (User.IsInRole("Admin"))
+        {
+            <div>
+                <a asp-action="Index" asp-controller="Admin">Back to administration</a>
+            </div>
+        }
+        else
+        {
+            <div>
+                <a asp-action="ReportedTests" asp-controller="Admin">Back to moderation</a>
+            </div>
+        }
     }
 </div>
