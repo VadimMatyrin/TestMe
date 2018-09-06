@@ -121,6 +121,8 @@ namespace TestMe.Controllers
                 }
                 var testResult = _testingPlatform.TestResultManager.GetAll().Where(tr => tr.TestId == test.Id);
                 await _testingPlatform.TestResultManager.DeleteRangeAsync(testResult);
+                var testMarks = _testingPlatform.TestMarkManager.GetAll().Where(tm => tm.TestId == test.Id);
+                await _testingPlatform.TestMarkManager.DeleteRangeAsync(testMarks);
                 return View("CreateCode", test);
             }
             return View("CreateCode", test);

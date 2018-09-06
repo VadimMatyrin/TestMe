@@ -23,6 +23,9 @@
                 @Html.DisplayNameFor(model => model.TestReports)
             </th>
             <th>
+                Test rating
+            </th>
+            <th>
                 Actions
             </th>
         </tr>
@@ -42,6 +45,21 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.TestReports.Count)
+                </td>
+                <td>
+                    @{var rating = item.TestMarks.Count(tm => tm.EnjoyedTest) - item.TestMarks.Count(tm => !tm.EnjoyedTest); }
+                    @if (rating > 0)
+                    {
+                        <span class="text-success">@rating</span>
+                    }
+                    else if (rating < 0)
+                    {
+                        <span class="text-danger">@rating</span>
+                    }
+                    else
+                    {
+                        <span>@rating</span>
+                    }
                 </td>
                 <td>
                     <a asp-action="DeleteReports" asp-route-id="@item.Id">Ingore reports</a><span> |</span>
