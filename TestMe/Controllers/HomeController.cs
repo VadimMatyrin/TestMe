@@ -7,21 +7,26 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TestMe.Data;
 using TestMe.Models;
+using TestMe.Sevices.Interfaces;
 
 namespace TestMe.Controllers
 {
     public class HomeController : Controller
     {
-        readonly ApplicationDbContext _db;
+        readonly ITestingPlatform _testingPlatform;
         readonly UserManager<AppUser> _userManager;
-        public HomeController(ApplicationDbContext db, UserManager<AppUser> userManager)
+        public HomeController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager)
         {
-            _db = db;
+            _testingPlatform = testingPlatform;
             _userManager = userManager;
         }
         public IActionResult Index()
         {
-            return View();
+            var topRatedTest = _testingPlatform.TestManager.GetAll().Where(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) > 1);
+            if (topRatedTest is null)
+                return NotFound();
+
+            return View(topRatedTest);
         }
         public IActionResult About()
         {

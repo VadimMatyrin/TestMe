@@ -1,4 +1,5 @@
-﻿@{
+﻿@model IEnumerable<Test>
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -55,12 +56,43 @@
 
 <div class="row">
     <div class="col-md-3">
-        <h2>Application uses</h2>
-        <ul>
-            <li>Sample pages using ASP.NET Core MVC</li>
-            <li>Theming using <a href="https://go.microsoft.com/fwlink/?LinkID=398939">Bootstrap</a></li>
-        </ul>
-    </div>
+        <h2>Top rated tests</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-md-6">
+                        @Html.DisplayNameFor(model => model.TestName)
+                    </th>
+                    <th class="col-md-6">
+                        Test rating
+                    </th>
+                </tr>
+            </thead>
+            @foreach (var test in Model)
+            {
+                <tr>
+                    <td class="text-center">
+                        <a asp-action="Index" asp-controller="TestEngine" asp-route-code="@test.TestCode">@test.TestName</a>
+                    </td>
+                    <td class="text-center">
+                        @{var rating = test.TestMarks.Count(tm => tm.EnjoyedTest) - test.TestMarks.Count(tm => !tm.EnjoyedTest); }
+                        @if (rating > 0)
+                        {
+                            <span class="text-success">@rating</span>
+                        }
+                        else if (rating < 0)
+                        {
+                            <span class="text-danger">@rating</span>
+                        }
+                        else
+                        {
+                            <span>@rating</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </table>
+</div>
     <div class="col-md-3">
         <h2>How to</h2>
         <ul>
