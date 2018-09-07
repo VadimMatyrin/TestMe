@@ -327,15 +327,19 @@ namespace TestMe.Controllers
                 if (DateTime.Compare(endTestTime, DateTime.Now) < 0)
                     endTime = endTestTime;
 
-                HttpContext.Session.SetString("isFinished", "true");
                 var user = await _userManager.FindByNameAsync(User.Identity.Name);
                 var testResult = new TestResult { AppUserId = user.Id, Score = score, TestId = test.Id, StartTime = startTime, FinishTime = endTime };
                 await _testingPlatform.TestResultManager.AddAsync(testResult);
             }
+            HttpContext.Session.SetString("isFinished", "true");
             if (prevMark is null)
+            {
                 return Json(new { score, testId = test.Id });
+            }
             else
+            {
                 return Json(new { score, testId = test.Id, isRated = prevMark.EnjoyedTest });
+            }
         }
 
         [HttpPost]

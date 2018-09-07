@@ -22,7 +22,10 @@ namespace TestMe.Controllers
             var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
             if (test is null)
                 return NotFound();
-
+            var testMarks = _testingPlatform.TestMarkManager.GetAll().Where(tm => tm.TestId == id).ToList();
+            if (testMarks is null)
+                return NotFound();
+            test.TestMarks = testMarks;
             var questionAmount = _testingPlatform.TestQuestionManager.GetAll().Count(tq => tq.TestId == id);
             ViewBag.questionAmount = questionAmount;
             return View(test);

@@ -30,9 +30,11 @@ namespace TestMe.Controllers
         {
             if (id is null)
                 return NotFound();
+
             var test = _testingPlatform.TestManager.GetAll().Where(t => t.Id == id).FirstOrDefault();
-            if (test is null)
-                return NotFound();
+            var testReports = _testingPlatform.TestReportManager.GetAll().Where(tr => tr.TestId == id).ToList();
+            test.TestReports = testReports;
+
 
             return View(test);
         }
