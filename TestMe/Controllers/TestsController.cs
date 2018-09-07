@@ -129,17 +129,15 @@ namespace TestMe.Controllers
         }
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            if (id is null)
             {
                 return NotFound();
             }
-            Test test;
-            if(User.IsInRole("Moderator"))
-                test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
-            else
-              test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
+            //Test test;
 
-            if (test == null)
+            var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
+
+            if (test is null)
             {
                 return NotFound();
             }
@@ -349,6 +347,25 @@ namespace TestMe.Controllers
             }
             );
             return Json(optimizedTests);
+        }
+        [HttpGet]
+        [ActionName("TopRated")]
+        public async Task<IActionResult> TopRated(string SearchString)
+        {
+            List<Test> topRatedTests;
+            if (SearchString is null)
+                topRatedTests = await _testingPlatform.TestManager.GetAll()
+                .Where(t => !(t.TestCode == null) && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1).Take(10)
+                .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest)).ToListAsync();
+            else
+                topRatedTests = await _testingPlatform.TestManager.GetAll()
+                    .Where(t => !(t.TestCode == null) && t.TestName.Contains(SearchString) && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1).Take(10)
+                    .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest)).ToListAsync();
+
+            if (topRatedTests is null)
+                return NotFound();
+
+            return View(topRatedTests);
         }
         private bool HasValidationErrors(int? id)
         {

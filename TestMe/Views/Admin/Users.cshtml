@@ -12,7 +12,14 @@
         <label for="SearchString">Username:</label>
         <div class="row">
             <div class="col-xs-12 col-md-7">
-                <input type="text" class="form-control" name="SearchString" id="SearchString">
+                @if (Context.Request.Query["SearchString"].Count != 0)
+                {
+                    <input type="text" class="form-control" name="SearchString" id="SearchString" value="@Context.Request.Query["SearchString"][0]">
+                }
+                else
+                {
+                    <input type="text" class="form-control" name="SearchString" id="SearchString">
+                }
             </div>
             <div class="col-xs-12 col-md-offset-2 col-md-3">
                 <input type="submit" class="form-control " id="submit" value="Search">
