@@ -1,0 +1,102 @@
+﻿@model IEnumerable<Test>
+
+@{
+    ViewData["Title"] = "Search tests";
+}
+
+<h2>Search tests</h2>
+<form asp-action="SearchTests" method="get">
+    <div class="form-group">
+        <label for="SearchString">Test name:</label>
+        <div class="row">
+            <div class="col-xs-12 col-md-7">
+                @if (Context.Request.Query["SearchString"].Count != 0)
+                {
+                    <input type="text" class="form-control" name="SearchString" id="SearchString" value="@Context.Request.Query["SearchString"][0]">
+                }
+                else
+                {
+                    <input type="text" class="form-control" name="SearchString" id="SearchString">
+                }
+
+            </div>
+            <div class="col-xs-12 col-md-offset-2 col-md-3">
+                <input type="submit" class="form-control " id="submit" value="Search">
+            </div>
+        </div>
+    </div>
+</form>
+<table class="table" id="testTable">
+    @Html.AntiForgeryToken()
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TestName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreationDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestDuration)
+            </th>
+            <th>
+                Rating
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <a asp-action="Index" asp-controller="TestEngine" asp-route-code="@item.TestCode">
+                        @Html.DisplayFor(modelItem => item.TestName)
+                    </a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreationDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TestDuration)
+                </td>
+                <td>
+                    @{var rating = item.TestMarks.Count(tm => tm.EnjoyedTest) - item.TestMarks.Count(tm => !tm.EnjoyedTest); }
+                    @if (rating > 0)
+                    {
+                        <span class="text-success">@rating</span>
+                    }
+                    else if (rating < 0)
+                    {
+                        <span class="text-danger">@rating</span>
+                    }
+                    else
+                    {
+                        <span>@rating</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div class="row">
+    <div class="col-md-offset-3 col-md-6 text-center">
+        @if (Context.Request.Query["SearchString"].Count == 0 || Context.Request.Query["SearchString"][0] == "")
+        {
+            <button type="button" class="btn btn-primary" onclick="getTopTests()">Load more tests</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-primary" disabled>Load more tests</button>
+        }
+
+    </div>
+</div>
+@section Scripts{
+    <script type="text/javascript" src="~/js/searchTestsScript.js"></script>
+}

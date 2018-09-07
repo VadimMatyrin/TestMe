@@ -28,7 +28,13 @@ function appendTests(tests) {
         tr.append($('<td/>', { text: formattedDate.toLocaleString() }));
         tr.append($('<td/>', { text: element.testCode }));
         tr.append($('<td/>', { text: element.duration.slice(0, -3) }));
-        tr.append($('<td/>', { text: element.testRating }));
+        var rateClass = '';
+        if (element.testRating > 0)
+            rateClass = 'text-success';
+        else if (element.testRating < 0)
+            rateClass = 'text-danger';
+        var td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
+        tr.append(td);
         tr.append($('<td/>', { text: element.userName }));
         appendControls(tr, element);
         table.append(tr);
@@ -95,7 +101,13 @@ function appendReportedTests(tests)
         tr.append(testNameTd);
         tr.append($('<td/>', { text: element.userName }));
         tr.append($('<td/>', { text: element.reportAmount }));
-        tr.append($('<td/>', { text: element.testRating }));
+        var rateClass = '';
+        if (element.testRating > 0)
+            rateClass = 'text-success';
+        else if (element.testRating < 0)
+            rateClass = 'text-danger';
+        var td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
+        tr.append(td);
         appendReportedTestControlls(tr, element);
         table.append(tr);
     });

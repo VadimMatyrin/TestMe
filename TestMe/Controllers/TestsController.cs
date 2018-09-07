@@ -367,6 +367,52 @@ namespace TestMe.Controllers
 
             return View(topRatedTests);
         }
+        [HttpGet]
+        [ActionName("SearchTests")]
+        public async Task<IActionResult> SearchTestsGet(string searchString)
+        {
+            List<Test> tests;
+            if (searchString is null)
+                tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestCode != null)
+                    .Take(1)
+                    .ToListAsync();
+            else
+                tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestCode != null &&
+                t.TestName.ToUpper().Contains(searchString.ToUpper()))
+                .ToListAsync();
+
+            if (tests is null)
+                return NotFound();
+
+            return View(tests);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GetSharedTests(int? skipAmount, int? amount)
+        {
+            if (skipAmount is null)
+                return BadRequest();
+
+            if (amount is null)
+                return BadRequest();
+
+            var tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestCode != null)
+                .Skip(skipAmount.Value - 1)
+                .Take(amount.Value).ToListAsync();
+            var optimizedTests = tests.Select(t =>
+            new
+            {
+                id = t.Id,
+                testName = t.TestName,
+                creationDate = t.CreationDate,
+                testCode = t.TestCode,
+                duration = t.TestDuration,
+                testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
+                userName = t.AppUser.UserName
+            }
+            );
+            return Json(optimizedTests);
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetTopTests(int? skipAmount, int? amount)

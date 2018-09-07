@@ -1,11 +1,11 @@
 ﻿function getTopTests() {
-    var token = $('input[name="__RequestVerificationToken"]', $('#topTestTable')).val();
-    var skipAmount = { skipAmount: $('#topTestTable tr').length };
+    var token = $('input[name="__RequestVerificationToken"]', $('#testTable')).val();
+    var skipAmount = { skipAmount: $('#testTable tr').length };
     var amount = { amount: 10 };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     $.ajax({
-        url: "/Tests/GetTopTests",
+        url: "/Tests/GetSharedTests",
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {
@@ -17,7 +17,7 @@
     });
 }
 function appendTopTests(tests) {
-    var table = $('#topTestTable');
+    var table = $('#testTable');
     tests.forEach(function (element) {
         var tr = $('<tr/>');
         var testRef = $('<a/>', { href: '/TestEngine/' + element.testCode, text: element.testName });
@@ -26,13 +26,7 @@ function appendTopTests(tests) {
         var formattedDate = new Date(element.creationDate);
         tr.append($('<td/>', { text: formattedDate.toLocaleString() }));
         tr.append($('<td/>', { text: element.duration.slice(0, -3) }));
-        var rateClass = '';
-        if (element.testRating > 0)
-            rateClass = 'text-success';
-        else if (element.testRating < 0)
-            rateClass = 'text-danger';
-        var td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
-        tr.append(td);
+        tr.append($('<td/>', { text: element.testRating }));
         appendTopTestsControls(tr, element);
         table.append(tr);
     });
