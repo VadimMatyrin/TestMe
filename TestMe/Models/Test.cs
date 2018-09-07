@@ -26,7 +26,7 @@ namespace TestMe.Models
         [Display(Name = "Test duration")]
         [Required, DataType(DataType.Time)]
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:hh\\:mm}")]
-        [RegularExpression(@"((([0-1][0-9])|(2[0-3]))(:[0-5][0-9])(:[0-5][0-9])?)", ErrorMessage = "Duration must be between 00:00 to 23:59")]
+        [Range(typeof(TimeSpan), "00:01:00", "23:59:00")]
         public TimeSpan TestDuration { get; set; }
         [JsonIgnore]
         public AppUser AppUser { get; set; }
