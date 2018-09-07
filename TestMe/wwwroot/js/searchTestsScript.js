@@ -26,7 +26,13 @@ function appendTopTests(tests) {
         var formattedDate = new Date(element.creationDate);
         tr.append($('<td/>', { text: formattedDate.toLocaleString() }));
         tr.append($('<td/>', { text: element.duration.slice(0, -3) }));
-        tr.append($('<td/>', { text: element.testRating }));
+        var rateClass = '';
+        if (element.testRating > 0)
+            rateClass = 'text-success';
+        else if (element.testRating < 0)
+            rateClass = 'text-danger';
+        var td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
+        tr.append(td);
         appendTopTestsControls(tr, element);
         table.append(tr);
     });
