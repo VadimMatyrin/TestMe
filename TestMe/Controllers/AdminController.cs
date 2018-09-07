@@ -61,7 +61,7 @@ namespace TestMe.Controllers
         public async Task<IActionResult> AddToAdmins(string id)
         {
             if (String.IsNullOrEmpty(id))
-                return RedirectToAction(nameof(UsersGet));
+                return RedirectToAction("Users");
 
             var user = await _userManager.FindByIdAsync(id);
             if (user is null)
@@ -70,7 +70,7 @@ namespace TestMe.Controllers
             if (!(await _userManager.IsInRoleAsync(user, "Admin")))
                 await _userManager.AddToRoleAsync(user, "Admin");
 
-            return RedirectToAction(nameof(UsersGet));
+            return RedirectToAction("Users");
         }
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RemoveFromAdmins(string id)
@@ -112,7 +112,7 @@ namespace TestMe.Controllers
             if (user is null)
                 return NotFound();
 
-            if (await _userManager.IsInRoleAsync(user, "Moderator"))
+            if (await _userManager.IsInRoleAsync(user, "Moderator") && user.UserName != User.Identity.Name)
                 await _userManager.RemoveFromRoleAsync(user, "Moderator");
 
             return RedirectToAction("Users");
