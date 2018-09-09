@@ -1,0 +1,75 @@
+﻿@model IEnumerable<Test>
+@{
+    ViewData["Title"] = "UserResults";
+}
+
+<h2>Your test results</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                №
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestResults.First().Score)
+            </th>
+            <th>
+                Test creator
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestResults.First().StartTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestResults.First().FinishTime)
+            </th>
+            <th>
+                Test time
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ var counter = 1; }
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                <b>@counter</b>
+            </td>
+            <td>
+                @if (!(item.TestCode is null))
+                {
+                    <a asp-action="Index" asp-controller="TestEngine" asp-route-code="@item.TestCode">@Html.DisplayFor(modelItem => item.TestName)</a>
+                }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.TestName)
+                }
+
+            </td>
+            <td>
+                <strong>@Html.DisplayFor(modelItem => item.TestResults.First().Score)</strong> / @item.TestQuestions.Count
+            </td>
+            <td>
+                <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.AppUserId">@Html.DisplayFor(modelItem => item.AppUser.UserName)</a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TestResults.First().StartTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TestResults.First().FinishTime)
+            </td>
+            <td>
+                @((item.TestResults.First().FinishTime - item.TestResults.First().StartTime).Duration())
+            </td>
+        </tr>
+            counter++;
+        }
+    </tbody>
+</table>
+<a asp-controller="Profile" asp-action="Index">Back to profile</a>
+
+
