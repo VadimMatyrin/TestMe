@@ -20,14 +20,23 @@ namespace TestMe.Controllers
         }
         public async Task<IActionResult> Index(string id)
         {
+            ProfileModel profile;
             if (id is null)
-                return NotFound();
-            var profile = new ProfileModel
             {
-                AppUser = await _userManager.FindByIdAsync(id)
-            };
+                profile = new ProfileModel
+                {
+                    AppUser = await _userManager.FindByNameAsync(User.Identity.Name)
+                };
+            }
+            else
+            {
+                profile = new ProfileModel
+                {
+                    AppUser = await _userManager.FindByIdAsync(id)
+                };
+            }
             profile.TestMarks = _testingPlatform.TestMarkManager.GetAll().Where(tm => tm.AppUserId == profile.AppUser.Id).ToList();
-            profile.UserTests = _testingPlatform.TestManager.GetAll().Where(tm => tm.AppUserId == profile.AppUser.Id).ToList();
+            profile.UserTests = _testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == profile.AppUser.Id && t.TestCode != null).ToList();
             profile.TestResults = _testingPlatform.TestResultManager.GetAll().Where(tm => tm.AppUserId == profile.AppUser.Id).ToList();
             return View(profile);
         }
