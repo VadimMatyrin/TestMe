@@ -18,7 +18,9 @@ namespace TestMe.Controllers
             _testingPlatform = testingPlatform;
             _userManager = userManager;
         }
-        public async Task<IActionResult> Index(string id)
+        [HttpGet]
+        [ActionName("Index")]
+        public async Task<IActionResult> IndexGet(string id, string searchString)
         {
             ProfileModel profile;
             if (id is null)
@@ -35,10 +37,32 @@ namespace TestMe.Controllers
                     AppUser = await _userManager.FindByIdAsync(id)
                 };
             }
+            if (String.IsNullOrEmpty(searchString))
+                searchString = "";
+
             profile.TestMarks = _testingPlatform.TestMarkManager.GetAll().Where(tm => tm.AppUserId == profile.AppUser.Id).ToList();
-            profile.UserTests = _testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == profile.AppUser.Id && t.TestCode != null).ToList();
+            profile.UserTests = _testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == profile.AppUser.Id && t.TestCode != null && t.TestName.Contains(searchString)).Take(1).ToList();
             profile.TestResults = _testingPlatform.TestResultManager.GetAll().Where(tm => tm.AppUserId == profile.AppUser.Id).ToList();
             return View(profile);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GetUserProfileTests(string userId, int? skipAmount, int? amount)
+        {
+            if (skipAmount is null || amount is null || userId is null)
+                return NotFound();
+
+            var tests = _testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == userId && t.TestCode != null).Skip(skipAmount.Value - 1).Take(amount.Value).ToList();
+            var optimizedTests = tests.Select(t =>
+            new
+            {
+                testName = t.TestName,
+                creationDate = t.CreationDate,
+                duration = t.TestDuration,
+                testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest)
+            }
+            );
+            return Json(optimizedTests);
         }
     }
 }
