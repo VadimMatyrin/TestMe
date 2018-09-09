@@ -261,19 +261,16 @@ namespace TestMe.Controllers
                 return NotFound();
 
             var testQuestions = await _testingPlatform.TestQuestionManager.GetAll().Where(ta => ta.AppUserId == _userId && ta.TestId == id).ToListAsync();
-            var test = testQuestions.FirstOrDefault()?.Test;
-
-            if (test is null)
-                return NotFound();
 
             var errorModelTest = new Test();
 
-            if (test.TestQuestions.Count == 0)
+            if (testQuestions.Count == 0)
             {
                 errorModelTest.TestQuestions = new List<TestQuestion>();
                 return View(errorModelTest);
             }
 
+            var test = testQuestions.FirstOrDefault().Test;
 
             if (test.TestQuestions.Any(tq => tq.TestAnswers.Count == 0))
             {
@@ -296,59 +293,6 @@ namespace TestMe.Controllers
             return View(errorModelTest);
         }
 
-
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        [ValidateAntiForgeryToken]
-        public IActionResult GetTests(int? skipAmount, int? amount)
-        {
-            if (skipAmount is null)
-                return BadRequest();
-
-            if (amount is null)
-                return BadRequest();
-
-            var tests = _testingPlatform.TestManager.GetAll().Skip(skipAmount.Value - 1).Take(amount.Value);
-            var optimizedTests = tests.Select(t =>
-            new
-            {
-                id = t.Id,
-                testName = t.TestName,
-                creationDate = t.CreationDate,
-                testCode = t.TestCode,
-                duration = t.TestDuration,
-                testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
-                userId = t.AppUser.Id,
-                userName = t.AppUser.UserName
-            }
-            );
-            return Json(optimizedTests);
-        }
-        [HttpPost]
-        [Authorize(Roles = "Admin, Moderator")]
-        [ValidateAntiForgeryToken]
-        public IActionResult GetReportedTests(int? skipAmount, int? amount)
-        {
-            if (skipAmount is null)
-                return BadRequest();
-
-            if (amount is null)
-                return BadRequest();
-
-            var tests = _testingPlatform.TestManager.GetAll().Where(t => t.TestReports.Count >= 1).Skip(skipAmount.Value - 1).Take(amount.Value);
-            var optimizedTests = tests.Select(t =>
-            new
-            {
-                id = t.Id,
-                testName = t.TestName,
-                userName = t.AppUser.UserName,
-                testCode = t.TestCode,
-                reportAmount = t.TestReports.Count,
-                testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
-            }
-            );
-            return Json(optimizedTests);
-        }
         [HttpGet]
         [ActionName("TopRated")]
         public async Task<IActionResult> TopRatedGet(string SearchString)
@@ -388,8 +332,9 @@ namespace TestMe.Controllers
             return View(tests);
         }
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetSharedTests(int? skipAmount, int? amount)
+        public IActionResult GetTestsAjax(int? skipAmount, int? amount)
         {
             if (skipAmount is null)
                 return BadRequest();
@@ -397,8 +342,61 @@ namespace TestMe.Controllers
             if (amount is null)
                 return BadRequest();
 
-            var tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestCode != null)
-                .Skip(skipAmount.Value - 1)
+            var tests = _testingPlatform.TestManager.GetAll().Skip(skipAmount.Value - 1).Take(amount.Value);
+            var optimizedTests = tests.Select(t =>
+            new
+            {
+                id = t.Id,
+                testName = t.TestName,
+                creationDate = t.CreationDate,
+                testCode = t.TestCode,
+                duration = t.TestDuration,
+                testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
+                userId = t.AppUser.Id,
+                userName = t.AppUser.UserName
+            }
+            );
+            return Json(optimizedTests);
+        }
+        [HttpPost]
+        [Authorize(Roles = "Admin, Moderator")]
+        [ValidateAntiForgeryToken]
+        public IActionResult GetReportedTestsAjax(int? skipAmount, int? amount)
+        {
+            if (skipAmount is null)
+                return BadRequest();
+
+            if (amount is null)
+                return BadRequest();
+
+            var tests = _testingPlatform.TestManager.GetAll().Where(t => t.TestReports.Count >= 1).Skip(skipAmount.Value - 1).Take(amount.Value);
+            var optimizedTests = tests.Select(t =>
+            new
+            {
+                id = t.Id,
+                testName = t.TestName,
+                userName = t.AppUser.UserName,
+                testCode = t.TestCode,
+                reportAmount = t.TestReports.Count,
+                testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
+            }
+            );
+            return Json(optimizedTests);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GetSharedTestsAjax(int? skipAmount, int? amount)
+        {
+            if (skipAmount is null)
+                return BadRequest();
+
+            if (amount is null)
+                return BadRequest();
+
+            var tests = await _testingPlatform.TestManager
+                .GetAll()
+                .Where(t => t.TestCode != null)
+                .Skip(skipAmount.Value)
                 .Take(amount.Value).ToListAsync();
             var optimizedTests = tests.Select(t =>
             new
@@ -416,7 +414,7 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetTopTests(int? skipAmount, int? amount)
+        public async Task<IActionResult> GetTopTestsAjax(int? skipAmount, int? amount)
         {
             if (skipAmount is null)
                 return BadRequest();
@@ -426,7 +424,7 @@ namespace TestMe.Controllers
 
             var topRatedTests = await _testingPlatform.TestManager.GetAll()
                 .Where(t => !(t.TestCode == null) && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1)
-                .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest)).Skip(skipAmount.Value - 1).Take(amount.Value).ToListAsync();
+                .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest)).Skip(skipAmount.Value).Take(amount.Value).ToListAsync();
             
             var optimizedTests = topRatedTests.Select(t =>
             new
