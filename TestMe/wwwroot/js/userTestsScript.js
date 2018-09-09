@@ -2,10 +2,12 @@
     var token = $('input[name="__RequestVerificationToken"]', $('#userTests')).val();
     var skipAmount = { skipAmount: $('#userTests tr').length - 1 };
     var amount = { amount: 10 };
+    var searchString = { searchString: getUrlParameter("SearchString") };
     var userId = { userId: $('input[name="userId"]').val() };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     dataWithAntiforgeryToken = $.extend(userId, dataWithAntiforgeryToken);
+    dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
 
     $.ajax({
         url: "/Profile/GetUserProfileTestsAjax",

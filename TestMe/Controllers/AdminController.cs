@@ -175,16 +175,14 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetUsersAjax(int? skipAmount, int? amount)
+        public async Task<IActionResult> GetUsersAjax(int? skipAmount, int? amount, string searchString)
         {
             if (skipAmount is null || amount is null)
                 return BadRequest();
 
-            var searchString = "";
-            if (HttpContext.Request.Query.Count!=0 && HttpContext.Request.Query["searchString"] != "")
-            {
-                searchString = HttpContext.Request.Query["searchString"];
-            }
+            if (searchString is null)
+                searchString = "";
+
             var users = await _userManager.Users.AsNoTracking()
                 .Where(u => u.UserName.Contains(searchString))
                 .Skip(skipAmount.Value)

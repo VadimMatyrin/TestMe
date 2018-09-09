@@ -2,8 +2,10 @@
     var token = $('input[name="__RequestVerificationToken"]', $('#topTestTable')).val();
     var skipAmount = { skipAmount: $('#topTestTable tr').length - 1 };
     var amount = { amount: 10 };
+    var searchString = { searchString: getUrlParameter("SearchString") };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
+    dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
     $.ajax({
         url: "/Tests/GetTopTestsAjax",
         type: "POST",

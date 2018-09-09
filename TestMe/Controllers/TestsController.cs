@@ -350,19 +350,13 @@ namespace TestMe.Controllers
         [HttpPost]
         [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetTestsAjax(int? skipAmount, int? amount)
+        public async Task<IActionResult> GetTestsAjax(int? skipAmount, int? amount, string searchString)
         {
-            if (skipAmount is null)
+            if (skipAmount is null || amount is null)
                 return BadRequest();
 
-            if (amount is null)
-                return BadRequest();
-
-            var searchString = "";
-            if (HttpContext.Request.Query.Count != 0 && HttpContext.Request.Query["searchString"] != "")
-            {
-                searchString = HttpContext.Request.Query["searchString"];
-            }
+            if (searchString is null)
+                searchString = "";
 
             var tests = await _testingPlatform.TestManager
                 .GetAll()
@@ -388,19 +382,13 @@ namespace TestMe.Controllers
         [HttpPost]
         [Authorize(Roles = "Admin, Moderator")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetReportedTestsAjax(int? skipAmount, int? amount)
+        public async Task<IActionResult> GetReportedTestsAjax(int? skipAmount, int? amount, string searchString)
         {
-            if (skipAmount is null)
+            if (skipAmount is null || amount is null)
                 return BadRequest();
 
-            if (amount is null)
-                return BadRequest();
-
-            var searchString = "";
-            if (HttpContext.Request.Query.Count != 0 && HttpContext.Request.Query["searchString"] != "")
-            {
-                searchString = HttpContext.Request.Query["searchString"];
-            }
+            if (searchString is null)
+                searchString = "";
 
             var tests = await _testingPlatform.TestManager
                 .GetAll()
@@ -423,19 +411,13 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetSharedTestsAjax(int? skipAmount, int? amount)
+        public async Task<IActionResult> GetSharedTestsAjax(int? skipAmount, int? amount, string searchString)
         {
-            if (skipAmount is null)
+            if (skipAmount is null || amount is null)
                 return BadRequest();
 
-            if (amount is null)
-                return BadRequest();
-
-            var searchString = "";
-            if (HttpContext.Request.Query.Count != 0 && HttpContext.Request.Query["searchString"] != "")
-            {
-                searchString = HttpContext.Request.Query["searchString"];
-            }
+            if (searchString is null)
+                searchString = "";
 
             var tests = await _testingPlatform.TestManager
                 .GetAll()
@@ -459,19 +441,13 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetTopTestsAjax(int? skipAmount, int? amount)
+        public async Task<IActionResult> GetTopTestsAjax(int? skipAmount, int? amount, string searchString)
         {
-            if (skipAmount is null)
+            if (skipAmount is null || amount is null)
                 return BadRequest();
 
-            if (amount is null)
-                return BadRequest();
-
-            var searchString = "";
-            if (HttpContext.Request.Query.Count != 0 && HttpContext.Request.Query["searchString"] != "")
-            {
-                searchString = HttpContext.Request.Query["searchString"];
-            }
+            if (searchString is null)
+                searchString = "";
 
             var topRatedTests = await _testingPlatform.TestManager
                 .GetAll()

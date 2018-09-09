@@ -47,16 +47,13 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult GetUserProfileTestsAjax(string userId, int? skipAmount, int? amount)
+        public IActionResult GetUserProfileTestsAjax(string userId, int? skipAmount, int? amount, string searchString)
         {
-            if (skipAmount is null || amount is null || userId is null)
-                return NotFound();
+            if (userId is null || skipAmount is null || amount is null)
+                return BadRequest();
 
-            var searchString = "";
-            if (HttpContext.Request.Query.Count != 0 && HttpContext.Request.Query["searchString"] != "")
-            {
-                searchString = HttpContext.Request.Query["searchString"];
-            }
+            if (searchString is null)
+                searchString = "";
 
             var tests = _testingPlatform.TestManager
                 .GetAll()

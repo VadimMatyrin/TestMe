@@ -2,8 +2,10 @@
     var token = $('input[name="__RequestVerificationToken"]', $('#testTable')).val();
     var skipAmount = { skipAmount: $('#testTable tr').length - 1 };
     var amount = { amount: 10 };
+    var searchString = { searchString: getUrlParameter("SearchString") };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken); 
+    dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
     $.ajax({
         url: "/Tests/GetTestsAjax",
         type: "POST",
@@ -78,8 +80,10 @@ function getReportedTests() {
     var token = $('input[name="__RequestVerificationToken"]', $('#reportedTestTable')).val();
     var skipAmount = { skipAmount: $('#reportedTestTable tr').length - 1 };
     var amount = { amount: 1 };
+    var searchString = { searchString: getUrlParameter("SearchString") };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
+    dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
     $.ajax({
         url: "/Tests/GetReportedTestsAjax",
         type: "POST",
@@ -140,8 +144,10 @@ function getUsers() {
     var token = $('input[name="__RequestVerificationToken"]', $('#userTable')).val();
     var skipAmount = { skipAmount: $('#userTable tr').length - 1 };
     var amount = { amount: 1 };
+    var searchString = { searchString: getUrlParameter("SearchString") };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
+    dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
     $.ajax({
         url: "/Admin/GetUsersAjax",
         type: "POST",
