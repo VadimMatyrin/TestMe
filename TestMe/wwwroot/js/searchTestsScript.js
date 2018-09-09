@@ -20,7 +20,7 @@ function appendTopTests(tests) {
     var table = $('#testTable');
     tests.forEach(function (element) {
         var tr = $('<tr/>');
-        var testRef = $('<a/>', { href: '/TestEngine/' + element.testCode, text: element.testName });
+        var testRef = $('<a/>', { href: '/' + element.testCode, text: element.testName });
         var testTd = $('<td/>').append(testRef);
         tr.append(testTd);
         var formattedDate = new Date(element.creationDate);
