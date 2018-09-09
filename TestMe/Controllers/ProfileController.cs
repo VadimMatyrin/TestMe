@@ -47,12 +47,12 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetUserProfileTests(string userId, int? skipAmount, int? amount)
+        public IActionResult GetUserProfileTestsAjax(string userId, int? skipAmount, int? amount)
         {
             if (skipAmount is null || amount is null || userId is null)
                 return NotFound();
 
-            var tests = _testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == userId && t.TestCode != null).Skip(skipAmount.Value - 1).Take(amount.Value).ToList();
+            var tests = _testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == userId && t.TestCode != null).Skip(skipAmount.Value).Take(amount.Value).ToList();
             var optimizedTests = tests.Select(t =>
             new
             {

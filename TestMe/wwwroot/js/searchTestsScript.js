@@ -1,11 +1,11 @@
 ﻿function getTopTests() {
     var token = $('input[name="__RequestVerificationToken"]', $('#testTable')).val();
-    var skipAmount = { skipAmount: $('#testTable tr').length };
+    var skipAmount = { skipAmount: $('#testTable tr').length - 1 };
     var amount = { amount: 10 };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     $.ajax({
-        url: "/Tests/GetSharedTests",
+        url: "/Tests/GetSharedTestsAjax",
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {

@@ -1,11 +1,11 @@
 ﻿function getTests() {
     var token = $('input[name="__RequestVerificationToken"]', $('#testTable')).val();
-    var skipAmount = { skipAmount: $('#testTable tr').length };
+    var skipAmount = { skipAmount: $('#testTable tr').length - 1 };
     var amount = { amount: 10 };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken); 
     $.ajax({
-        url: "/Tests/GetTests",
+        url: "/Tests/GetTestsAjax",
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {
@@ -76,12 +76,12 @@ function appendControls(tr, test) {
 
 function getReportedTests() {
     var token = $('input[name="__RequestVerificationToken"]', $('#reportedTestTable')).val();
-    var skipAmount = { skipAmount: $('#reportedTestTable tr').length };
+    var skipAmount = { skipAmount: $('#reportedTestTable tr').length - 1 };
     var amount = { amount: 1 };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     $.ajax({
-        url: "/Tests/GetReportedTests",
+        url: "/Tests/GetReportedTestsAjax",
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {
@@ -138,12 +138,12 @@ function appendReportedTestControlls(tr, test) {
 
 function getUsers() {
     var token = $('input[name="__RequestVerificationToken"]', $('#userTable')).val();
-    var skipAmount = { skipAmount: $('#userTable tr').length };
+    var skipAmount = { skipAmount: $('#userTable tr').length - 1 };
     var amount = { amount: 1 };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     $.ajax({
-        url: "/Admin/GetUsers",
+        url: "/Admin/GetUsersAjax",
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {

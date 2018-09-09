@@ -1,6 +1,6 @@
 ﻿function getTopTests() {
     var token = $('input[name="__RequestVerificationToken"]', $('#userTests')).val();
-    var skipAmount = { skipAmount: $('#userTests tr').length };
+    var skipAmount = { skipAmount: $('#userTests tr').length - 1 };
     var amount = { amount: 10 };
     var userId = { userId: $('input[name="userId"]').val() };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
@@ -8,7 +8,7 @@
     dataWithAntiforgeryToken = $.extend(userId, dataWithAntiforgeryToken);
 
     $.ajax({
-        url: "/Profile/GetUserProfileTests",
+        url: "/Profile/GetUserProfileTestsAjax",
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {

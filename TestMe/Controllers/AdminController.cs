@@ -150,15 +150,13 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetUsers(int? skipAmount, int? amount)
+        public async Task<IActionResult> GetUsersAjax(int? skipAmount, int? amount)
         {
-            if (skipAmount is null)
+            if (skipAmount is null || amount is null)
                 return BadRequest();
 
-            if (amount is null)
-                return BadRequest();
 
-            var users = _userManager.Users.AsNoTracking().Skip(skipAmount.Value - 1).Take(amount.Value).ToList();//().GetAwaiter().GetResult();
+            var users = _userManager.Users.AsNoTracking().Skip(skipAmount.Value).Take(amount.Value).ToList();//().GetAwaiter().GetResult();
             if (users is null)
                 return NotFound();
 
