@@ -93,7 +93,7 @@
 
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.AppUser.UserName)
+                    <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.AppUser.Id">@Html.DisplayFor(modelItem => item.AppUser.UserName)</a>
                 </td>
                 <td>
                     @if (item.TestCode is null)

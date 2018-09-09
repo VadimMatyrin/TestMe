@@ -35,7 +35,9 @@ function appendTests(tests) {
             rateClass = 'text-danger';
         var td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
         tr.append(td);
-        tr.append($('<td/>', { text: element.userName }));
+        var userRef = $('<a/>', { href: '/Profile/Index/' + element.userId, text: element.userName });
+        var userTd = $('<td/>').append(userRef);
+        tr.append(userTd);
         appendControls(tr, element);
         table.append(tr);
     });
@@ -157,7 +159,9 @@ function appendUsers(users) {
     var table = $('#userTable');
     users.forEach(function (element) {
         var tr = $('<tr/>');
-        tr.append($('<td/>', { text: element.userName }));
+        var userRef = $('<a/>', { href: '/Profile/Index/' + element.userId, text: element.userName });
+        var userTd = $('<td/>').append(userRef);
+        tr.append(userTd);
         tr.append($('<td/>', { text: element.name }));
         tr.append($('<td/>', { text: element.surname }));
         tr.append($('<td/>', { text: element.email }));

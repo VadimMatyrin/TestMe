@@ -318,6 +318,7 @@ namespace TestMe.Controllers
                 testCode = t.TestCode,
                 duration = t.TestDuration,
                 testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
+                userId = t.AppUser.Id,
                 userName = t.AppUser.UserName
             }
             );

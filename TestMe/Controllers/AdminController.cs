@@ -166,6 +166,7 @@ namespace TestMe.Controllers
             new
             {
                 id = u.Id,
+                userId = u.Id,
                 userName = u.UserName,
                 name = u.Name,
                 surname = u.Surname,

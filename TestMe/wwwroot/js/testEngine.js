@@ -38,19 +38,19 @@ function startTest() {
     });
 }
 function checkAnswerClick() {
-    if ($('input[name="answer"]:checked').length == 0)
+    if ($('input[name="answer"]:checked').length === 0)
         return;
     CheckAnswer();
 }
 function prevButtonClick() {
     var questionId = $("#testQuestionFieldSet").data("id");
-    if ($('#questions button').first().val() == questionId)
+    if ($('#questions button').first().val() === questionId)
         return;
     getPrevQuestion();
 }
 function nextButtonClick() {
     var questionId = $("#testQuestionFieldSet").data("id");
-    if ($('#questions button').last().val() == questionId)
+    if ($('#questions button').last().val() === questionId)
         return;
     getNextQuestion();
 }

@@ -6,7 +6,9 @@
     <div id="startTestElem" class="row">
         @Html.AntiForgeryToken()
         <h1 class="text-center col-md-12">@Model.TestName</h1>
-        <h2 class="col-md-12">Author: @Model.AppUser.UserName</h2>
+        <h2 class="col-md-12">Author: 
+            <a asp-action="Index" asp-controller="Profile" asp-route-id="@Model.AppUser.Id">@Model.AppUser.UserName</a>
+        </h2>
         <h3 class="col-md-12">Creation date: @Model.CreationDate</h3>
         <h4 class="col-md-12">Question amount: @Model.TestQuestions.Count</h4>
         <input type="hidden" value="@Model.TestCode" id="testCode" />

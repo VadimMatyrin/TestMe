@@ -56,7 +56,7 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UserName)
+                    <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.UserName)</a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)

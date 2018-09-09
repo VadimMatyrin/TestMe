@@ -1,0 +1,10 @@
+﻿@model ProfileModel
+@{
+    ViewData["Title"] = "Index";
+}
+@{ var userGreeting = Model.AppUser.Name is null ? Model.AppUser.UserName : Model.AppUser.Name; }
+<h2>@userGreeting's profile</h2>
+@if (User.Identity.Name == Model.AppUser.UserName)
+{
+    <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage account</a>
+}
