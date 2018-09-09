@@ -1,0 +1,65 @@
+﻿@model TestMe.Models.Test
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>User results</h2>
+<h3>@Html.DisplayNameFor(model => model.TestName): @Model.TestName</h3>
+@if (Model.AppUser.UserName == User.Identity.Name)
+{
+    <p>
+        <a asp-action="Index" asp-controller="Tests">Back to tests</a>
+    </p>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                №
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestResults.First().Score)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestResults.First().AppUser.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestResults.First().StartTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestResults.First().FinishTime)
+            </th>
+            <th>
+                Test time
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ var counter = 1; }
+        @foreach (var item in Model.TestResults)
+        {
+            <tr>
+                <td>
+                    <b>@counter</b>
+                </td>
+                <td>
+                    <strong>@Html.DisplayFor(modelItem => item.Score)</strong> / @ViewBag.questionAmount
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AppUser.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FinishTime)
+                </td>
+                <td>
+                    @((item.FinishTime - item.StartTime).Duration())
+                </td>
+            </tr>
+            counter++;
+        }
+    </tbody>
+</table>
+
