@@ -68,7 +68,7 @@ function appendControls(tr, test) {
         td.append(stopShareRef);
         td.append('<span> | </span>');
     }
-    var userResultsRef = $('<a/>', { href: '/Tests/UserResults/' + test.id, text: 'User results' });
+    var userResultsRef = $('<a/>', { href: '/TestResults/Index/' + test.id, text: 'User results' });
     td.append(userResultsRef);
     td.append('<span> | </span>');
     var detailsRef = $('<a/>', { href: '/Tests/Details/' + test.id, text: 'Details' });
