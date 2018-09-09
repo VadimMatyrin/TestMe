@@ -37,7 +37,7 @@ namespace TestMe.Controllers
                     AppUser = await _userManager.FindByIdAsync(id)
                 };
             }
-            if (String.IsNullOrEmpty(searchString))
+            if (searchString is null)
                 searchString = "";
 
             profile.TestMarks = _testingPlatform.TestMarkManager.GetAll().Where(tm => tm.AppUserId == profile.AppUser.Id).ToList();
@@ -52,7 +52,18 @@ namespace TestMe.Controllers
             if (skipAmount is null || amount is null || userId is null)
                 return NotFound();
 
-            var tests = _testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == userId && t.TestCode != null).Skip(skipAmount.Value).Take(amount.Value).ToList();
+            var searchString = "";
+            if (HttpContext.Request.Query.Count != 0 && HttpContext.Request.Query["searchString"] != "")
+            {
+                searchString = HttpContext.Request.Query["searchString"];
+            }
+
+            var tests = _testingPlatform.TestManager
+                .GetAll()
+                .Where(t => t.AppUserId == userId && t.TestCode != null && t.TestName.Contains(searchString))
+                .Skip(skipAmount.Value)
+                .Take(amount.Value)
+                .ToList();
             var optimizedTests = tests.Select(t =>
             new
             {

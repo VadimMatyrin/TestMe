@@ -100,13 +100,6 @@
 </table>
 <div class="row">
     <div class="col-md-offset-3 col-md-6 text-center">
-        @if (Context.Request.Query["SearchString"].Count == 0 || Context.Request.Query["SearchString"][0] == "")
-        {
-            <button type="button" class="btn btn-primary" onclick="getUsers()">Load more users</button>
-        }
-        else
-        {
-            <button type="button" class="btn btn-primary" disabled>Load more users</button>
-        }
+        <button type="button" class="btn btn-primary" onclick="getUsers()">Load more users</button>
     </div>
 </div>

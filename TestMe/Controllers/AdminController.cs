@@ -31,9 +31,16 @@ namespace TestMe.Controllers
         {
             List<Test> tests;
             if (searchString is null)
-                tests = await _testingPlatform.TestManager.GetAll().Take(1).ToListAsync();
+                tests = await _testingPlatform.TestManager
+                    .GetAll()
+                    .Take(1)
+                    .ToListAsync();
             else
-               tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestName.ToUpper().Contains(searchString.ToUpper())).ToListAsync();
+               tests = await _testingPlatform.TestManager
+                    .GetAll()
+                    .Where(t => t.TestName.Contains(searchString.ToUpper()))
+                    .Take(1)
+                    .ToListAsync();
 
             if (tests is null)
                 return NotFound();
@@ -48,9 +55,14 @@ namespace TestMe.Controllers
             List<AppUser> appUsers;
 
             if (searchString is null)
-                appUsers = await _userManager.Users.AsNoTracking().Take(1).ToListAsync();
+                appUsers = await _userManager.Users.AsNoTracking()
+                    .Take(1)
+                    .ToListAsync();
             else
-                appUsers = await _userManager.Users.AsNoTracking().Where(u => u.NormalizedUserName.Contains(searchString.ToUpper())).ToListAsync();
+                appUsers = await _userManager.Users.AsNoTracking()
+                    .Where(u => u.NormalizedUserName.Contains(searchString.ToUpper()))
+                    .Take(1)
+                    .ToListAsync();
 
             if (appUsers is null)
                 return NotFound();
@@ -124,9 +136,19 @@ namespace TestMe.Controllers
         {
             List<Test> tests;
             if (searchString is null)
-                tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestReports.Count >= 1).OrderByDescending(t => t.TestReports.Count).Take(1).ToListAsync();
+                tests = await _testingPlatform.TestManager
+                    .GetAll()
+                    .Where(t => t.TestReports.Count >= 1)
+                    .OrderByDescending(t => t.TestReports.Count)
+                    .Take(1)
+                    .ToListAsync();
             else
-                tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString)).OrderByDescending(t => t.TestReports.Count).Take(1).ToListAsync();
+                tests = await _testingPlatform.TestManager
+                    .GetAll()
+                    .Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString))
+                    .OrderByDescending(t => t.TestReports.Count)
+                    .Take(1)
+                    .ToListAsync();
 
             if (tests is null)
                 return NotFound();
@@ -139,7 +161,10 @@ namespace TestMe.Controllers
             if (id is null)
                 return NotFound();
 
-            var testReports = await _testingPlatform.TestReportManager.GetAll().Where(tr => tr.TestId == id).ToListAsync();
+            var testReports = await _testingPlatform.TestReportManager
+                .GetAll()
+                .Where(tr => tr.TestId == id)
+                .ToListAsync();
             if (testReports is null)
                 return NotFound();
 
@@ -155,8 +180,16 @@ namespace TestMe.Controllers
             if (skipAmount is null || amount is null)
                 return BadRequest();
 
-
-            var users = _userManager.Users.AsNoTracking().Skip(skipAmount.Value).Take(amount.Value).ToList();//().GetAwaiter().GetResult();
+            var searchString = "";
+            if (HttpContext.Request.Query.Count!=0 && HttpContext.Request.Query["searchString"] != "")
+            {
+                searchString = HttpContext.Request.Query["searchString"];
+            }
+            var users = await _userManager.Users.AsNoTracking()
+                .Where(u => u.UserName.Contains(searchString))
+                .Skip(skipAmount.Value)
+                .Take(amount.Value)
+                .ToListAsync();
             if (users is null)
                 return NotFound();
 
