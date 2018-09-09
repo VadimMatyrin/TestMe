@@ -41,6 +41,7 @@ namespace TestMe.Controllers
             foreach(var test in tests)
             {
                 test.TestResults = test.TestResults.Where(tr => tr.AppUserId == userId).ToList();
+                test.TestMarks = test.TestMarks.Where(tr => tr.AppUserId == userId).ToList();
             }
             return View(tests);
         }
