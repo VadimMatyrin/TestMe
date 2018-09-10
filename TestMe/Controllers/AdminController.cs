@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using TestMe.Models;
 using TestMe.Sevices.Interfaces;
@@ -18,10 +19,12 @@ namespace TestMe.Controllers
     {
         private readonly ITestingPlatform _testingPlatform;
         private readonly UserManager<AppUser> _userManager;
-        public AdminController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager)
+        private readonly IOptions<MyConfig> _config;
+        public AdminController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<MyConfig> config)
         {
             _testingPlatform = testingPlatform;
             _userManager = userManager;
+            _config = config;
         }
 
         [HttpGet]
@@ -33,13 +36,13 @@ namespace TestMe.Controllers
             if (searchString is null)
                 tests = await _testingPlatform.TestManager
                     .GetAll()
-                    .Take(1)
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
                     .ToListAsync();
             else
                tests = await _testingPlatform.TestManager
                     .GetAll()
                     .Where(t => t.TestName.Contains(searchString.ToUpper()))
-                    .Take(1)
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
                     .ToListAsync();
 
             if (tests is null)
@@ -56,12 +59,12 @@ namespace TestMe.Controllers
 
             if (searchString is null)
                 appUsers = await _userManager.Users.AsNoTracking()
-                    .Take(1)
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
                     .ToListAsync();
             else
                 appUsers = await _userManager.Users.AsNoTracking()
                     .Where(u => u.NormalizedUserName.Contains(searchString.ToUpper()))
-                    .Take(1)
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
                     .ToListAsync();
 
             if (appUsers is null)
@@ -140,14 +143,14 @@ namespace TestMe.Controllers
                     .GetAll()
                     .Where(t => t.TestReports.Count >= 1)
                     .OrderByDescending(t => t.TestReports.Count)
-                    .Take(1)
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
                     .ToListAsync();
             else
                 tests = await _testingPlatform.TestManager
                     .GetAll()
                     .Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString))
                     .OrderByDescending(t => t.TestReports.Count)
-                    .Take(1)
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
                     .ToListAsync();
 
             if (tests is null)
