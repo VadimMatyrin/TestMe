@@ -55,7 +55,7 @@
                     @Html.DisplayFor(modelItem => item.FinishTime)
                 </td>
                 <td>
-                    @((item.FinishTime - item.StartTime).Duration())
+                    @((item.FinishTime - item.StartTime).Duration().StripMilliseconds())
                 </td>
             </tr>
             counter++;

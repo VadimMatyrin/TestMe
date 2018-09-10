@@ -348,7 +348,7 @@ function rateTest(mark) {
 }
 function showResult(data) {
     $('#questionBlock').remove();
-    var link = $('<a />', { href: "/Tests/UserResults/" + data.testId, text: "Other users results" });
+    var link = $('<a />', { href: "/TestResults/Index/" + data.testId, text: "Other users results" });
     $('#mainContainer').append('<h1> Your score: ' + data.score + ' out of ' + $('#mainContainer').data('questAmount') + '</h1>');
     showRateButtons();
     $('#mainContainer').append(link);
