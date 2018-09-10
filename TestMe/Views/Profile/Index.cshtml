@@ -86,7 +86,7 @@
                     {
                         <tr>
                             <td>
-                                <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.TestName)</a>
+                                <a asp-action="Index" asp-controller="TestEngine" asp-route-code="@item.TestCode">@Html.DisplayFor(modelItem => item.TestName)</a>
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.CreationDate)
