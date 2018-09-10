@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Filters;
 using TestMe.Sevices.Interfaces;
 using System.Text;
+using Microsoft.Extensions.Options;
 
 namespace TestMe.Controllers
 {
@@ -20,11 +21,13 @@ namespace TestMe.Controllers
     {
         private readonly ITestingPlatform _testingPlatform;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IOptions<MyConfig> _config;
         private string _userId;
-        public TestsController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager)
+        public TestsController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<MyConfig> config)
         {
             _testingPlatform = testingPlatform;
             _userManager = userManager;
+            _config = config;
         }
         public override void OnActionExecuting(ActionExecutingContext context)
         {
@@ -308,14 +311,14 @@ namespace TestMe.Controllers
                 topRatedTests = await _testingPlatform.TestManager
                 .GetAll()
                 .Where(t => !(t.TestCode == null) && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1)
-                .Take(1)
+                .Take(Int32.Parse(_config.Value.TakeAmount))
                 .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
                 .ToListAsync();
             else
                 topRatedTests = await _testingPlatform.TestManager
                     .GetAll()
                     .Where(t => !(t.TestCode == null) && t.TestName.Contains(SearchString) && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1)
-                    .Take(1)
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
                     .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
                     .ToListAsync();
 
@@ -333,13 +336,13 @@ namespace TestMe.Controllers
                 tests = await _testingPlatform.TestManager
                     .GetAll()
                     .Where(t => t.TestCode != null)
-                    .Take(1)
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
                     .ToListAsync();
             else
                 tests = await _testingPlatform.TestManager
                     .GetAll()
                     .Where(t => t.TestCode != null && t.TestName.ToUpper().Contains(searchString.ToUpper()))
-                    .Take(1)
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
                     .ToListAsync();
 
             if (tests is null)
@@ -402,6 +405,7 @@ namespace TestMe.Controllers
                 id = t.Id,
                 testName = t.TestName,
                 userName = t.AppUser.UserName,
+                userId = t.AppUserId,
                 testCode = t.TestCode,
                 reportAmount = t.TestReports.Count,
                 testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),

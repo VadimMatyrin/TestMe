@@ -48,11 +48,11 @@
                         <li><a asp-controller="Tests" asp-action="Index">Your tests</a></li>
                         @if (User.IsInRole("Admin"))
                         {
-                            <li><a asp-controller="Admin" asp-action="Index">Admin. page</a></li>
+                            <li><a asp-controller="Admin" asp-action="Index">Admin page</a></li>
                         }
                         else if (User.IsInRole("Moderator"))
                         {
-                            <li><a asp-controller="Admin" asp-action="ReportedTests">Moder. page</a></li>
+                            <li><a asp-controller="Admin" asp-action="ReportedTests">Moder page</a></li>
                         }
                     }
                 </ul>

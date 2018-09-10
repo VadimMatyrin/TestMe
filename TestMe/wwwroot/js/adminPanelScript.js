@@ -105,7 +105,9 @@ function appendReportedTests(tests)
         var testNameRef = $('<a/>', { href: '/TestQuestions/Index/' + element.id, text: element.testName });
         var testNameTd = $('<td/>').append(testNameRef);
         tr.append(testNameTd);
-        tr.append($('<td/>', { text: element.userName }));
+        var userRef = $('<a/>', { href: '/Profile/Index/' + element.userId, text: element.userName });
+        var userTd = $('<td/>').append(userRef);
+        tr.append(userTd);
         tr.append($('<td/>', { text: element.reportAmount }));
         var rateClass = '';
         if (element.testRating > 0)

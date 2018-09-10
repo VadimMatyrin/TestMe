@@ -76,7 +76,7 @@ function CheckAnswer(questionId, checkedArray) {
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {
-            showCorrectAnswer(data, checkedArray);
+            showCorrectAnswer(checkedArray);
         },
         error: function () {
             //$("#questionBlock").append('<h5> Internal error. Try again</h5>');
@@ -211,7 +211,7 @@ function displayQuestionNav(questionIds) {
             text: (i + 1),
             click: function () {
                 var prevButton = $('#questions > div > button.btn-primary');
-                if (!prevButton.hasClass('btn-success') && !prevButton.hasClass('btn-danger'))
+                if (!prevButton.hasClass('btn-default'))
                     prevButton.addClass('btn-info');
 
                 prevButton.removeClass('btn-primary');
@@ -260,26 +260,28 @@ function appendQuestion(question) {
         div.appendTo('#testQuestionFieldSet');
     });
 }
-function showCorrectAnswer(questionAnswers, userAnswers) {
+function showCorrectAnswer(userAnswers) {
     userAnswers.forEach(function (element) {
-        $("input[type=checkbox][value='" + element + "']").closest("div").css("color", "red");
+        //$("input[type=checkbox][value='" + element + "']").closest("div").css("color", "red");
         $("input[type=checkbox][value='" + element + "']").prop('checked', true);
     });
 
-    questionAnswers.forEach(function (element) {
-        $("input[type=checkbox][value='" + element + "']").closest('div').css('color', 'green');
-    });
+    //questionAnswers.forEach(function (element) {
+    //    $("input[type=checkbox][value='" + element + "']").closest('div').css('color', 'green');
+    //});
     var navButton = $('button[value="' + $('#testQuestionFieldSet').data('id') + '"]');
-    navButton.removeClass('btn-info');
+    navButton.removeClass('btn-primary');
     var div = $('<div />', { id: 'answerMessage', class: 'text-center text-primary col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2' });
-    if (isAllCorrect(questionAnswers, userAnswers)) {
-        var h3 = $('<h3 />', { class: 'text-center text-success isCorrectText ', text: 'Correct' });
-        navButton.addClass('btn-success');
-    }
-    else {
-        var h3 = $('<h3 />', { class: 'text-center text-danger isCorrectText', text: 'Incorrect' });
-        navButton.addClass('btn-danger');
-    }
+    //if (isAllCorrect(questionAnswers, userAnswers)) {
+    //    var h3 = $('<h3 />', { class: 'text-center text-success isCorrectText ', text: 'Correct' });
+    //    navButton.addClass('btn-success');
+    //}
+    //else {
+    //    var h3 = $('<h3 />', { class: 'text-center text-danger isCorrectText', text: 'Incorrect' });
+    //    navButton.addClass('btn-danger');
+    //}
+    navButton.addClass('btn-default');
+    var h3 = $('<h3 />', { class: 'text-center', text: 'Answered' });
     $('#answerButton').hide();
     $('#answerMessage').remove();
     div.append(h3);

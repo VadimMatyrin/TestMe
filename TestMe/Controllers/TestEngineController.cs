@@ -178,12 +178,12 @@ namespace TestMe.Controllers
             var serializedAnswers = JsonConvert.SerializeObject(checkedIds);
             HttpContext.Session.SetString(questionId.ToString(), serializedAnswers);
 
-            var answers = new List<int>();
-            foreach(var correct in _answers.Where(ta => ta.IsCorrect))
-            {
-                answers.Add(correct.Id);
-            }
-            return  Json(answers);
+            //var answers = new List<int>();
+            //foreach(var correct in _answers.Where(ta => ta.IsCorrect))
+            //{
+            //    answers.Add(correct.Id);
+            //}
+            return Json("success");//Json(answers);
 
         }
         [HttpPost]
@@ -381,6 +381,13 @@ namespace TestMe.Controllers
         public async Task<IActionResult> RateFinishedTestAjax(int? id, bool? mark)
         {
             if (id is null || mark is null)
+                return NotFound();
+
+            var testResult = await _testingPlatform.TestResultManager
+                .GetAll()
+                .FirstOrDefaultAsync(tr => tr.AppUser.Name == User.Identity.Name && tr.TestId == id);
+
+            if (testResult is null)
                 return NotFound();
 
             var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);

@@ -62,7 +62,9 @@
                     <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.TestName)</a>
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.AppUser.UserName)
+                    <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.AppUserId">
+                        @Html.DisplayFor(modelItem => item.AppUser.UserName)
+                    </a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.TestReports.Count)
