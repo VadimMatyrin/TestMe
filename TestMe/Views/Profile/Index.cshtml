@@ -1,0 +1,132 @@
+﻿@model ProfileModel
+@{
+    ViewData["Title"] = "Index";
+}
+@{ var userGreeting = Model.AppUser.Name is null ? Model.AppUser.UserName : Model.AppUser.Name; }
+<div class="row">
+    <div class="col-xs-12">
+        <h2>@userGreeting's profile</h2>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-3">
+        <div class="row">
+            <div class="col-xs-12">
+                @if (User.Identity.Name == Model.AppUser.UserName)
+                {
+                    <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Manage account</a><br />
+                    <a asp-action="UserResults" asp-controller="TestResults">Your test results</a><br />
+                    <a asp-action="Index" asp-controller="Tests">Your tests</a>
+                }
+            </div>
+            <div class="col-xs-12">
+                <h3>@userGreeting's info:</h3>
+                @if (!(Model.AppUser.Name is null))
+                {
+                    <h4>Name: @Model.AppUser.Name</h4>
+                }
+                @if (!(Model.AppUser.Surname is null))
+                {
+                    <h4>Surname: @Model.AppUser.Surname</h4>
+                }
+                @if (!(Model.AppUser.Email is null))
+                {
+                    <h4>Email: @Model.AppUser.Email</h4>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-8 col-md-9">
+        @if (Model.UserTests.Count != 0)
+        {
+
+            <form asp-action="Index" asp-controller="Profile" asp-route-id="@Model.AppUser.Id" method="get">
+                <div class="form-group">
+                    <label for="SearchString">Test name:</label>
+                    <div class="row">
+                        <div class="col-xs-12 col-md-7">
+                            @if (Context.Request.Query["SearchString"].Count != 0)
+                            {
+                                <input type="text" class="form-control" name="SearchString" id="SearchString" value="@Context.Request.Query["SearchString"][0]">
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control" name="SearchString" id="SearchString">
+                            }
+
+                        </div>
+                        <div class="col-xs-12 col-md-offset-2 col-md-3">
+                            <input type="submit" class="form-control " id="submit" value="Search">
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <input type="hidden" name="userId" value="@Model.AppUser.Id"/>
+            <table class="table" id="userTests">
+                @Html.AntiForgeryToken()
+                <thead>
+                    <tr>
+                        <th>
+                            Name
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.UserTests.First().CreationDate)
+                        </th>
+                        <th>
+                            Duration
+                        </th>
+                        <th>
+                            Test rating
+                        </th>
+                        <th>
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.UserTests)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Index" asp-controller="TestEngine" asp-route-code="@item.TestCode">@Html.DisplayFor(modelItem => item.TestName)</a>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CreationDate)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.TestDuration)
+                            </td>
+                            <td>
+                                @{var rating = item.TestMarks.Count(tm => tm.EnjoyedTest) - item.TestMarks.Count(tm => !tm.EnjoyedTest); }
+                                @if (rating > 0)
+                                {
+                                    <span class="text-success">@rating</span>
+                                }
+                                else if (rating < 0)
+                                {
+                                    <span class="text-danger">@rating</span>
+                                }
+                                else
+                                {
+                                    <span>@rating</span>
+                                }
+
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.Id" asp-controller="Tests">Details</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="row">
+                <div class="col-md-offset-3 col-md-6 text-center">
+                    <button type="button" class="btn btn-primary" onclick="getTopTests()">Load more tests</button>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+@section Scripts{ 
+    <script type="text/javascript" src="~/js/userTestsScript.js"></script>
+}

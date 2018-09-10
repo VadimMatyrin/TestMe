@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using TestMe.Models;
 using TestMe.Sevices.Interfaces;
@@ -18,10 +19,12 @@ namespace TestMe.Controllers
     {
         private readonly ITestingPlatform _testingPlatform;
         private readonly UserManager<AppUser> _userManager;
-        public AdminController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager)
+        private readonly IOptions<MyConfig> _config;
+        public AdminController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<MyConfig> config)
         {
             _testingPlatform = testingPlatform;
             _userManager = userManager;
+            _config = config;
         }
 
         [HttpGet]
@@ -31,9 +34,16 @@ namespace TestMe.Controllers
         {
             List<Test> tests;
             if (searchString is null)
-                tests = await _testingPlatform.TestManager.GetAll().Take(1).ToListAsync();
+                tests = await _testingPlatform.TestManager
+                    .GetAll()
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
+                    .ToListAsync();
             else
-               tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestName.ToUpper().Contains(searchString.ToUpper())).ToListAsync();
+               tests = await _testingPlatform.TestManager
+                    .GetAll()
+                    .Where(t => t.TestName.Contains(searchString.ToUpper()))
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
+                    .ToListAsync();
 
             if (tests is null)
                 return NotFound();
@@ -48,9 +58,14 @@ namespace TestMe.Controllers
             List<AppUser> appUsers;
 
             if (searchString is null)
-                appUsers = await _userManager.Users.AsNoTracking().Take(1).ToListAsync();
+                appUsers = await _userManager.Users.AsNoTracking()
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
+                    .ToListAsync();
             else
-                appUsers = await _userManager.Users.AsNoTracking().Where(u => u.NormalizedUserName.Contains(searchString.ToUpper())).ToListAsync();
+                appUsers = await _userManager.Users.AsNoTracking()
+                    .Where(u => u.NormalizedUserName.Contains(searchString.ToUpper()))
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
+                    .ToListAsync();
 
             if (appUsers is null)
                 return NotFound();
@@ -124,9 +139,19 @@ namespace TestMe.Controllers
         {
             List<Test> tests;
             if (searchString is null)
-                tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestReports.Count >= 1).OrderByDescending(t => t.TestReports.Count).Take(1).ToListAsync();
+                tests = await _testingPlatform.TestManager
+                    .GetAll()
+                    .Where(t => t.TestReports.Count >= 1)
+                    .OrderByDescending(t => t.TestReports.Count)
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
+                    .ToListAsync();
             else
-                tests = await _testingPlatform.TestManager.GetAll().Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString)).OrderByDescending(t => t.TestReports.Count).Take(1).ToListAsync();
+                tests = await _testingPlatform.TestManager
+                    .GetAll()
+                    .Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString))
+                    .OrderByDescending(t => t.TestReports.Count)
+                    .Take(Int32.Parse(_config.Value.TakeAmount))
+                    .ToListAsync();
 
             if (tests is null)
                 return NotFound();
@@ -139,7 +164,10 @@ namespace TestMe.Controllers
             if (id is null)
                 return NotFound();
 
-            var testReports = await _testingPlatform.TestReportManager.GetAll().Where(tr => tr.TestId == id).ToListAsync();
+            var testReports = await _testingPlatform.TestReportManager
+                .GetAll()
+                .Where(tr => tr.TestId == id)
+                .ToListAsync();
             if (testReports is null)
                 return NotFound();
 
@@ -150,15 +178,19 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetUsers(int? skipAmount, int? amount)
+        public async Task<IActionResult> GetUsersAjax(int? skipAmount, int? amount, string searchString)
         {
-            if (skipAmount is null)
+            if (skipAmount is null || amount is null)
                 return BadRequest();
 
-            if (amount is null)
-                return BadRequest();
+            if (searchString is null)
+                searchString = "";
 
-            var users = _userManager.Users.AsNoTracking().Skip(skipAmount.Value - 1).Take(amount.Value).ToList();//().GetAwaiter().GetResult();
+            var users = await _userManager.Users.AsNoTracking()
+                .Where(u => u.UserName.Contains(searchString))
+                .Skip(skipAmount.Value)
+                .Take(amount.Value)
+                .ToListAsync();
             if (users is null)
                 return NotFound();
 
@@ -166,6 +198,7 @@ namespace TestMe.Controllers
             new
             {
                 id = u.Id,
+                userId = u.Id,
                 userName = u.UserName,
                 name = u.Name,
                 surname = u.Surname,

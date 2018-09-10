@@ -1,11 +1,13 @@
 ﻿function getTests() {
     var token = $('input[name="__RequestVerificationToken"]', $('#testTable')).val();
-    var skipAmount = { skipAmount: $('#testTable tr').length };
+    var skipAmount = { skipAmount: $('#testTable tr').length - 1 };
     var amount = { amount: 10 };
+    var searchString = { searchString: getUrlParameter("SearchString") };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken); 
+    dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
     $.ajax({
-        url: "/Tests/GetTests",
+        url: "/Tests/GetTestsAjax",
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {
@@ -35,7 +37,9 @@ function appendTests(tests) {
             rateClass = 'text-danger';
         var td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
         tr.append(td);
-        tr.append($('<td/>', { text: element.userName }));
+        var userRef = $('<a/>', { href: '/Profile/Index/' + element.userId, text: element.userName });
+        var userTd = $('<td/>').append(userRef);
+        tr.append(userTd);
         appendControls(tr, element);
         table.append(tr);
     });
@@ -64,7 +68,7 @@ function appendControls(tr, test) {
         td.append(stopShareRef);
         td.append('<span> | </span>');
     }
-    var userResultsRef = $('<a/>', { href: '/Tests/UserResults/' + test.id, text: 'User results' });
+    var userResultsRef = $('<a/>', { href: '/TestResults/Index/' + test.id, text: 'User results' });
     td.append(userResultsRef);
     td.append('<span> | </span>');
     var detailsRef = $('<a/>', { href: '/Tests/Details/' + test.id, text: 'Details' });
@@ -74,12 +78,14 @@ function appendControls(tr, test) {
 
 function getReportedTests() {
     var token = $('input[name="__RequestVerificationToken"]', $('#reportedTestTable')).val();
-    var skipAmount = { skipAmount: $('#reportedTestTable tr').length };
+    var skipAmount = { skipAmount: $('#reportedTestTable tr').length - 1 };
     var amount = { amount: 1 };
+    var searchString = { searchString: getUrlParameter("SearchString") };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
+    dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
     $.ajax({
-        url: "/Tests/GetReportedTests",
+        url: "/Tests/GetReportedTestsAjax",
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {
@@ -99,7 +105,9 @@ function appendReportedTests(tests)
         var testNameRef = $('<a/>', { href: '/TestQuestions/Index/' + element.id, text: element.testName });
         var testNameTd = $('<td/>').append(testNameRef);
         tr.append(testNameTd);
-        tr.append($('<td/>', { text: element.userName }));
+        var userRef = $('<a/>', { href: '/Profile/Index/' + element.userId, text: element.userName });
+        var userTd = $('<td/>').append(userRef);
+        tr.append(userTd);
         tr.append($('<td/>', { text: element.reportAmount }));
         var rateClass = '';
         if (element.testRating > 0)
@@ -136,12 +144,14 @@ function appendReportedTestControlls(tr, test) {
 
 function getUsers() {
     var token = $('input[name="__RequestVerificationToken"]', $('#userTable')).val();
-    var skipAmount = { skipAmount: $('#userTable tr').length };
+    var skipAmount = { skipAmount: $('#userTable tr').length - 1 };
     var amount = { amount: 1 };
+    var searchString = { searchString: getUrlParameter("SearchString") };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
+    dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
     $.ajax({
-        url: "/Admin/GetUsers",
+        url: "/Admin/GetUsersAjax",
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {
@@ -157,7 +167,9 @@ function appendUsers(users) {
     var table = $('#userTable');
     users.forEach(function (element) {
         var tr = $('<tr/>');
-        tr.append($('<td/>', { text: element.userName }));
+        var userRef = $('<a/>', { href: '/Profile/Index/' + element.userId, text: element.userName });
+        var userTd = $('<td/>').append(userRef);
+        tr.append(userTd);
         tr.append($('<td/>', { text: element.name }));
         tr.append($('<td/>', { text: element.surname }));
         tr.append($('<td/>', { text: element.email }));

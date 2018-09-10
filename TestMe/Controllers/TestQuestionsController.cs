@@ -99,7 +99,18 @@ namespace TestMe.Controllers
                 await _testingPlatform.TestQuestionManager.AddAsync(testQuestion);
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
             }
-            return View();
+
+            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, testQuestion.TestId);
+            if (test == null)
+            {
+                return NotFound();
+            }
+            if (!(test.TestCode is null))
+                return NotFound();
+
+            testQuestion = new TestQuestion { TestId = test.Id, Test = test };
+
+            return View(testQuestion);
         }
 
         public async Task<IActionResult> Edit(int? id)
@@ -149,6 +160,7 @@ namespace TestMe.Controllers
                 }
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
             }
+            testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
             return View(testQuestion);
         }
 

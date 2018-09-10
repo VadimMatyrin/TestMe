@@ -53,12 +53,13 @@ namespace TestMe
                 options.IdleTimeout = TimeSpan.FromHours(3);
             });
 
-
             services.AddTestMe();
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddJsonOptions(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            services.AddOptions();
+            services.Configure<MyConfig>(Configuration.GetSection("AppSettings"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

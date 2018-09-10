@@ -1,13 +1,16 @@
 ﻿function getTopTests() {
-    var token = $('input[name="__RequestVerificationToken"]', $('#testTable')).val();
-    var skipAmount = { skipAmount: $('#testTable tr').length - 1 };
+    var token = $('input[name="__RequestVerificationToken"]', $('#userTests')).val();
+    var skipAmount = { skipAmount: $('#userTests tr').length - 1 };
     var amount = { amount: 10 };
     var searchString = { searchString: getUrlParameter("SearchString") };
+    var userId = { userId: $('input[name="userId"]').val() };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
+    dataWithAntiforgeryToken = $.extend(userId, dataWithAntiforgeryToken);
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
+
     $.ajax({
-        url: "/Tests/GetSharedTestsAjax",
+        url: "/Profile/GetUserProfileTestsAjax",
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {
@@ -19,7 +22,7 @@
     });
 }
 function appendTopTests(tests) {
-    var table = $('#testTable');
+    var table = $('#userTests');
     tests.forEach(function (element) {
         var tr = $('<tr/>');
         var testRef = $('<a/>', { href: '/' + element.testCode, text: element.testName });

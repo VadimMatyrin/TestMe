@@ -42,7 +42,9 @@ namespace TestMe.Controllers
         public override void OnActionExecuting(ActionExecutingContext context)
         {
 
-            if (context.RouteData.Values["action"].ToString() != "Index" && context.RouteData.Values["action"].ToString() != "FinishTest")
+            if (context.RouteData.Values["action"].ToString() != "Index" &&
+                context.RouteData.Values["action"].ToString() != "FinishTest" &&
+                context.RouteData.Values["action"].ToString() != "RateFinishedTestAjax")
             {
                 var startTimeStr = HttpContext.Session.GetString("startTime");
                 var endTimeStr = HttpContext.Session.GetString("endTime");
@@ -176,12 +178,12 @@ namespace TestMe.Controllers
             var serializedAnswers = JsonConvert.SerializeObject(checkedIds);
             HttpContext.Session.SetString(questionId.ToString(), serializedAnswers);
 
-            var answers = new List<int>();
-            foreach(var correct in _answers.Where(ta => ta.IsCorrect))
-            {
-                answers.Add(correct.Id);
-            }
-            return  Json(answers);
+            //var answers = new List<int>();
+            //foreach(var correct in _answers.Where(ta => ta.IsCorrect))
+            //{
+            //    answers.Add(correct.Id);
+            //}
+            return Json("success");//Json(answers);
 
         }
         [HttpPost]
@@ -347,7 +349,7 @@ namespace TestMe.Controllers
         public async Task<IActionResult> RateTest(bool? mark)
         {
             if (mark is null)
-                return BadRequest();
+                return NotFound();
 
             var code = HttpContext.Session.GetString("testCode");
             if (code is null)
@@ -358,7 +360,7 @@ namespace TestMe.Controllers
                 throw new TestNotFoundException(code);
 
             if (HttpContext.Session.GetString("isFinished") is null)
-                return BadRequest();
+                return NotFound();
 
             var prevMark = await _testingPlatform.TestMarkManager
                 .FindAsync(tm => tm.AppUserId == _userManager.GetUserId(User) && tm.TestId == test.Id);
@@ -372,6 +374,35 @@ namespace TestMe.Controllers
                prevMark.EnjoyedTest = mark.Value;
                await _testingPlatform.TestMarkManager.UpdateAsync(prevMark);
              }
+            return Json(mark);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RateFinishedTestAjax(int? id, bool? mark)
+        {
+            if (id is null || mark is null)
+                return NotFound();
+
+            var testResult = await _testingPlatform.TestResultManager
+                .GetAll()
+                .FirstOrDefaultAsync(tr => tr.AppUser.Name == User.Identity.Name && tr.TestId == id);
+
+            if (testResult is null)
+                return NotFound();
+
+            var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
+            var prevMark = await _testingPlatform.TestMarkManager
+                .FindAsync(tm => tm.AppUserId == _userManager.GetUserId(User) && tm.TestId == test.Id);
+            if (prevMark is null)
+            {
+                var testMark = new TestMark { TestId = test.Id, AppUserId = _userManager.GetUserId(User), EnjoyedTest = mark.Value };
+                await _testingPlatform.TestMarkManager.AddAsync(testMark);
+            }
+            else
+            {
+                prevMark.EnjoyedTest = mark.Value;
+                await _testingPlatform.TestMarkManager.UpdateAsync(prevMark);
+            }
             return Json(mark);
         }
     }

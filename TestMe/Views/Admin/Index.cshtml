@@ -93,7 +93,7 @@
 
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.AppUser.UserName)
+                    <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.AppUser.Id">@Html.DisplayFor(modelItem => item.AppUser.UserName)</a>
                 </td>
                 <td>
                     @if (item.TestCode is null)
@@ -108,7 +108,7 @@
                         <a asp-action="Index" asp-controller="TestEngine" asp-route-code="@item.TestCode">Try test out</a><span> |</span>
                         <a asp-action="StopSharing" asp-route-id="@item.Id" asp-controller="Tests">Stop sharing</a><span> |</span>
                     }
-                    <a asp-action="UserResults" asp-route-id="@item.Id" asp-controller="Tests">User results </a><span> |</span>
+                    <a asp-action="Index" asp-route-id="@item.Id" asp-controller="TestResults">User results </a><span> |</span>
                     <a asp-action="Details" asp-route-id="@item.Id" asp-controller="Tests">Details</a>
 
                 </td>
@@ -118,15 +118,7 @@
 </table>
 <div class="row">
     <div class="col-md-offset-3 col-md-6 text-center">
-        @if (Context.Request.Query["SearchString"].Count == 0 || Context.Request.Query["SearchString"][0] == "")
-        {
-            <button type="button" class="btn btn-primary" onclick="getTests()">Load more tests</button>
-        }
-        else
-        {
-            <button type="button" class="btn btn-primary" disabled>Load more tests</button>
-        }
-
+         <button type="button" class="btn btn-primary" onclick="getTests()">Load more tests</button>
     </div>
 </div>
 

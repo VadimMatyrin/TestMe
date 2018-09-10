@@ -73,47 +73,60 @@ namespace TestMe.Controllers
             return View(testAnswer);
         }
 
-            public async Task<IActionResult> Create(int? id)
+        public async Task<IActionResult> Create(int? id)
+        {
+            if (id == null)
             {
-                if (id == null)
+                return NotFound();
+            }
+
+            var testQuestion = await _testingPlatform.TestQuestionManager.GetAll().FirstAsync(tq => tq.AppUserId == _userId && tq.Id == id);
+            if (testQuestion == null)
+            {
+                return NotFound();
+            }
+            if (!(testQuestion.Test.TestCode is null))
+                return NotFound();
+
+            var testAnswer = new TestAnswer { TestQuestion = testQuestion, TestQuestionId = testQuestion.Id };
+            return View(testAnswer);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("AnswerText,IsCorrect,TestQuestionId")] TestAnswer testAnswer)
+        {
+            var files = HttpContext.Request.Form.Files;
+            if (files.Count != 0 && !files.First().IsImage())
+            {
+                ModelState.AddModelError("ImageName", "File is not an image");
+            }
+            if (ModelState.IsValid)
+            {
+
+                if (files.Count != 0)
                 {
-                    return NotFound();
+                    var imageName = $"{Guid.NewGuid().ToString().Replace("-", "")}{Path.GetExtension(files.First().FileName)}";
+                    if (await _testingPlatform.AnswerImageManager.SaveAnswerImageAsync(files.First(), imageName))
+                        testAnswer.ImageName = imageName;
                 }
 
-                var testQuestion = await _testingPlatform.TestQuestionManager.GetAll().FirstAsync(tq => tq.AppUserId == _userId && tq.Id == id);
+
+                testAnswer.AppUserId = _userId;
+                await _testingPlatform.TestAnswerManager.AddAsync(testAnswer);
+                return RedirectToAction(nameof(Index), new { id = testAnswer.TestQuestionId });
+            }
+            else
+            {
+                var testQuestion = await _testingPlatform.TestQuestionManager.GetAll().FirstAsync(tq => tq.AppUserId == _userId && tq.Id == testAnswer.TestQuestionId);
                 if (testQuestion == null)
                 {
                     return NotFound();
                 }
-                if (!(testQuestion.Test.TestCode is null))
-                    return RedirectToAction("Index", new { id });
-
-                var testAnswer = new TestAnswer { TestQuestion = testQuestion, TestQuestionId = testQuestion.Id };
-                return View(testAnswer);
+                testAnswer.TestQuestion = testQuestion;
             }
-
-            [HttpPost]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Create([Bind("AnswerText,IsCorrect,TestQuestionId")] TestAnswer testAnswer)
-            {
-                if (ModelState.IsValid)
-                {
-
-                    var files = HttpContext.Request.Form.Files;
-                    if (files.Count != 0)
-                    {
-                        var imageName = $"{Guid.NewGuid().ToString().Replace("-", "")}{Path.GetExtension(files.First().FileName)}";
-                        if (await _testingPlatform.AnswerImageManager.SaveAnswerImageAsync(files.First(), imageName))
-                            testAnswer.ImageName = imageName;
-                    }
-
-
-                    testAnswer.AppUserId = _userId;
-                    await _testingPlatform.TestAnswerManager.AddAsync(testAnswer);
-                    return RedirectToAction(nameof(Index), new { id = testAnswer.TestQuestionId });
-                }
-                return View(testAnswer);
-            }
+            return View(testAnswer);
+        }
 
         public async Task<IActionResult> Edit(int? id)
         {
@@ -141,11 +154,13 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
-
+            var files = HttpContext.Request.Form.Files;
+            if (files.Count != 0 && !files.First().IsImage())
+            {
+                ModelState.AddModelError("ImageName", "File is not an image");
+            }
             if (ModelState.IsValid)
             {
-
-                var files = HttpContext.Request.Form.Files;
                 if (files.Count != 0)
                 {
                     if(testAnswer.ImageName is null || _testingPlatform.AnswerImageManager.DeleteAnswerImage(testAnswer.ImageName))
@@ -176,6 +191,10 @@ namespace TestMe.Controllers
                     }
                 }
                 return RedirectToAction(nameof(Index), new { id = testAnswer.TestQuestionId });
+            }
+            else
+            {
+                testAnswer = await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id);
             }
             return View(testAnswer);
         }
