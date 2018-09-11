@@ -9,6 +9,7 @@ using TestMe.Sevices.Interfaces;
 
 namespace TestMe.Controllers
 {
+    [Authorize]
     public class ProfileController : Controller
     {
         private readonly ITestingPlatform _testingPlatform;

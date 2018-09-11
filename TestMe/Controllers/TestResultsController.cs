@@ -9,6 +9,7 @@ using TestMe.Sevices.Interfaces;
 
 namespace TestMe.Controllers
 {
+    [Authorize]
     public class TestResultsController : Controller
     {
         private readonly ITestingPlatform _testingPlatform;

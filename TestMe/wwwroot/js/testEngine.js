@@ -262,24 +262,12 @@ function appendQuestion(question) {
 }
 function showCorrectAnswer(userAnswers) {
     userAnswers.forEach(function (element) {
-        //$("input[type=checkbox][value='" + element + "']").closest("div").css("color", "red");
         $("input[type=checkbox][value='" + element + "']").prop('checked', true);
     });
 
-    //questionAnswers.forEach(function (element) {
-    //    $("input[type=checkbox][value='" + element + "']").closest('div').css('color', 'green');
-    //});
     var navButton = $('button[value="' + $('#testQuestionFieldSet').data('id') + '"]');
     navButton.removeClass('btn-primary');
     var div = $('<div />', { id: 'answerMessage', class: 'text-center text-primary col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2' });
-    //if (isAllCorrect(questionAnswers, userAnswers)) {
-    //    var h3 = $('<h3 />', { class: 'text-center text-success isCorrectText ', text: 'Correct' });
-    //    navButton.addClass('btn-success');
-    //}
-    //else {
-    //    var h3 = $('<h3 />', { class: 'text-center text-danger isCorrectText', text: 'Incorrect' });
-    //    navButton.addClass('btn-danger');
-    //}
     navButton.addClass('btn-default');
     var h3 = $('<h3 />', { class: 'text-center', text: 'Answered' });
     $('#answerButton').hide();
@@ -291,16 +279,7 @@ function showCorrectAnswer(userAnswers) {
     });
 
 }
-function isAllCorrect(questionAnswers, userAnswered) {
-    if (questionAnswers.length !== userAnswered.length)
-        return false;
-    for (var i = questionAnswers.length; i--;) {
-        if (questionAnswers[i] != userAnswered[i])
-            return false;
-    }
 
-    return true;
-}
 function finishTest() {
     var token = $('input[name="__RequestVerificationToken"]').val();
     var dataWithAntiforgeryToken = { '__RequestVerificationToken': token };
