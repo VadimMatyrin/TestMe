@@ -67,9 +67,7 @@ function CheckAnswer(questionId, checkedArray) {
     if (typeof questionId !== 'number') {
         questionId = $("#testQuestionFieldSet").data('id');
     }
-    var testCode = $("#testQuestionFieldSet").data("testCode");
     myData = $.extend(myData, { 'questionId': questionId });
-    myData = $.extend(myData, { 'testCode': testCode });
     var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
     $.ajax({
         url: "/TestEngine/CheckAnswer",
@@ -84,6 +82,23 @@ function CheckAnswer(questionId, checkedArray) {
     });
 
 }
+function getIfAnswered() {
+        var token = $('input[name="__RequestVerificationToken"]', $('#questionBlock')).val();
+        var questionId = { questionId: $("#testQuestionFieldSet").data("id") };
+        var dataWithAntiforgeryToken = $.extend(questionId, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/TestEngine/GetIfAnswered",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                if(data !== "notAnswered")
+                    showCorrectAnswer(data);
+            },
+            error: function () {
+                //$("#questionBlock").append('<h5> Internal error. Try again</h5>');
+            }
+        });
+}
 function getNextQuestion() {
     var token = $('input[name="__RequestVerificationToken"]').val();
     var myData = { questionId: $("#testQuestionFieldSet").data("id") };
@@ -95,7 +110,7 @@ function getNextQuestion() {
         data: dataWithAntiforgeryToken,
         success: function (data) {
             appendQuestion(data);
-            getIfAlreadyAswered(data);
+            getIfAnswered();
             changeSelectedBitton(data.id);
         },
         error: function () {
@@ -114,9 +129,8 @@ function getPrevQuestion() {
         data: dataWithAntiforgeryToken,
         success: function (data) {
             appendQuestion(data);
-            getIfAlreadyAswered(data);
+            getIfAnswered();
             changeSelectedBitton(data.id);
-            //$("#prevQuestionButton").prop('disabled', false);
         },
         error: function () {
             // $("#questionForm").empty();
@@ -134,7 +148,8 @@ function getQuestion(questionId) {
         data: dataWithAntiforgeryToken,
         success: function (data) {
             appendQuestion(data);
-            getIfAlreadyAswered(data);
+            getIfAnswered();
+            //getIfAlreadyAswered(data);
         },
         error: function () {
             //$("#questionForm").empty();
@@ -234,8 +249,9 @@ function ConfigureForTheFirstQuestion(question) {
 }
 function appendQuestion(question) {
     $('#testQuestionFieldSet div').remove();
-    $('#answerMessage').remove();
-    $('#answerButton').show();
+    $('#answerButton').removeClass('btn-default');
+    $('#answerButton').addClass('btn-success');
+    $('#answerButton').text('Answer');
     $('#questionText h1').text(question.questionText);
     $('#testQuestionFieldSet').data('testCode', question.test.testCode);
     $('#testQuestionFieldSet').data('id', question.id);
@@ -258,6 +274,13 @@ function appendQuestion(question) {
             });
         }
         div.appendTo('#testQuestionFieldSet');
+        $("input[type='checkbox']").change(function () {
+            var checkButton = $('#answerButton');
+            if (checkButton.hasClass('btn-default')) {
+                $('#answerButton').removeClass('btn-default');
+                $('#answerButton').addClass('btn-primary');
+            }
+        });
     });
 }
 function showCorrectAnswer(userAnswers) {
@@ -270,13 +293,11 @@ function showCorrectAnswer(userAnswers) {
     var div = $('<div />', { id: 'answerMessage', class: 'text-center text-primary col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2' });
     navButton.addClass('btn-default');
     var h3 = $('<h3 />', { class: 'text-center', text: 'Answered' });
-    $('#answerButton').hide();
-    $('#answerMessage').remove();
+    $('#answerButton').text('Change answer');
+    $('#answerButton').removeClass('btn-primary');
+    $('#answerButton').removeClass('btn-success');
+    $('#answerButton').addClass('btn-default');
     div.append(h3);
-    div.insertAfter($('#prevQuestionButton'));
-    $('input[name="answer"]').each(function () {
-        $(this).prop('disabled', true);
-    });
 
 }
 

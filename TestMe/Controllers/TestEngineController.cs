@@ -101,18 +101,21 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult GetIfAlreadyAnswered(int? questionId)
+        public async Task<IActionResult> GetIfAnswered(int? questionId)
         {
             if (questionId is null)
                 throw new QuestionNotFoundException();
 
+            var testCode = HttpContext.Session.GetString("testCode");
+
+            if (testCode is null)
+                throw new TestNotFoundException();
+
             if (!(HttpContext.Session.GetString(questionId.ToString()) is null))
             {
-                var userAnswersStr = HttpContext.Session.GetString(questionId.ToString());
-                var userAnswers = JsonConvert.DeserializeObject<List<int>>(userAnswersStr);
-                return Json(userAnswers);
+                var answers = JsonConvert.DeserializeObject<List<int>>(HttpContext.Session.GetString(questionId.ToString()));
+                return Json(answers);
             }
-
             return Json("notAnswered");
         }
         [HttpPost]
@@ -130,30 +133,18 @@ namespace TestMe.Controllers
             if (checkedIds is null)
                 throw new UserAnswersException();
 
+            if (checkedIds.Count == 0)
+                throw new UserAnswersException();
 
-            var testAnswers = _testingPlatform.TestAnswerManager.GetAll().Where(t => t.TestQuestion.Test.TestCode == testCode);
-
-            if (testAnswers is null)
-                throw new TestNotFoundException(testCode);
-
-            var _answers = testAnswers.Where(ta => ta.TestQuestionId == questionId);
+            var _answers = await _testingPlatform.TestAnswerManager
+                .GetAll()
+                .Where(ta => ta.TestQuestion.Test.TestCode == testCode && ta.TestQuestionId == questionId)
+                .ToListAsync();
 
 
             if (_answers.Count(ta => ta.TestQuestionId == questionId) == 0)
                 throw new QuestionNotFoundException(questionId.ToString());
 
-            if (!(HttpContext.Session.GetString(questionId.ToString()) is null))
-            {
-                var correctAnswersList = new List<int>();
-                foreach (var correct in _answers.Where(ta => ta.IsCorrect))
-                {
-                    correctAnswersList.Add(correct.Id);
-                }
-                return Json(correctAnswersList);
-            }
-
-            if (checkedIds.Count == 0)
-                throw new UserAnswersException();
 
             if (checkedIds.Any(checkId => _answers.Count(ta => ta.Id == checkId) == 0))
                 throw new UserAnswersException();
@@ -166,13 +157,7 @@ namespace TestMe.Controllers
 
             var answeredQuestionsStr = HttpContext.Session.GetString("answeredQuestions");
             var answeredQuestions = JsonConvert.DeserializeObject<Dictionary<int, bool>>(answeredQuestionsStr);
-            if (!answeredQuestions.Keys.Contains(questionId.Value))
-            {
-                 answeredQuestions[questionId.Value] = isCorrect;
-            }
-            else
-                throw new AnswerNotFoundException();
-
+            answeredQuestions[questionId.Value] = isCorrect;
             HttpContext.Session.SetString("answeredQuestions", JsonConvert.SerializeObject(answeredQuestions));
 
             var serializedAnswers = JsonConvert.SerializeObject(checkedIds);
