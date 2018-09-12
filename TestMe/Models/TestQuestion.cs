@@ -21,6 +21,6 @@ namespace TestMe.Models
         public string AppUserId { get; set; }
         [JsonIgnore]
         public AppUser AppUser { get; set; }
-        public ICollection<TestAnswer> TestAnswers { get; set; }
+        public virtual ICollection<TestAnswer> TestAnswers { get; set; }
     }
 }

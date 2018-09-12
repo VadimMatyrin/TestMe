@@ -328,7 +328,7 @@ function rateTest(mark) {
     var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
 
     $.ajax({
-        url: "/TestEngine/RateTest",
+        url: "/TestEngine/RateFinishedTestAjax",
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {
@@ -391,6 +391,7 @@ function startTimer(date) {
             + minutes + ":" + seconds + "s ");
 
         if (distance <= 500) {
+            clearInterval(x);
             finishTest();
         }
     }, 1000);
