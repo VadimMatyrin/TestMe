@@ -370,14 +370,14 @@ namespace TestMe.Controllers
             var optimizedTests = tests.Select(t =>
             new
             {
-                id = t.Id,
-                testName = t.TestName,
-                creationDate = t.CreationDate,
-                testCode = t.TestCode,
-                duration = t.TestDuration,
+                t.Id,
+                t.TestName,
+                t.CreationDate,
+                t.TestCode,
+                t.TestDuration,
                 testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
                 userId = t.AppUser.Id,
-                userName = t.AppUser.UserName
+                t.AppUser.UserName
             }
             );
             return Json(optimizedTests);
@@ -402,11 +402,11 @@ namespace TestMe.Controllers
             var optimizedTests = tests.Select(t =>
             new
             {
-                id = t.Id,
-                testName = t.TestName,
-                userName = t.AppUser.UserName,
-                userId = t.AppUserId,
-                testCode = t.TestCode,
+                t.Id,
+                t.TestName,
+                t.AppUser.UserName,
+                t.AppUserId,
+                t.TestCode,
                 reportAmount = t.TestReports.Count,
                 testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
             }
@@ -432,13 +432,13 @@ namespace TestMe.Controllers
             var optimizedTests = tests.Select(t =>
             new
             {
-                id = t.Id,
-                testName = t.TestName,
-                creationDate = t.CreationDate,
-                testCode = t.TestCode,
-                duration = t.TestDuration,
+                t.Id,
+                t.TestName,
+                t.CreationDate,
+                t.TestCode,
+                t.TestDuration,
                 testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
-                userName = t.AppUser.UserName
+                t.AppUser.UserName
             }
             );
             return Json(optimizedTests);
@@ -464,11 +464,11 @@ namespace TestMe.Controllers
             var optimizedTests = topRatedTests.Select(t =>
             new
             {
-                id = t.Id,
-                testName = t.TestName,
-                creationDate = t.CreationDate,
-                duration = t.TestDuration,
-                testCode = t.TestCode,
+                t.Id,
+                t.TestName,
+                t.CreationDate,
+                t.TestDuration,
+                t.TestCode,
                 testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
             }
             );

@@ -101,7 +101,7 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetIfAnswered(int? questionId)
+        public IActionResult GetIfAnswered(int? questionId)
         {
             if (questionId is null)
                 throw new QuestionNotFoundException();
@@ -163,12 +163,7 @@ namespace TestMe.Controllers
             var serializedAnswers = JsonConvert.SerializeObject(checkedIds);
             HttpContext.Session.SetString(questionId.ToString(), serializedAnswers);
 
-            //var answers = new List<int>();
-            //foreach(var correct in _answers.Where(ta => ta.IsCorrect))
-            //{
-            //    answers.Add(correct.Id);
-            //}
-            return Json("success");//Json(answers);
+            return Json("success");
 
         }
         [HttpPost]
@@ -233,7 +228,10 @@ namespace TestMe.Controllers
             if (questionId is null)
                 throw new QuestionNotFoundException();
 
-            var testAnswers = await _testingPlatform.TestAnswerManager.GetAll().Where(t => t.TestQuestion.Test.TestCode == testCode).ToListAsync();
+            var testAnswers = await _testingPlatform.TestAnswerManager
+                .GetAll()
+                .Where(t => t.TestQuestion.Test.TestCode == testCode)
+                .ToListAsync();
             testAnswers.Reverse();
             var prevQuestion = testAnswers.SkipWhile(ta => ta.TestQuestionId != questionId)
                 .SkipWhile(ta => ta.TestQuestionId == questionId)
@@ -257,9 +255,9 @@ namespace TestMe.Controllers
             if (questionId is null)
                 throw new QuestionNotFoundException();
 
-            var testAnswers = await _testingPlatform.TestAnswerManager.GetAll().Where(t => t.TestQuestion.Test.TestCode == testCode).ToListAsync();
-            var question = testAnswers
-                .FirstOrDefault(ta => ta.TestQuestionId == questionId)?
+            var question = _testingPlatform.TestAnswerManager
+                .GetAll()
+                .FirstOrDefault(ta => ta.TestQuestion.Test.TestCode == testCode && ta.TestQuestionId == questionId)?
                 .TestQuestion;
 
             if (question is null)

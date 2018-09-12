@@ -29,7 +29,7 @@ function startTest() {
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {
-            ConfigureForTheFirstQuestion(data);
+            configureForTheFirstQuestion(data);
             getQuestionsId();
         },
         error: function () {
@@ -40,7 +40,7 @@ function startTest() {
 function checkAnswerClick() {
     if ($('input[name="answer"]:checked').length === 0)
         return;
-    CheckAnswer();
+    checkAnswer();
 }
 function prevButtonClick() {
     var questionId = $("#testQuestionFieldSet").data("id");
@@ -54,7 +54,7 @@ function nextButtonClick() {
         return;
     getNextQuestion();
 }
-function CheckAnswer(questionId, checkedArray) {
+function checkAnswer(questionId, checkedArray) {
     var token = $('input[name="__RequestVerificationToken"]', $('#questionBlock')).val();
     if (checkedArray === undefined) {
         checkedArray = new Array();
@@ -111,7 +111,7 @@ function getNextQuestion() {
         success: function (data) {
             appendQuestion(data);
             getIfAnswered();
-            changeSelectedBitton(data.id);
+            changeSelectedButton(data.id);
         },
         error: function () {
             //$("#questionForm").empty();
@@ -130,7 +130,7 @@ function getPrevQuestion() {
         success: function (data) {
             appendQuestion(data);
             getIfAnswered();
-            changeSelectedBitton(data.id);
+            changeSelectedButton(data.id);
         },
         error: function () {
             // $("#questionForm").empty();
@@ -206,7 +206,7 @@ function getEndTime() {
         }
     });
 }
-function changeSelectedBitton(questionId) {
+function changeSelectedButton(questionId) {
     var prevButton = $('#questions > div > button.btn-primary');
     if (!prevButton.hasClass('btn-success') && !prevButton.hasClass('btn-danger'))
         prevButton.addClass('btn-info');
@@ -235,12 +235,12 @@ function displayQuestionNav(questionIds) {
                 getQuestion($(this).attr('value'));
             }
         });
-        changeSelectedBitton(questionIds[0]);
+        changeSelectedButton(questionIds[0]);
         $('<div />', { class: 'col-xs-1' }).append(button).appendTo('div#questions');
     }
     $('#questions > button:first-child').addClass('btn-primary');
 }
-function ConfigureForTheFirstQuestion(question) {
+function configureForTheFirstQuestion(question) {
     $('#questionBlock').show();
     $('#startTestElem').remove();
     appendQuestion(question);
@@ -300,7 +300,6 @@ function showCorrectAnswer(userAnswers) {
     div.append(h3);
 
 }
-
 function finishTest() {
     var token = $('input[name="__RequestVerificationToken"]').val();
     var dataWithAntiforgeryToken = { '__RequestVerificationToken': token };
