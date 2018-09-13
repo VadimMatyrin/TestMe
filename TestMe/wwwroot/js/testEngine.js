@@ -1,4 +1,5 @@
-﻿function finishTestButton() {
+﻿var testIds = [];
+function finishTestButton() {
     $('#finishTestModal').modal('toggle');
     $('#finishTestModal').on('hidden.bs.modal', function (e) {
         finishTest();
@@ -29,8 +30,7 @@ function startTest() {
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {
-            ConfigureForTheFirstQuestion(data);
-            getQuestionsId();
+            configureForTheFirstQuestion(data);
         },
         error: function () {
             //$("#questionForm").empty();
@@ -40,36 +40,18 @@ function startTest() {
 function checkAnswerClick() {
     if ($('input[name="answer"]:checked').length === 0)
         return;
-    CheckAnswer();
+    checkAnswer();
 }
-function prevButtonClick() {
-    var questionId = $("#testQuestionFieldSet").data("id");
-    if ($('#questions button').first().val() === questionId)
-        return;
-    getPrevQuestion();
-}
-function nextButtonClick() {
-    var questionId = $("#testQuestionFieldSet").data("id");
-    if ($('#questions button').last().val() === questionId)
-        return;
-    getNextQuestion();
-}
-function CheckAnswer(questionId, checkedArray) {
+function checkAnswer() {
     var token = $('input[name="__RequestVerificationToken"]', $('#questionBlock')).val();
-    if (checkedArray === undefined) {
-        checkedArray = new Array();
-        $('input[name="answer"]:checked').each(function () {
-            checkedArray.push(this.value);
-        });
-    }
+    var checkedArray = new Array();
+    $('input[name="answer"]:checked').each(function () {
+        checkedArray.push(this.value);
+    });
 
     var myData = { checkedIds: checkedArray };
-    if (typeof questionId !== 'number') {
         questionId = $("#testQuestionFieldSet").data('id');
-    }
-    var testCode = $("#testQuestionFieldSet").data("testCode");
     myData = $.extend(myData, { 'questionId': questionId });
-    myData = $.extend(myData, { 'testCode': testCode });
     var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
     $.ajax({
         url: "/TestEngine/CheckAnswer",
@@ -84,44 +66,22 @@ function CheckAnswer(questionId, checkedArray) {
     });
 
 }
-function getNextQuestion() {
-    var token = $('input[name="__RequestVerificationToken"]').val();
-    var myData = { questionId: $("#testQuestionFieldSet").data("id") };
-    var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
-
-    $.ajax({
-        url: "/TestEngine/GetNextQuestion",
-        type: "POST",
-        data: dataWithAntiforgeryToken,
-        success: function (data) {
-            appendQuestion(data);
-            getIfAlreadyAswered(data);
-            changeSelectedBitton(data.id);
-        },
-        error: function () {
-            //$("#questionForm").empty();
-        }
-    });
-}
-function getPrevQuestion() {
-    var token = $('input[name="__RequestVerificationToken"]').val();
-    var myData = { questionId: $("#testQuestionFieldSet").data("id") };
-    var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
-
-    $.ajax({
-        url: "/TestEngine/GetPrevQuestion",
-        type: "POST",
-        data: dataWithAntiforgeryToken,
-        success: function (data) {
-            appendQuestion(data);
-            getIfAlreadyAswered(data);
-            changeSelectedBitton(data.id);
-            //$("#prevQuestionButton").prop('disabled', false);
-        },
-        error: function () {
-            // $("#questionForm").empty();
-        }
-    });
+function getIfAnswered() {
+        var token = $('input[name="__RequestVerificationToken"]', $('#questionBlock')).val();
+        var questionId = { questionId: $("#testQuestionFieldSet").data("id") };
+        var dataWithAntiforgeryToken = $.extend(questionId, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/TestEngine/GetIfAnswered",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                if(data !== "notAnswered")
+                    showCorrectAnswer(data);
+            },
+            error: function () {
+                //$("#questionBlock").append('<h5> Internal error. Try again</h5>');
+            }
+        });
 }
 function getQuestion(questionId) {
     var token = $('input[name="__RequestVerificationToken"]').val();
@@ -134,25 +94,7 @@ function getQuestion(questionId) {
         data: dataWithAntiforgeryToken,
         success: function (data) {
             appendQuestion(data);
-            getIfAlreadyAswered(data);
-        },
-        error: function () {
-            //$("#questionForm").empty();
-        }
-    });
-}
-function getIfAlreadyAswered(questionAnswers) {
-    var token = $('input[name="__RequestVerificationToken"]').val();
-    var myData = { questionId: $("#testQuestionFieldSet").data("id") };
-    var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
-
-    $.ajax({
-        url: "/TestEngine/GetIfAlreadyAnswered",
-        type: "POST",
-        data: dataWithAntiforgeryToken,
-        success: function (data) {
-            if (data !== "notAnswered")
-                CheckAnswer(questionAnswers, data);
+            getIfAnswered();
         },
         error: function () {
             //$("#questionForm").empty();
@@ -191,17 +133,9 @@ function getEndTime() {
         }
     });
 }
-function changeSelectedBitton(questionId) {
-    var prevButton = $('#questions > div > button.btn-primary');
-    if (!prevButton.hasClass('btn-success') && !prevButton.hasClass('btn-danger'))
-        prevButton.addClass('btn-info');
-
-    prevButton.removeClass('btn-primary');
-    $('#questions > div > button[value="' + questionId + '"]').removeClass('btn-info');
-    $('#questions > div > button[value="' + questionId + '"]').addClass('btn-primary');
-
-}
 function displayQuestionNav(questionIds) {
+    testIds = questionIds.slice();
+    setNavButtonsQuestIds(testIds[0]);
     $('#mainContainer').data('questAmount', questionIds.length);
     for (let i = 0; i < questionIds.length; i++) {
         let button = $('<button />', {
@@ -209,7 +143,8 @@ function displayQuestionNav(questionIds) {
             class: 'btn btn-info',
             value: questionIds[i],
             text: (i + 1),
-            click: function () {
+            click: function (event) {
+                event.preventDefault();
                 var prevButton = $('#questions > div > button.btn-primary');
                 if (!prevButton.hasClass('btn-default'))
                     prevButton.addClass('btn-info');
@@ -218,24 +153,57 @@ function displayQuestionNav(questionIds) {
                 $(this).removeClass('btn-info');
                 $(this).addClass('btn-primary');
                 getQuestion($(this).attr('value'));
+                return false;
             }
         });
-        changeSelectedBitton(questionIds[0]);
+        $('#questions > div > button').first().removeClass('btn-info');
+        $('#questions > div > button').first().addClass('btn-primary');
         $('<div />', { class: 'col-xs-1' }).append(button).appendTo('div#questions');
     }
     $('#questions > button:first-child').addClass('btn-primary');
 }
-function ConfigureForTheFirstQuestion(question) {
+function configureForTheFirstQuestion(question) {
+    getQuestionsId();
     $('#questionBlock').show();
     $('#startTestElem').remove();
     appendQuestion(question);
     getUserName();
     getEndTime();
+    $('#nextQuestionButton').click(function (event) {
+        var testQuestionId = $(this).data('nextQuestionId');
+        $("button[value='" + testQuestionId + "']").click();
+        return false;
+    });
+    $('#prevQuestionButton').click(function (event) {
+        var testQuestionId = $(this).data('prevQuestionId');
+        $("button[value='" + testQuestionId + "']").click();
+        return false;
+    });
+
+
+}
+function setNavButtonsQuestIds(questionId) {
+    var currIdIndex = testIds.indexOf(questionId);
+    if (currIdIndex - 1 < 0) {
+        $('#prevQuestionButton').prop({ disabled: true });
+    }
+    else {
+        $('#prevQuestionButton').prop({ disabled: false });
+        $('#prevQuestionButton').data('prevQuestionId', testIds[currIdIndex - 1]);
+    }
+    if (currIdIndex + 1 >= testIds.length) {
+        $('#nextQuestionButton').prop({ disabled: true });
+    }
+    else {
+        $('#nextQuestionButton').prop({ disabled: false });
+        $('#nextQuestionButton').data('nextQuestionId', testIds[currIdIndex + 1]);
+    }
 }
 function appendQuestion(question) {
     $('#testQuestionFieldSet div').remove();
-    $('#answerMessage').remove();
-    $('#answerButton').show();
+    $('#answerButton').removeClass('btn-default');
+    $('#answerButton').addClass('btn-success');
+    $('#answerButton').text('Answer');
     $('#questionText h1').text(question.questionText);
     $('#testQuestionFieldSet').data('testCode', question.test.testCode);
     $('#testQuestionFieldSet').data('id', question.id);
@@ -258,48 +226,32 @@ function appendQuestion(question) {
             });
         }
         div.appendTo('#testQuestionFieldSet');
+        $("input[type='checkbox']").change(function () {
+            var checkButton = $('#answerButton');
+            if (checkButton.hasClass('btn-default')) {
+                $('#answerButton').removeClass('btn-default');
+                $('#answerButton').addClass('btn-primary');
+            }
+        });
     });
+    setNavButtonsQuestIds(question.id);
 }
 function showCorrectAnswer(userAnswers) {
     userAnswers.forEach(function (element) {
-        //$("input[type=checkbox][value='" + element + "']").closest("div").css("color", "red");
         $("input[type=checkbox][value='" + element + "']").prop('checked', true);
     });
 
-    //questionAnswers.forEach(function (element) {
-    //    $("input[type=checkbox][value='" + element + "']").closest('div').css('color', 'green');
-    //});
     var navButton = $('button[value="' + $('#testQuestionFieldSet').data('id') + '"]');
     navButton.removeClass('btn-primary');
     var div = $('<div />', { id: 'answerMessage', class: 'text-center text-primary col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2' });
-    //if (isAllCorrect(questionAnswers, userAnswers)) {
-    //    var h3 = $('<h3 />', { class: 'text-center text-success isCorrectText ', text: 'Correct' });
-    //    navButton.addClass('btn-success');
-    //}
-    //else {
-    //    var h3 = $('<h3 />', { class: 'text-center text-danger isCorrectText', text: 'Incorrect' });
-    //    navButton.addClass('btn-danger');
-    //}
     navButton.addClass('btn-default');
     var h3 = $('<h3 />', { class: 'text-center', text: 'Answered' });
-    $('#answerButton').hide();
-    $('#answerMessage').remove();
+    $('#answerButton').text('Change answer');
+    $('#answerButton').removeClass('btn-primary');
+    $('#answerButton').removeClass('btn-success');
+    $('#answerButton').addClass('btn-default');
     div.append(h3);
-    div.insertAfter($('#prevQuestionButton'));
-    $('input[name="answer"]').each(function () {
-        $(this).prop('disabled', true);
-    });
 
-}
-function isAllCorrect(questionAnswers, userAnswered) {
-    if (questionAnswers.length !== userAnswered.length)
-        return false;
-    for (var i = questionAnswers.length; i--;) {
-        if (questionAnswers[i] != userAnswered[i])
-            return false;
-    }
-
-    return true;
 }
 function finishTest() {
     var token = $('input[name="__RequestVerificationToken"]').val();
@@ -329,7 +281,7 @@ function rateTest(mark) {
     var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
 
     $.ajax({
-        url: "/TestEngine/RateTest",
+        url: "/TestEngine/RateFinishedTestAjax",
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {
@@ -392,6 +344,7 @@ function startTimer(date) {
             + minutes + ":" + seconds + "s ");
 
         if (distance <= 500) {
+            clearInterval(x);
             finishTest();
         }
     }, 1000);

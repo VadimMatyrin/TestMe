@@ -30,7 +30,7 @@ function appendTopTests(tests) {
         tr.append(testTd);
         var formattedDate = new Date(element.creationDate);
         tr.append($('<td/>', { text: formattedDate.toLocaleString() }));
-        tr.append($('<td/>', { text: element.duration.slice(0, -3) }));
+        tr.append($('<td/>', { text: element.testDuration.slice(0, -3) }));
         var rateClass = '';
         if (element.testRating > 0)
             rateClass = 'text-success';

@@ -80,7 +80,7 @@
                     }
                     else
                     {
-                        @if (await UserManager.IsInRoleAsync(item, "Moderator"))
+                        if (await UserManager.IsInRoleAsync(item, "Moderator"))
                         {
                             if (User.Identity.Name != item.UserName)
                             {

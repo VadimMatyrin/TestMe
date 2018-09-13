@@ -29,7 +29,7 @@ function appendTests(tests) {
         var formattedDate = new Date(element.creationDate);
         tr.append($('<td/>', { text: formattedDate.toLocaleString() }));
         tr.append($('<td/>', { text: element.testCode }));
-        tr.append($('<td/>', { text: element.duration.slice(0, -3) }));
+        tr.append($('<td/>', { text: element.testDuration.slice(0, -3) }));
         var rateClass = '';
         if (element.testRating > 0)
             rateClass = 'text-success';
@@ -167,7 +167,7 @@ function appendUsers(users) {
     var table = $('#userTable');
     users.forEach(function (element) {
         var tr = $('<tr/>');
-        var userRef = $('<a/>', { href: '/Profile/Index/' + element.userId, text: element.userName });
+        var userRef = $('<a/>', { href: '/Profile/Index/' + element.id, text: element.userName });
         var userTd = $('<td/>').append(userRef);
         tr.append(userTd);
         tr.append($('<td/>', { text: element.name }));

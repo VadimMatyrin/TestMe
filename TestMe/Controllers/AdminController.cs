@@ -198,12 +198,11 @@ namespace TestMe.Controllers
             new
             {
                 id = u.Id,
-                userId = u.Id,
-                userName = u.UserName,
-                name = u.Name,
-                surname = u.Surname,
-                email = u.Email,
-                phoneNumber = u.PhoneNumber,
+                u.UserName,
+                u.Name,
+                u.Surname,
+                u.Email,
+                u.PhoneNumber,
                 role = (await _userManager.IsInRoleAsync(u, "Admin")) ? "Admin" : (await _userManager.IsInRoleAsync(u, "Moderator") ? "Moderator" : null),
                 currentUserUsername = User.Identity.Name
             }));
