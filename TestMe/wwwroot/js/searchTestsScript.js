@@ -2,7 +2,7 @@
     var token = $('input[name="__RequestVerificationToken"]', $('#testTable')).val();
     var skipAmount = { skipAmount: $('#testTable tr').length - 1 };
     var amount = { amount: 10 };
-    var searchString = { searchString: getUrlParameter("SearchString") };
+    var searchString = { searchString: getUrlParameter("searchString") };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 

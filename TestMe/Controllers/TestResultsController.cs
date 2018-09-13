@@ -34,6 +34,7 @@ namespace TestMe.Controllers
                 .GetAll()
                 .Where(tm => tm.TestId == id)
                 .ToListAsync();
+
             if (testResults is null)
                 return NotFound();
 

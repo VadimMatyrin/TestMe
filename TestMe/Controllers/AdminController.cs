@@ -32,11 +32,10 @@ namespace TestMe.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> IndexGet(string searchString)
         {
-            List<Test> tests;
             if (searchString is null)
                 searchString = "";
 
-            tests = await _testingPlatform.TestManager
+            var tests = await _testingPlatform.TestManager
                  .GetAll()
                  .Where(t => t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                  .Take(Int32.Parse(_config.Value.TakeAmount))
@@ -52,14 +51,10 @@ namespace TestMe.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UsersGet(string searchString)
         {
-            List<AppUser> appUsers;
-
             if (searchString is null)
-                appUsers = await _userManager.Users.AsNoTracking()
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
-                    .ToListAsync();
-            else
-                appUsers = await _userManager.Users.AsNoTracking()
+                searchString = "";
+
+            var appUsers = await _userManager.Users.AsNoTracking()
                     .Where(u => u.NormalizedUserName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                     .Take(Int32.Parse(_config.Value.TakeAmount))
                     .ToListAsync();
@@ -134,21 +129,15 @@ namespace TestMe.Controllers
         [Authorize(Roles = "Admin, Moderator")]
         public async Task<IActionResult> ReportedTestsGet(string searchString)
         {
-            List<Test> tests;
             if (searchString is null)
-                tests = await _testingPlatform.TestManager
-                    .GetAll()
-                    .Where(t => t.TestReports.Count >= 1)
-                    .OrderByDescending(t => t.TestReports.Count)
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
-                    .ToListAsync();
-            else
-                tests = await _testingPlatform.TestManager
-                    .GetAll()
-                    .Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                    .OrderByDescending(t => t.TestReports.Count)
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
-                    .ToListAsync();
+                searchString = "";
+
+            var tests = await _testingPlatform.TestManager
+                  .GetAll()
+                  .Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                  .OrderByDescending(t => t.TestReports.Count)
+                  .Take(Int32.Parse(_config.Value.TakeAmount))
+                  .ToListAsync();
 
             if (tests is null)
                 return NotFound();
@@ -188,6 +177,7 @@ namespace TestMe.Controllers
                 .Skip(skipAmount.Value)
                 .Take(amount.Value)
                 .ToListAsync();
+
             if (users is null)
                 return NotFound();
 

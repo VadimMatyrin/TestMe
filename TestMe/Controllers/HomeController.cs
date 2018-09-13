@@ -28,6 +28,7 @@ namespace TestMe.Controllers
                 .Where(t => !(t.TestCode == null) && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1).Take(10)
                 .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
                 .ToListAsync();
+
             if (topRatedTest is null)
                 return NotFound();
 
