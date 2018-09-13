@@ -1,4 +1,5 @@
-﻿function finishTestButton() {
+﻿var testIds = [];
+function finishTestButton() {
     $('#finishTestModal').modal('toggle');
     $('#finishTestModal').on('hidden.bs.modal', function (e) {
         finishTest();
@@ -30,7 +31,6 @@ function startTest() {
         data: dataWithAntiforgeryToken,
         success: function (data) {
             configureForTheFirstQuestion(data);
-            getQuestionsId();
         },
         error: function () {
             //$("#questionForm").empty();
@@ -42,31 +42,15 @@ function checkAnswerClick() {
         return;
     checkAnswer();
 }
-function prevButtonClick() {
-    var questionId = $("#testQuestionFieldSet").data("id");
-    if ($('#questions button').first().val() === questionId)
-        return;
-    getPrevQuestion();
-}
-function nextButtonClick() {
-    var questionId = $("#testQuestionFieldSet").data("id");
-    if ($('#questions button').last().val() === questionId)
-        return;
-    getNextQuestion();
-}
-function checkAnswer(questionId, checkedArray) {
+function checkAnswer() {
     var token = $('input[name="__RequestVerificationToken"]', $('#questionBlock')).val();
-    if (checkedArray === undefined) {
-        checkedArray = new Array();
-        $('input[name="answer"]:checked').each(function () {
-            checkedArray.push(this.value);
-        });
-    }
+    var checkedArray = new Array();
+    $('input[name="answer"]:checked').each(function () {
+        checkedArray.push(this.value);
+    });
 
     var myData = { checkedIds: checkedArray };
-    if (typeof questionId !== 'number') {
         questionId = $("#testQuestionFieldSet").data('id');
-    }
     myData = $.extend(myData, { 'questionId': questionId });
     var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
     $.ajax({
@@ -99,44 +83,6 @@ function getIfAnswered() {
             }
         });
 }
-function getNextQuestion() {
-    var token = $('input[name="__RequestVerificationToken"]').val();
-    var myData = { questionId: $("#testQuestionFieldSet").data("id") };
-    var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
-
-    $.ajax({
-        url: "/TestEngine/GetNextQuestion",
-        type: "POST",
-        data: dataWithAntiforgeryToken,
-        success: function (data) {
-            appendQuestion(data);
-            getIfAnswered();
-            changeSelectedButton(data.id);
-        },
-        error: function () {
-            //$("#questionForm").empty();
-        }
-    });
-}
-function getPrevQuestion() {
-    var token = $('input[name="__RequestVerificationToken"]').val();
-    var myData = { questionId: $("#testQuestionFieldSet").data("id") };
-    var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
-
-    $.ajax({
-        url: "/TestEngine/GetPrevQuestion",
-        type: "POST",
-        data: dataWithAntiforgeryToken,
-        success: function (data) {
-            appendQuestion(data);
-            getIfAnswered();
-            changeSelectedButton(data.id);
-        },
-        error: function () {
-            // $("#questionForm").empty();
-        }
-    });
-}
 function getQuestion(questionId) {
     var token = $('input[name="__RequestVerificationToken"]').val();
     var myData = { questionId: questionId };
@@ -149,25 +95,6 @@ function getQuestion(questionId) {
         success: function (data) {
             appendQuestion(data);
             getIfAnswered();
-            //getIfAlreadyAswered(data);
-        },
-        error: function () {
-            //$("#questionForm").empty();
-        }
-    });
-}
-function getIfAlreadyAswered(questionAnswers) {
-    var token = $('input[name="__RequestVerificationToken"]').val();
-    var myData = { questionId: $("#testQuestionFieldSet").data("id") };
-    var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
-
-    $.ajax({
-        url: "/TestEngine/GetIfAlreadyAnswered",
-        type: "POST",
-        data: dataWithAntiforgeryToken,
-        success: function (data) {
-            if (data !== "notAnswered")
-                CheckAnswer(questionAnswers, data);
         },
         error: function () {
             //$("#questionForm").empty();
@@ -206,17 +133,9 @@ function getEndTime() {
         }
     });
 }
-function changeSelectedButton(questionId) {
-    var prevButton = $('#questions > div > button.btn-primary');
-    if (!prevButton.hasClass('btn-success') && !prevButton.hasClass('btn-danger'))
-        prevButton.addClass('btn-info');
-
-    prevButton.removeClass('btn-primary');
-    $('#questions > div > button[value="' + questionId + '"]').removeClass('btn-info');
-    $('#questions > div > button[value="' + questionId + '"]').addClass('btn-primary');
-
-}
 function displayQuestionNav(questionIds) {
+    testIds = questionIds.slice();
+    setNavButtonsQuestIds(testIds[0]);
     $('#mainContainer').data('questAmount', questionIds.length);
     for (let i = 0; i < questionIds.length; i++) {
         let button = $('<button />', {
@@ -224,7 +143,8 @@ function displayQuestionNav(questionIds) {
             class: 'btn btn-info',
             value: questionIds[i],
             text: (i + 1),
-            click: function () {
+            click: function (event) {
+                event.preventDefault();
                 var prevButton = $('#questions > div > button.btn-primary');
                 if (!prevButton.hasClass('btn-default'))
                     prevButton.addClass('btn-info');
@@ -233,19 +153,51 @@ function displayQuestionNav(questionIds) {
                 $(this).removeClass('btn-info');
                 $(this).addClass('btn-primary');
                 getQuestion($(this).attr('value'));
+                return false;
             }
         });
-        changeSelectedButton(questionIds[0]);
+        $('#questions > div > button').first().removeClass('btn-info');
+        $('#questions > div > button').first().addClass('btn-primary');
         $('<div />', { class: 'col-xs-1' }).append(button).appendTo('div#questions');
     }
     $('#questions > button:first-child').addClass('btn-primary');
 }
 function configureForTheFirstQuestion(question) {
+    getQuestionsId();
     $('#questionBlock').show();
     $('#startTestElem').remove();
     appendQuestion(question);
     getUserName();
     getEndTime();
+    $('#nextQuestionButton').click(function (event) {
+        var testQuestionId = $(this).data('nextQuestionId');
+        $("button[value='" + testQuestionId + "']").click();
+        return false;
+    });
+    $('#prevQuestionButton').click(function (event) {
+        var testQuestionId = $(this).data('prevQuestionId');
+        $("button[value='" + testQuestionId + "']").click();
+        return false;
+    });
+
+
+}
+function setNavButtonsQuestIds(questionId) {
+    var currIdIndex = testIds.indexOf(questionId);
+    if (currIdIndex - 1 < 0) {
+        $('#prevQuestionButton').prop({ disabled: true });
+    }
+    else {
+        $('#prevQuestionButton').prop({ disabled: false });
+        $('#prevQuestionButton').data('prevQuestionId', testIds[currIdIndex - 1]);
+    }
+    if (currIdIndex + 1 >= testIds.length) {
+        $('#nextQuestionButton').prop({ disabled: true });
+    }
+    else {
+        $('#nextQuestionButton').prop({ disabled: false });
+        $('#nextQuestionButton').data('nextQuestionId', testIds[currIdIndex + 1]);
+    }
 }
 function appendQuestion(question) {
     $('#testQuestionFieldSet div').remove();
@@ -282,6 +234,7 @@ function appendQuestion(question) {
             }
         });
     });
+    setNavButtonsQuestIds(question.id);
 }
 function showCorrectAnswer(userAnswers) {
     userAnswers.forEach(function (element) {

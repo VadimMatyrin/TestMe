@@ -20,11 +20,13 @@ namespace TestMe.Controllers
     {
         private readonly ITestingPlatform _testingPlatform;
         private readonly UserManager<AppUser> _userManager;
+
         public TestEngineController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager)
         {
             _testingPlatform = testingPlatform;
             _userManager = userManager;
         }
+
         public async Task<IActionResult> Index(string code)
         {
             HttpContext.Session.Clear();
@@ -77,6 +79,7 @@ namespace TestMe.Controllers
         {
             return Json(User.Identity.Name);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> StartTest()
@@ -106,6 +109,7 @@ namespace TestMe.Controllers
             HttpContext.Session.SetString("answeredQuestions", JsonConvert.SerializeObject(new Dictionary<int, bool>()));
             return Json(testQuestion);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult GetIfAnswered(int? questionId)
@@ -125,6 +129,7 @@ namespace TestMe.Controllers
             }
             return Json("notAnswered");
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CheckAnswer(int? questionId, List<int> checkedIds)
@@ -145,18 +150,17 @@ namespace TestMe.Controllers
 
             var _answers = await _testingPlatform.TestAnswerManager
                 .GetAll()
-                .Where(ta => ta.TestQuestion.Test.TestCode == testCode && ta.TestQuestionId == questionId)
+                .Where(ta => ta.TestQuestion.Test.TestCode == testCode && ta.TestQuestionId == questionId && ta.IsCorrect)
                 .ToListAsync();
 
-
-            if (_answers.Count(ta => ta.TestQuestionId == questionId) == 0)
+            if (_answers.Count == 0)
                 throw new QuestionNotFoundException(questionId.ToString());
 
             if (checkedIds.Any(checkId => _answers.Count(ta => ta.Id == checkId) == 0))
                 throw new UserAnswersException();
 
             bool isCorrect = true;
-            var correctAnswers = _answers.Where(ta => ta.IsCorrect).Select(ta => ta.Id);
+            var correctAnswers = _answers.Select(ta => ta.Id);
             if (correctAnswers.Except(checkedIds).Any() || checkedIds.Except(correctAnswers).Any())
                 isCorrect = false;
 
@@ -174,6 +178,7 @@ namespace TestMe.Controllers
             return Json("success");
 
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetQuestionsIds()
@@ -190,57 +195,7 @@ namespace TestMe.Controllers
 
             return Json(questions.Select(tq => tq.Id));
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetNextQuestion(int? questionId)
-        {
-            var testCode = HttpContext.Session.GetString("testCode");
 
-            if (testCode is null)
-                throw new TestNotFoundException();
-
-            if (questionId is null)
-                throw new QuestionNotFoundException();
-
-            var testAnswers = await _testingPlatform.TestAnswerManager.GetAll().Where(t => t.TestQuestion.Test.TestCode == testCode).ToListAsync();
-            var nextQuestion = testAnswers.SkipWhile(ta => ta.TestQuestionId != questionId)
-                .SkipWhile(ta => ta.TestQuestionId == questionId)
-                .FirstOrDefault()?
-                .TestQuestion;
-
-            if (nextQuestion is null)
-                throw new QuestionNotFoundException();
-
-            return Json(nextQuestion);
-
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetPrevQuestion(int? questionId)
-        {
-            var testCode = HttpContext.Session.GetString("testCode");
-
-            if (testCode is null)
-                throw new TestNotFoundException();
-
-            if (questionId is null)
-                throw new QuestionNotFoundException();
-
-            var testAnswers = await _testingPlatform.TestAnswerManager
-                .GetAll()
-                .Where(t => t.TestQuestion.Test.TestCode == testCode)
-                .ToListAsync();
-            testAnswers.Reverse();
-            var prevQuestion = testAnswers.SkipWhile(ta => ta.TestQuestionId != questionId)
-                .SkipWhile(ta => ta.TestQuestionId == questionId)
-                .FirstOrDefault()?
-                .TestQuestion;
-
-            if (prevQuestion is null)
-                throw new QuestionNotFoundException();
-
-            return Json(prevQuestion);
-        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetQuestion(int? questionId)
@@ -262,6 +217,7 @@ namespace TestMe.Controllers
 
             return Json(question);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult GetEndTime()
@@ -273,6 +229,7 @@ namespace TestMe.Controllers
             var endTime = JsonConvert.DeserializeObject<DateTime>(endTimeStr);
             return Json(endTime);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FinishTest()
@@ -295,6 +252,7 @@ namespace TestMe.Controllers
             var prevResult = await _testingPlatform.TestResultManager
                 .GetAll()
                 .FirstOrDefaultAsync(tr => tr.AppUser.Id == _userManager.GetUserId(User) && tr.TestId == test.Id);
+
             if (prevResult is null)
             {
                 var startTimeStr = HttpContext.Session.GetString("startTime");
