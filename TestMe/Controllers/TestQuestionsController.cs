@@ -29,9 +29,15 @@ namespace TestMe.Controllers
         {
             if (User.IsInRole("Admin"))
             {
-                if (!(context.RouteData.Values["id"] is null))
-                    if (Int32.TryParse(context.RouteData.Values["id"].ToString(), out int testId))
-                        _userId = _testingPlatform.TestManager.GetAll().AsNoTracking().Where(t => t.Id == testId).ToList().FirstOrDefault()?.AppUserId;
+                if (Int32.TryParse(context.RouteData.Values["id"].ToString(), out int answerId))
+                {
+                    if (context.RouteData.Values["action"].ToString() == "Index" || context.RouteData.Values["action"].ToString() == "Create")
+                        _userId = _testingPlatform.TestManager.GetAll().AsNoTracking().FirstOrDefault(t => t.Id == answerId)?.AppUserId;
+                    else
+                        _userId = _testingPlatform.TestQuestionManager.GetAll().AsNoTracking().FirstOrDefault(tq => tq.Id == answerId)?.AppUserId;
+
+                }
+
             }
             _userId = _userId ?? _userManager.GetUserId(User);
         }
@@ -39,15 +45,11 @@ namespace TestMe.Controllers
         public async Task<IActionResult> Index(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var testQuestions = await _testingPlatform.TestQuestionManager.GetAll().Where(t => t.AppUser.Id == _userId && t.TestId == id).ToListAsync();
-            var test = testQuestions.FirstOrDefault()?.Test;
-            if (testQuestions.Count == 0)
-                test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
-            else if(test is null)
+            var test = await _testingPlatform.TestManager
+                .FindAsync(t => t.AppUserId == _userId && t.Id == id);
+            if (test is null)
                 return NotFound();
 
             return View(test);
@@ -56,15 +58,12 @@ namespace TestMe.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
+            var testQuestion = await _testingPlatform.TestQuestionManager
+                .FindAsync(tq => tq.AppUserId == _userId && tq.Id == id);
             if (testQuestion == null)
-            {
                 return NotFound();
-            }
 
             return View(testQuestion);
         }
@@ -72,15 +71,12 @@ namespace TestMe.Controllers
         public async Task<IActionResult> Create(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
+            var test = await _testingPlatform.TestManager
+                .FindAsync(t => t.AppUserId == _userId && t.Id == id);
             if (test == null)
-            {
                 return NotFound();
-            }
 
             if (!(test.TestCode is null))
                 return NotFound();
@@ -100,31 +96,27 @@ namespace TestMe.Controllers
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
             }
 
-            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, testQuestion.TestId);
+            var test = await _testingPlatform.TestManager
+                .FindAsync(t => t.AppUserId == _userId && t.Id == testQuestion.TestId);
             if (test == null)
-            {
                 return NotFound();
-            }
+            
             if (!(test.TestCode is null))
                 return NotFound();
 
-            testQuestion = new TestQuestion { TestId = test.Id, Test = test };
-
-            return View(testQuestion);
+            return View(new TestQuestion { TestId = test.Id, Test = test });
         }
 
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
+            var testQuestion = await _testingPlatform.TestQuestionManager
+                .FindAsync(t => t.AppUserId == _userId && t.Id == id);
             if (testQuestion == null)
-            {
                 return NotFound();
-            }
+
             if (!(testQuestion.Test.TestCode is null))
                 return NotFound();
 
@@ -136,9 +128,7 @@ namespace TestMe.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("Id,QuestionText,TestId")] TestQuestion testQuestion)
         {
             if (id != testQuestion.Id)
-            {
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
@@ -149,7 +139,7 @@ namespace TestMe.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (_testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id) is null)
+                    if (_testingPlatform.TestQuestionManager.FindAsync(tq => tq.AppUserId == _userId && tq.Id == id) is null)
                     {
                         return NotFound();
                     }
@@ -160,22 +150,19 @@ namespace TestMe.Controllers
                 }
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
             }
-            testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
+            testQuestion = await _testingPlatform.TestQuestionManager.FindAsync(tq => tq.AppUserId == _userId && tq.Id == id);
             return View(testQuestion);
         }
 
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
+            var testQuestion = await _testingPlatform.TestQuestionManager.FindAsync(t => t.AppUserId == _userId && t.Id == id);
             if (testQuestion == null)
-            {
                 return NotFound();
-            }
+            
             if (!(testQuestion.Test.TestCode is null))
                 return NotFound();
 
@@ -186,7 +173,7 @@ namespace TestMe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var testQuestion = await _testingPlatform.TestQuestionManager.GetTestQuestionAsync(_userId, id);
+            var testQuestion = await _testingPlatform.TestQuestionManager.FindAsync(t => t.AppUserId == _userId && t.Id == id);
             var testId = testQuestion.TestId;
             foreach (var testAnswer in testQuestion.TestAnswers.Where(ta => !(ta.ImageName is null)))
                 _testingPlatform.AnswerImageManager.DeleteAnswerImage(testAnswer.ImageName);

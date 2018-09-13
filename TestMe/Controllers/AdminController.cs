@@ -34,16 +34,13 @@ namespace TestMe.Controllers
         {
             List<Test> tests;
             if (searchString is null)
-                tests = await _testingPlatform.TestManager
-                    .GetAll()
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
-                    .ToListAsync();
-            else
-               tests = await _testingPlatform.TestManager
-                    .GetAll()
-                    .Where(t => t.TestName.Contains(searchString.ToUpper()))
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
-                    .ToListAsync();
+                searchString = "";
+
+            tests = await _testingPlatform.TestManager
+                 .GetAll()
+                 .Where(t => t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                 .Take(Int32.Parse(_config.Value.TakeAmount))
+                 .ToListAsync();
 
             if (tests is null)
                 return NotFound();
@@ -63,7 +60,7 @@ namespace TestMe.Controllers
                     .ToListAsync();
             else
                 appUsers = await _userManager.Users.AsNoTracking()
-                    .Where(u => u.NormalizedUserName.Contains(searchString.ToUpper()))
+                    .Where(u => u.NormalizedUserName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                     .Take(Int32.Parse(_config.Value.TakeAmount))
                     .ToListAsync();
 
@@ -148,7 +145,7 @@ namespace TestMe.Controllers
             else
                 tests = await _testingPlatform.TestManager
                     .GetAll()
-                    .Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString))
+                    .Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                     .OrderByDescending(t => t.TestReports.Count)
                     .Take(Int32.Parse(_config.Value.TakeAmount))
                     .ToListAsync();
@@ -187,7 +184,7 @@ namespace TestMe.Controllers
                 searchString = "";
 
             var users = await _userManager.Users.AsNoTracking()
-                .Where(u => u.UserName.Contains(searchString))
+                .Where(u => u.UserName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 .Skip(skipAmount.Value)
                 .Take(amount.Value)
                 .ToListAsync();

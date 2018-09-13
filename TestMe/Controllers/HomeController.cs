@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TestMe.Data;
 using TestMe.Models;
 using TestMe.Sevices.Interfaces;
@@ -20,11 +21,13 @@ namespace TestMe.Controllers
             _testingPlatform = testingPlatform;
             _userManager = userManager;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var topRatedTest = _testingPlatform.TestManager.GetAll()
+            var topRatedTest = await _testingPlatform.TestManager
+                .GetAll()
                 .Where(t => !(t.TestCode == null) && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1).Take(10)
-                .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest));
+                .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
+                .ToListAsync();
             if (topRatedTest is null)
                 return NotFound();
 

@@ -35,7 +35,7 @@ namespace TestMe.Controllers
             {
                 if (!(context.RouteData.Values["id"] is null))
                     if (Int32.TryParse(context.RouteData.Values["id"].ToString(), out int testId))
-                        _userId = _testingPlatform.TestManager.GetAll().AsNoTracking().Where(t => t.Id == testId).ToList().FirstOrDefault()?.AppUserId;
+                        _userId = _testingPlatform.TestManager.GetAll().AsNoTracking().FirstOrDefault(t => t.Id == testId)?.AppUserId;
             }
             _userId = _userId ?? _userManager.GetUserId(User);
         }
@@ -45,6 +45,7 @@ namespace TestMe.Controllers
                 .GetAll()
                 .Where(t => t.AppUserId == _userId)
                 .ToListAsync();
+
             return View(tests);
         }
         public async Task<IActionResult> StopSharing(int? id)
@@ -54,7 +55,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
+            var test = await _testingPlatform.TestManager.FindAsync(t => t.AppUserId == _userId && t.Id == id);
             if (test == null)
             {
                 return NotFound();
@@ -66,7 +67,7 @@ namespace TestMe.Controllers
             }
             catch (DbUpdateException)
             {
-                if (_testingPlatform.TestManager.GetTestAsync(_userId, id) is null)
+                if (_testingPlatform.TestManager.FindAsync(t => t.AppUserId == _userId && t.Id == id) is null)
                 {
                     return RedirectToAction(nameof(Index));
                 }
@@ -87,7 +88,7 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
-            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
+            var test = await _testingPlatform.TestManager.FindAsync(t => t.AppUserId == _userId && t.Id == id);
                 
             if (test == null)
             {
@@ -107,7 +108,7 @@ namespace TestMe.Controllers
                 }
                 catch (DbUpdateException)
                 {
-                    if (_testingPlatform.TestManager.GetTestAsync(_userId, id) is null)
+                    if (_testingPlatform.TestManager.FindAsync(t => t.AppUserId == _userId && t.Id == id) is null)
                     {
                         return NotFound();
                     }
@@ -118,8 +119,10 @@ namespace TestMe.Controllers
                 }
                 var testResult = _testingPlatform.TestResultManager.GetAll().Where(tr => tr.TestId == test.Id);
                 await _testingPlatform.TestResultManager.DeleteRangeAsync(testResult);
+
                 var testMarks = _testingPlatform.TestMarkManager.GetAll().Where(tm => tm.TestId == test.Id);
                 await _testingPlatform.TestMarkManager.DeleteRangeAsync(testMarks);
+
                 return View("CreateCode", test);
             }
             return View("CreateCode", test);
@@ -130,7 +133,6 @@ namespace TestMe.Controllers
             {
                 return NotFound();
             }
-            //Test test;
 
             var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
 
@@ -168,7 +170,7 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var test = await _testingPlatform.TestManager.GetTestAsync(_userId, id);
+            var test = await _testingPlatform.TestManager.FindAsync(t => t.AppUserId == _userId && t.Id == id);
             if (test == null)
             {
                 return RedirectToAction(nameof(Index));
@@ -196,7 +198,7 @@ namespace TestMe.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (_testingPlatform.TestManager.GetTestAsync(_userId, id) is null)
+                    if (_testingPlatform.TestManager.FindAsync(t => t.AppUserId == _userId && t.Id == id) is null)
                     {
                         return NotFound();
                     }
@@ -304,23 +306,21 @@ namespace TestMe.Controllers
 
         [HttpGet]
         [ActionName("TopRated")]
-        public async Task<IActionResult> TopRatedGet(string SearchString)
+        public async Task<IActionResult> TopRatedGet(string searchString)
         {
             List<Test> topRatedTests;
-            if (SearchString is null)
-                topRatedTests = await _testingPlatform.TestManager
+            if (searchString is null)
+                searchString = "";
+
+            topRatedTests = await _testingPlatform.TestManager
                 .GetAll()
-                .Where(t => !(t.TestCode == null) && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1)
+                .Where(t => 
+                    !(t.TestCode == null) &&
+                    t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase) && 
+                    t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1)
                 .Take(Int32.Parse(_config.Value.TakeAmount))
                 .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
                 .ToListAsync();
-            else
-                topRatedTests = await _testingPlatform.TestManager
-                    .GetAll()
-                    .Where(t => !(t.TestCode == null) && t.TestName.Contains(SearchString) && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1)
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
-                    .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
-                    .ToListAsync();
 
             if (topRatedTests is null)
                 return NotFound();
@@ -333,17 +333,13 @@ namespace TestMe.Controllers
         {
             List<Test> tests;
             if (searchString is null)
-                tests = await _testingPlatform.TestManager
-                    .GetAll()
-                    .Where(t => t.TestCode != null)
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
-                    .ToListAsync();
-            else
-                tests = await _testingPlatform.TestManager
-                    .GetAll()
-                    .Where(t => t.TestCode != null && t.TestName.ToUpper().Contains(searchString.ToUpper()))
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
-                    .ToListAsync();
+                searchString = "";
+
+            tests = await _testingPlatform.TestManager
+                .GetAll()
+                .Where(t => t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                .Take(Int32.Parse(_config.Value.TakeAmount))
+                .ToListAsync();
 
             if (tests is null)
                 return NotFound();
@@ -363,10 +359,11 @@ namespace TestMe.Controllers
 
             var tests = await _testingPlatform.TestManager
                 .GetAll()
-                .Where(t => t.TestName.Contains(searchString))
+                .Where(t => t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 .Skip(skipAmount.Value)
                 .Take(amount.Value)
                 .ToListAsync();
+
             var optimizedTests = tests.Select(t =>
             new
             {
@@ -378,8 +375,8 @@ namespace TestMe.Controllers
                 testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
                 userId = t.AppUser.Id,
                 t.AppUser.UserName
-            }
-            );
+            });
+
             return Json(optimizedTests);
         }
         [HttpPost]
@@ -395,10 +392,11 @@ namespace TestMe.Controllers
 
             var tests = await _testingPlatform.TestManager
                 .GetAll()
-                .Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString))
+                .Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 .Skip(skipAmount.Value)
                 .Take(amount.Value)
                 .ToListAsync();
+
             var optimizedTests = tests.Select(t =>
             new
             {
@@ -409,8 +407,8 @@ namespace TestMe.Controllers
                 t.TestCode,
                 reportAmount = t.TestReports.Count,
                 testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
-            }
-            );
+            });
+
             return Json(optimizedTests);
         }
         [HttpPost]
@@ -425,7 +423,7 @@ namespace TestMe.Controllers
 
             var tests = await _testingPlatform.TestManager
                 .GetAll()
-                .Where(t => t.TestCode != null && t.TestName.Contains(searchString))
+                .Where(t => t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 .Skip(skipAmount.Value)
                 .Take(amount.Value)
                 .ToListAsync();
@@ -439,8 +437,8 @@ namespace TestMe.Controllers
                 t.TestDuration,
                 testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
                 t.AppUser.UserName
-            }
-            );
+            }); 
+
             return Json(optimizedTests);
         }
         [HttpPost]
@@ -455,7 +453,7 @@ namespace TestMe.Controllers
 
             var topRatedTests = await _testingPlatform.TestManager
                 .GetAll()
-                .Where(t => t.TestCode != null && t.TestName.Contains(searchString) && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1)
+                .Where(t => t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase) && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1)
                 .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
                 .Skip(skipAmount.Value)
                 .Take(amount.Value)
@@ -470,8 +468,8 @@ namespace TestMe.Controllers
                 t.TestDuration,
                 t.TestCode,
                 testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
-            }
-            );
+            });
+
             return Json(optimizedTests);
         }
         private bool HasValidationErrors(int? id)
@@ -486,18 +484,14 @@ namespace TestMe.Controllers
                 return true;
 
             if (test.TestQuestions.Count == 0)
-            {
                 return true;
-            }
 
             if (test.TestQuestions.Any(tq => tq.TestAnswers.Count == 0))
-            {
                 return true;
-            }
+
             if (test.TestQuestions.Any(tq => tq.TestAnswers.All(ta => !ta.IsCorrect)))
-            {
                 return true;
-            }
+            
             return false;
         }
     }

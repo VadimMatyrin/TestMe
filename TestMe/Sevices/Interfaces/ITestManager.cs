@@ -9,6 +9,5 @@ namespace TestMe.Sevices.Interfaces
 {
     public interface ITestManager : IRepository<Test>
     {
-        Task<Test> GetTestAsync(string userId, int? id);
     }
 }

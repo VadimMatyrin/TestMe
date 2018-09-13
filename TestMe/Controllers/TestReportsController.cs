@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
 using TestMe.Models;
 using TestMe.Sevices.Interfaces;
 
@@ -26,15 +27,20 @@ namespace TestMe.Controllers
         { 
             _userId = _userManager.GetUserId(User);
         }
-        public IActionResult Index(int? id)
+        public async Task<IActionResult> Index(int? id)
         {
             if (id is null)
                 return NotFound();
 
-            var test = _testingPlatform.TestManager.GetAll().Where(t => t.Id == id).FirstOrDefault();
-            var testReports = _testingPlatform.TestReportManager.GetAll().Where(tr => tr.TestId == id).ToList();
-            test.TestReports = testReports;
+            var test = await _testingPlatform.TestManager
+                .GetAll()
+                .FirstOrDefaultAsync(t => t.Id == id);
 
+            var testReports = await _testingPlatform.TestReportManager.
+                GetAll()
+                .Where(tr => tr.TestId == id)
+                .ToListAsync();
+            test.TestReports = testReports;
 
             return View(test);
         }
@@ -47,17 +53,17 @@ namespace TestMe.Controllers
 
             var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
             if (test == null)
-            {
                 return NotFound();
-            }
-            var reports = _testingPlatform.TestReportManager.GetAll().Where(tr => tr.AppUserId == _userId && tr.TestId == test.Id).ToList();
-            if (reports.Count() != 0)
-            {
-                return RedirectToAction(nameof(Index), "TestEngine", new { code = test.TestCode });
-            }
 
-            var testAnswer = new TestReport { Test = test, TestId = test.Id };
-            return View(testAnswer);
+            var reports = await _testingPlatform.TestReportManager
+                .GetAll()
+                .Where(tr => tr.AppUserId == _userId && tr.TestId == test.Id)
+                .ToListAsync();
+
+            if (reports.Count() != 0)
+                return RedirectToAction(nameof(Index), "TestEngine", new { code = test.TestCode });
+
+            return View(new TestReport { Test = test, TestId = test.Id });
         }
 
         [HttpPost]

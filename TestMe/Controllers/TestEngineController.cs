@@ -39,6 +39,7 @@ namespace TestMe.Controllers
                 .GetAll()
                 .Where(tr => tr.TestId == test.Id && tr.AppUserId == _userManager.GetUserId(User))
                 .ToListAsync();
+
             if (testReports is null)
                 return NotFound();
 
@@ -116,11 +117,6 @@ namespace TestMe.Controllers
         {
             if (questionId is null)
                 throw new QuestionNotFoundException();
-
-            var testCode = HttpContext.Session.GetString("testCode");
-
-            if (testCode is null)
-                throw new TestNotFoundException();
 
             if (!(HttpContext.Session.GetString(questionId.ToString()) is null))
             {
@@ -250,8 +246,7 @@ namespace TestMe.Controllers
                 return Json(new { score, testId = test.Id });
 
             var prevResult = await _testingPlatform.TestResultManager
-                .GetAll()
-                .FirstOrDefaultAsync(tr => tr.AppUser.Id == _userManager.GetUserId(User) && tr.TestId == test.Id);
+                .FindAsync(tr => tr.AppUserId == _userManager.GetUserId(User) && tr.TestId == test.Id);
 
             if (prevResult is null)
             {
@@ -276,8 +271,7 @@ namespace TestMe.Controllers
             HttpContext.Session.SetString("isFinished", "true");
 
             var prevMark = await _testingPlatform.TestMarkManager
-                .GetAll()
-                .FirstOrDefaultAsync(tm => tm.AppUserId == _userManager.GetUserId(User) && tm.TestId == test.Id);
+                .FindAsync(tm => tm.AppUserId == _userManager.GetUserId(User) && tm.TestId == test.Id);
 
             if (prevMark is null)
                 return Json(new { score, testId = test.Id });
@@ -304,8 +298,7 @@ namespace TestMe.Controllers
             }
 
             testResult = await _testingPlatform.TestResultManager
-                .GetAll()
-                .FirstOrDefaultAsync(tr => tr.AppUser.UserName == User.Identity.Name && tr.TestId == id);
+                .FindAsync(tr => tr.AppUserId == _userManager.GetUserId(User) && tr.TestId == id);
 
             if (testResult is null)
                 return NotFound();

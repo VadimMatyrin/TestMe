@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TestMe.Models;
 using TestMe.Sevices.Interfaces;
 
@@ -43,13 +44,17 @@ namespace TestMe.Controllers
                 searchString = "";
 
             //profile.TestMarks = _testingPlatform.TestMarkManager.GetAll().Where(tm => tm.AppUserId == profile.AppUser.Id).ToList();
-            profile.UserTests = _testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == profile.AppUser.Id && t.TestCode != null && t.TestName.Contains(searchString)).Take(1).ToList();
+            profile.UserTests = await _testingPlatform.TestManager
+                .GetAll()
+                .Where(t => t.AppUserId == profile.AppUser.Id && t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                .Take(1)
+                .ToListAsync();
             //profile.TestResults = _testingPlatform.TestResultManager.GetAll().Where(tm => tm.AppUserId == profile.AppUser.Id).ToList();
             return View(profile);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult GetUserProfileTestsAjax(string userId, int? skipAmount, int? amount, string searchString)
+        public async Task<IActionResult> GetUserProfileTestsAjax(string userId, int? skipAmount, int? amount, string searchString)
         {
             if (userId is null || skipAmount is null || amount is null)
                 return BadRequest();
@@ -57,21 +62,21 @@ namespace TestMe.Controllers
             if (searchString is null)
                 searchString = "";
 
-            var tests = _testingPlatform.TestManager
+            var tests = await _testingPlatform.TestManager
                 .GetAll()
-                .Where(t => t.AppUserId == userId && t.TestCode != null && t.TestName.Contains(searchString))
+                .Where(t => t.AppUserId == userId && t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 .Skip(skipAmount.Value)
                 .Take(amount.Value)
-                .ToList();
+                .ToListAsync();
+
             var optimizedTests = tests.Select(t =>
             new
             {
-                testName = t.TestName,
-                creationDate = t.CreationDate,
-                duration = t.TestDuration,
+                t.TestName,
+                t.CreationDate,
+                t.TestDuration,
                 testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest)
-            }
-            );
+            });
             return Json(optimizedTests);
         }
     }
