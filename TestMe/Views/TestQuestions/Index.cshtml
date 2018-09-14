@@ -34,7 +34,7 @@ else
                 @Html.DisplayNameFor(model => model.TestQuestions.First().QuestionText)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TestQuestions.First().IsCode)
+                @Html.DisplayNameFor(model => model.TestQuestions.First().PreformattedText)
             </th>
             <th>
                 Answers amount
@@ -53,17 +53,13 @@ else
                 <b>@counter</b>
             </td>
             <td>
-                @if (item.IsCode)
-                {
-                    <pre>@Html.DisplayFor(modelItem => item.QuestionText)</pre>
-                }
-                else
-                {
-                    @Html.DisplayFor(modelItem => item.QuestionText)
-                }
+                @Html.DisplayFor(modelItem => item.QuestionText)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.IsCode)
+                @if (!(item.PreformattedText is null))
+                {
+                    <pre>@Html.DisplayFor(modelItem => item.PreformattedText)</pre>
+                }
             </td>
             <td>
                 @item.TestAnswers.Count

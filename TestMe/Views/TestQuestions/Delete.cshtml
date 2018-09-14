@@ -15,20 +15,13 @@
             @Html.DisplayNameFor(model => model.QuestionText)
         </dt>
         <dd>
-            @if (Model.IsCode)
-            {
-                <pre>@Html.DisplayFor(model => model.QuestionText)</pre>
-            }
-            else
-            {
-                @Html.DisplayFor(model => model.QuestionText)
-            }
+            @Html.DisplayFor(model => model.QuestionText)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.IsCode)
+            @Html.DisplayNameFor(model => model.PreformattedText)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.IsCode)
+            <pre>@Html.DisplayFor(model => model.PreformattedText)></pre>
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Test)

@@ -67,17 +67,15 @@
         $('#answerButton').removeClass('btn-default');
         $('#answerButton').addClass('btn-success');
         $('#answerButton').text('Answer');
-        if (this.currentQuestion.isCode) {
-            var preText = $('<pre/>', { text: this.currentQuestion.questionText });
-            $('#question').empty();
-            $('#question').css('padding', '20')
+
+        var h1 = $('<h1/>', { text: this.currentQuestion.questionText });
+        $('#question').empty();
+        $('#question').css('padding', '0')
+        $('#question').append(h1);
+
+        if (this.currentQuestion.preformattedText != null) {
+            var preText = $('<pre/>', { text: this.currentQuestion.preformattedText });
             $('#question').append(preText);
-        }
-        else {
-            var h1 = $('<h1/>', { text: this.currentQuestion.questionText });
-            $('#question').empty();
-            $('#question').css('padding', '0')
-            $('#question').append(h1);
         }
             
 
