@@ -67,14 +67,32 @@
         $('#answerButton').removeClass('btn-default');
         $('#answerButton').addClass('btn-success');
         $('#answerButton').text('Answer');
-        $('#questionText h1').text(this.currentQuestion.questionText);
+        if (this.currentQuestion.isCode) {
+            var preText = $('<pre/>', { text: this.currentQuestion.questionText });
+            $('#question').empty();
+            $('#question').css('padding', '20')
+            $('#question').append(preText);
+        }
+        else {
+            var h1 = $('<h1/>', { text: this.currentQuestion.questionText });
+            $('#question').empty();
+            $('#question').css('padding', '0')
+            $('#question').append(h1);
+        }
+            
+
         $('#testQuestionFieldSet').data('testCode', this.currentQuestion.test.testCode);
         this.currentQuestion.testAnswers.forEach(function (element) {
             var input = $('<input />', { type: 'checkbox', name: 'answer', value: element.id });
-            var label = $('<label />', { text: element.answerText });
+            var answer;
+            if (element.isCode)
+                answer = $('<pre />', { text: element.answerText });
+            else
+                answer = $('<label />', { text: element.answerText });
+
             var div = $('<div />', { class: "questionAnswer" });
             input.appendTo(div);
-            label.appendTo(div);
+            answer.appendTo(div);
             $('<br>').appendTo(div);
             if (element.imageName) {
                 var image = $('<img />', { src: '/uploads/answerPics/' + element.imageName, height: "200", class: 'answerImage' });

@@ -17,6 +17,7 @@ namespace TestMe.Models
         [Display(Name = "Is correct?")]
         [JsonIgnore]
         public bool IsCorrect { get; set; }
+        public bool IsCode { get; set; } = false;
         public int TestQuestionId { get; set; }
         [JsonIgnore]
         public TestQuestion TestQuestion { get; set; }

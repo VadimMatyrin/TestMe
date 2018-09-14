@@ -34,6 +34,9 @@ else
                 @Html.DisplayNameFor(model => model.TestQuestions.First().QuestionText)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.TestQuestions.First().IsCode)
+            </th>
+            <th>
                 Answers amount
             </th>
             <th>
@@ -45,25 +48,35 @@ else
         @{var counter = 1; }
         @foreach (var item in Model.TestQuestions)
         {
-            <tr>
-                <td>
-                    <b>@counter</b>
-                </td>
-                <td>
-                    <a asp-action="Index" asp-controller="TestAnswers" asp-route-id="@item.Id"> @Html.DisplayFor(modelItem => item.QuestionText)</a>
-                </td>
-                <td>
-                    @item.TestAnswers.Count
-                </td>
-                <td>
-                    @if (item.Test.TestCode is null)
-                    {
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a><span> |</span>
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a><span> |</span>
-                    }
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-                </td>
-            </tr>
+        <tr>
+            <td>
+                <b>@counter</b>
+            </td>
+            <td>
+                @if (item.IsCode)
+                {
+                    <pre>@Html.DisplayFor(modelItem => item.QuestionText)</pre>
+                }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.QuestionText)
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsCode)
+            </td>
+            <td>
+                @item.TestAnswers.Count
+            </td>
+            <td>
+                @if (item.Test.TestCode is null)
+                {
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a><span> |</span>
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a><span> |</span>
+                }
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+            </td>
+        </tr>
             counter++;
         }
 

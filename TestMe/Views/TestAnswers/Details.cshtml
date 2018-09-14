@@ -14,7 +14,14 @@
             @Html.DisplayNameFor(model => model.AnswerText)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.AnswerText)
+            @if (Model.IsCode)
+            {
+                <pre>@Html.DisplayFor(model => model.AnswerText)</pre>
+            }
+            else
+            {
+                @Html.DisplayFor(model => model.AnswerText)
+            }
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.IsCorrect)
@@ -23,21 +30,27 @@
             @Html.DisplayFor(model => model.IsCorrect)
         </dd>
         <dt>
+            @Html.DisplayNameFor(model => model.IsCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsCode)
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.TestQuestion)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.TestQuestion.QuestionText)
         </dd>
-        @if(!(Model.ImageName is null))
+        @if (!(Model.ImageName is null))
         {
             <dt>
                 @Html.DisplayNameFor(model => model.ImageName)
             </dt>
             <dd>
-                   <input type="image" src="~/uploads/answerPics/@Model.ImageName" height="200" />
-                </dd>
-            }
-        </dl>
+                <input type="image" src="~/uploads/answerPics/@Model.ImageName" height="200" />
+            </dd>
+        }
+    </dl>
     </div>
     <div>
         @if (Model.TestQuestion.Test.TestCode is null)

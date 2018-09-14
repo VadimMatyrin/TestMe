@@ -14,6 +14,7 @@ namespace TestMe.Models
         [StringLength(1000)]
         [Display(Name = "Question")]
         public string QuestionText { get; set; }
+        public bool IsCode { get; set; } = false;
         [JsonIgnore]
         public int TestId { get; set; }
         public Test Test { get; set; }

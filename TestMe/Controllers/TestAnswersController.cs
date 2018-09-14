@@ -94,7 +94,7 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("AnswerText,IsCorrect,TestQuestionId")] TestAnswer testAnswer)
+        public async Task<IActionResult> Create([Bind("AnswerText,IsCorrect,TestQuestionId, IsCode")] TestAnswer testAnswer)
         {
             var files = HttpContext.Request.Form.Files;
             if (files.Count != 0 && !files.First().IsImage())
@@ -149,7 +149,7 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id, AnswerText,IsCorrect,TestQuestionId, ImageName")] TestAnswer testAnswer)
+        public async Task<IActionResult> Edit(int id, [Bind("Id, AnswerText,IsCorrect,TestQuestionId, ImageName, IsCode")] TestAnswer testAnswer)
         {
             if (id != testAnswer.Id)
             {

@@ -87,7 +87,7 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("QuestionText", "TestId")] TestQuestion testQuestion)
+        public async Task<IActionResult> Create([Bind("QuestionText, TestId, IsCode")] TestQuestion testQuestion)
         {
             if (ModelState.IsValid)
             {
@@ -125,7 +125,7 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,QuestionText,TestId")] TestQuestion testQuestion)
+        public async Task<IActionResult> Edit(int id, [Bind("Id, QuestionText, TestId, IsCode")] TestQuestion testQuestion)
         {
             if (id != testQuestion.Id)
                 return NotFound();

@@ -14,11 +14,18 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="QuestionText" class="control-label"></label>
-                <input asp-for="QuestionText" class="form-control" />
+                <textarea asp-for="QuestionText" rows="8" cols="70"></textarea>
                 <span asp-validation-for="QuestionText" class="text-danger"></span>
-            </div> 
+            </div>
             <div class="form-group">
-                <input type="hidden" asp-for="TestId" value="@Model.TestId">    
+                <input type="hidden" asp-for="TestId" value="@Model.TestId">
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input asp-for="IsCode" /> @Html.DisplayNameFor(model => model.IsCode)
+                    </label>
+                </div>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-default" />

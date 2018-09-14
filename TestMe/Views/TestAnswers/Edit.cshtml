@@ -15,13 +15,20 @@
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label asp-for="AnswerText" class="control-label"></label>
-                <input asp-for="AnswerText" class="form-control" />
+                <textarea asp-for="AnswerText" rows="8" cols="70"></textarea>
                 <span asp-validation-for="AnswerText" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <div class="checkbox">
                     <label>
                         <input asp-for="IsCorrect" /> @Html.DisplayNameFor(model => model.IsCorrect)
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input asp-for="IsCode" /> @Html.DisplayNameFor(model => model.IsCode)
                     </label>
                 </div>
             </div>

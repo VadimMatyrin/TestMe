@@ -15,13 +15,26 @@
             @Html.DisplayNameFor(model => model.AnswerText)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.AnswerText)
+            @if (Model.IsCode)
+            {
+                <pre>@Html.DisplayFor(model => model.AnswerText)</pre>
+            }
+            else
+            {
+                @Html.DisplayFor(model => model.AnswerText)
+            }
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.IsCorrect)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.IsCorrect)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsCode)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.TestQuestion)
