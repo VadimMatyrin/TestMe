@@ -64,6 +64,38 @@ namespace TestMe.Controllers
 
             return View(appUsers);
         }
+        [Authorize(Roles ="Admin")]
+        public async Task<IActionResult> BanUser(string id)
+        {
+            await ChangeBanStatusAsync(id, true);
+            return RedirectToAction("Users");
+        }
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UnBanUser(string id)
+        {
+            await ChangeBanStatusAsync(id, false);
+            return RedirectToAction("Users");
+        }
+        private async Task<bool> ChangeBanStatusAsync(string id, bool isBanned)
+        {
+            if (String.IsNullOrEmpty(id))
+                return false;
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user is null)
+                return false;
+
+            if (!(await _userManager.IsInRoleAsync(user, "Admin")))
+            {
+                if (user.IsBanned != isBanned)
+                {
+                    user.IsBanned = isBanned;
+                    await _userManager.UpdateAsync(user);
+                }
+            }
+
+            return true;
+        }
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddToAdmins(string id)
         {
@@ -190,6 +222,7 @@ namespace TestMe.Controllers
                 u.Surname,
                 u.Email,
                 u.PhoneNumber,
+                u.IsBanned,
                 role = (await _userManager.IsInRoleAsync(u, "Admin")) ? "Admin" : (await _userManager.IsInRoleAsync(u, "Moderator") ? "Moderator" : null),
                 currentUserUsername = User.Identity.Name
             }));

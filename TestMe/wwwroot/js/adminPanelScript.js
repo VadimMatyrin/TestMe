@@ -188,6 +188,16 @@ function appendUsersControlls(tr, user) {
          }
     }
     else {
+        if (user.isBanned) {
+            var unBanRef = $('<a/>', { href: '/Admin/UnBanUser/' + user.id, text: 'Unban' });
+            td.append(unBanRef);
+            td.append('<span> | </span>');
+        }
+        else {
+            var banRef = $('<a/>', { href: '/Admin/BanUser/' + user.id, text: 'Ban' });
+            td.append(banRef);
+            td.append('<span> | </span>');
+        }
         if (user.role === "Moderator") {
             if (user.currentUserUsername !== user.userName) {
                 var removeFromModeratorsRef = $('<a/>', { href: '/Admin/RemoveFromModerators/' + user.id, text: 'Remove from moderators' });

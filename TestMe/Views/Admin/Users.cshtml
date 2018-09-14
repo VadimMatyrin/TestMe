@@ -80,6 +80,14 @@
                     }
                     else
                     {
+                        if (item.IsBanned)
+                        {
+                            <a asp-action="UnBanUser" asp-route-id="@item.Id">Unban</a><span> |</span>
+                        }
+                        else
+                        {
+                            <a asp-action="BanUser" asp-route-id="@item.Id">Ban</a><span> |</span>
+                        }
                         if (await UserManager.IsInRoleAsync(item, "Moderator"))
                         {
                             if (User.Identity.Name != item.UserName)

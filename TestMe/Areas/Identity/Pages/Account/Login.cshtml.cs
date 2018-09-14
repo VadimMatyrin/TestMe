@@ -18,11 +18,13 @@ namespace TestMe.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<AppUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly UserManager<AppUser> _userManager;
 
-        public LoginModel(SignInManager<AppUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<AppUser> signInManager, ILogger<LoginModel> logger, UserManager<AppUser> userManager)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _userManager = userManager;
         }
 
         [BindProperty]
@@ -73,6 +75,18 @@ namespace TestMe.Areas.Identity.Pages.Account
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                var user = await _userManager.FindByNameAsync(Input.Username);
+                if(user is null)
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attampt");
+                    return Page();
+                }
+                if (user.IsBanned && (await _signInManager.CheckPasswordSignInAsync(user, Input.Password, false)).Succeeded)
+                {
+                    await _signInManager.SignOutAsync();
+                    ModelState.AddModelError(string.Empty, "Your account was banned");
+                    return Page();
+                }
                 var result = await _signInManager.PasswordSignInAsync(Input.Username, Input.Password, Input.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
