@@ -152,9 +152,6 @@ namespace TestMe.Controllers
             if (_answers.Count == 0)
                 throw new QuestionNotFoundException(questionId.ToString());
 
-            if (checkedIds.Any(checkId => _answers.Count(ta => ta.Id == checkId) == 0))
-                throw new UserAnswersException();
-
             bool isCorrect = true;
             var correctAnswers = _answers.Select(ta => ta.Id);
             if (correctAnswers.Except(checkedIds).Any() || checkedIds.Except(correctAnswers).Any())
@@ -278,15 +275,10 @@ namespace TestMe.Controllers
 
             return Json(new { score, testId = test.Id, isRated = prevMark.EnjoyedTest });
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RateFinishedTestAjax(int? id, bool? mark)
+        public async Task<IActionResult> GetCorrectAnswers(int? id)
         {
-            if (mark is null)
-                return NotFound();
-
-            TestResult testResult;
             if (id is null)
             {
                 var code = HttpContext.Session.GetString("testCode");
@@ -297,7 +289,34 @@ namespace TestMe.Controllers
 
             }
 
-            testResult = await _testingPlatform.TestResultManager
+            var testResult = await _testingPlatform.TestResultManager
+                .FindAsync(tr => tr.AppUserId == _userManager.GetUserId(User) && tr.TestId == id);
+
+            if (testResult is null)
+                return NotFound();
+
+            var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
+            return Json("");
+
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RateFinishedTestAjax(int? id, bool? mark)
+        {
+            if (mark is null)
+                return NotFound();
+
+            if (id is null)
+            {
+                var code = HttpContext.Session.GetString("testCode");
+                if (code is null)
+                    throw new TestNotFoundException();
+
+                id = (await _testingPlatform.TestManager.FindAsync(t => t.TestCode == code)).Id;
+
+            }
+
+            var testResult = await _testingPlatform.TestResultManager
                 .FindAsync(tr => tr.AppUserId == _userManager.GetUserId(User) && tr.TestId == id);
 
             if (testResult is null)
