@@ -82,6 +82,7 @@ namespace TestMe
 
             app.UseAuthentication();
             app.UseSession();
+            app.UseMiddleware(typeof(LogOutBannedUserMiddleware));
             app.UseMiddleware(typeof(ErrorHandlingMiddleware));
             CreateRoles(serviceProvider).Wait();
             app.UseMvc(routes =>
