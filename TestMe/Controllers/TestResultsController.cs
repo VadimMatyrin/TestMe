@@ -26,21 +26,18 @@ namespace TestMe.Controllers
             if (id is null)
                 return NotFound();
 
-            var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
+            var test = await _testingPlatform.TestManager
+                .FindAsync(t => t.Id == id);
             if (test is null)
                 return NotFound();
 
             var testResults = await _testingPlatform.TestResultManager
                 .GetAll()
-                .Where(tm => tm.TestId == id)
+                .Where(tr => tr.TestId == id)
                 .ToListAsync();
 
-            if (testResults is null)
-                return NotFound();
-
             test.TestResults = testResults;
-            var questionAmount = _testingPlatform.TestQuestionManager.GetAll().Count(tq => tq.TestId == id);
-            ViewBag.questionAmount = questionAmount;
+
             return View(test);
         }
         public async Task<IActionResult> UserResults()
@@ -50,6 +47,7 @@ namespace TestMe.Controllers
                 .GetAll()
                 .Where(t => t.TestResults.Any(tr => tr.AppUserId == userId))
                 .ToListAsync();
+
             foreach(var test in tests)
             {
                 test.TestResults = test.TestResults.Where(tr => tr.AppUserId == userId).ToList();

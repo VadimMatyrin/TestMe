@@ -1,33 +1,36 @@
-﻿@model TestMe.Models.Test
+﻿@model IEnumerable<TestReport>
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h2><strong>@Html.DisplayNameFor(model => model.TestName):</strong>
-    @if (User.IsInRole("Admin"))
+<h2>
+    <strong>@Html.DisplayNameFor(model => model.First().Test.TestName):</strong>
+    @if (User.IsInRole("Admin") || User.Identity.Name == Model.First().Test.AppUser.UserName)
     {
-        <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@Model.Id">@Model.TestName</a>
+        <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@Model.First().Test.Id">
+            @Model.First().Test.TestName
+        </a>
     }
     else
     {
-        @Model.TestName
+        @Model.First().Test.TestName
     }
-</h2>
+</h2>       
 
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.TestReports.First().Message)
+                @Html.DisplayNameFor(model => model.Message)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TestReports.First().AppUser.UserName)
+                @Html.DisplayNameFor(model => model.AppUser.UserName)
             </th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.TestReports) {
+        @foreach (var item in Model) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Message)

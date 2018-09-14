@@ -32,27 +32,21 @@ namespace TestMe.Controllers
             if (id is null)
                 return NotFound();
 
-            var test = await _testingPlatform.TestManager
+            var testReports = await _testingPlatform.TestReportManager
                 .GetAll()
-                .FirstOrDefaultAsync(t => t.Id == id);
-
-            var testReports = await _testingPlatform.TestReportManager.
-                GetAll()
-                .Where(tr => tr.TestId == id)
+                .Where(tr => tr.Test.Id == id)
                 .ToListAsync();
-            test.TestReports = testReports;
 
-            return View(test);
+            return View(testReports);
         }
         public async Task<IActionResult> Create(int? id)
         {
-            if (id == null)
-            {
+            if (id is null)
                 return NotFound();
-            }
 
-            var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
-            if (test == null)
+            var test = await _testingPlatform.TestManager
+                .FindAsync(t => t.TestCode != null && t.Id == id);
+            if (test is null)
                 return NotFound();
 
             var reports = await _testingPlatform.TestReportManager

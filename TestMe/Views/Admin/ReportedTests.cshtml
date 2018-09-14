@@ -59,7 +59,15 @@
                     @Html.DisplayFor(modelItem => item.Id)
                 </td>
                 <td>
-                    <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.TestName)</a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.TestName)</a>
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(modelItem => item.TestName)
+                    }
+
                 </td>
                 <td>
                     <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.AppUserId">

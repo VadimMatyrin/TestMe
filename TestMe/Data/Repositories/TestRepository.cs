@@ -58,7 +58,7 @@ namespace TestMe.Data.Repositories
 
         public IQueryable<Test> GetAll()
         {
-            return _db.Tests.ExtractAll(); ;
+            return _db.Tests.ExtractAll();
         }
 
         public async Task UpdateAsync(Test test)

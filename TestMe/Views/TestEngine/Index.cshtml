@@ -12,6 +12,12 @@
         </h2>
         <h3 class="col-md-12">Creation date: @Model.CreationDate</h3>
         <h4 class="col-md-12">Question amount: @Model.TestQuestions.Count</h4>
+        @if (Model.TestResults.Count != 0)
+        {
+            <h4 class="col-md-12">
+                <a asp-action="Index" asp-controller="TestResults" asp-route-id="@Model.Id">Other user results</a>
+            </h4>
+        }
         <h4 class="col-md-12">
             Test rating:
             @{var rating = Model.TestMarks.Count(tm => tm.EnjoyedTest) - Model.TestMarks.Count(tm => !tm.EnjoyedTest); }
