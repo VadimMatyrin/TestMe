@@ -91,8 +91,8 @@
             $("input[type='checkbox']").change(function () {
                 var checkButton = $('#answerButton');
                 if (checkButton.hasClass('btn-default')) {
-                    $('#answerButton').removeClass('btn-default');
-                    $('#answerButton').addClass('btn-primary');
+                    checkButton.removeClass('btn-default');
+                    checkButton.addClass('btn-primary');
                 }
             });
         });
