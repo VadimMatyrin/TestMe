@@ -21,9 +21,9 @@ namespace TestMe.Controllers
     {
         private readonly ITestingPlatform _testingPlatform;
         private readonly UserManager<AppUser> _userManager;
-        private readonly IOptions<MyConfig> _config;
+        private readonly IOptions<LoadConfig> _config;
         private string _userId;
-        public TestsController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<MyConfig> config)
+        public TestsController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<LoadConfig> config)
         {
             _testingPlatform = testingPlatform;
             _userManager = userManager;
@@ -243,7 +243,7 @@ namespace TestMe.Controllers
                     !(t.TestCode == null) &&
                     t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase) && 
                     t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1)
-                .Take(Int32.Parse(_config.Value.TakeAmount))
+                .Take(_config.Value.TakeAmount)
                 .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
                 .ToListAsync();
 
@@ -262,7 +262,7 @@ namespace TestMe.Controllers
             var tests = await _testingPlatform.TestManager
                 .GetAll()
                 .Where(t => t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                .Take(Int32.Parse(_config.Value.TakeAmount))
+                .Take(_config.Value.TakeAmount)
                 .ToListAsync();
 
             if (tests is null)

@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace TestMe.Models
 {
-    public class MyConfig
+    public class LoadConfig
     {
-        public string TakeAmount { get; set; }
+        public int TakeAmount { get; set; }
     }
 }

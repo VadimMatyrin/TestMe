@@ -19,8 +19,8 @@ namespace TestMe.Controllers
     {
         private readonly ITestingPlatform _testingPlatform;
         private readonly UserManager<AppUser> _userManager;
-        private readonly IOptions<MyConfig> _config;
-        public AdminController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<MyConfig> config)
+        private readonly IOptions<LoadConfig> _config;
+        public AdminController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<LoadConfig> config)
         {
             _testingPlatform = testingPlatform;
             _userManager = userManager;
@@ -38,7 +38,7 @@ namespace TestMe.Controllers
             var tests = await _testingPlatform.TestManager
                  .GetAll()
                  .Where(t => t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                 .Take(Int32.Parse(_config.Value.TakeAmount))
+                 .Take(_config.Value.TakeAmount)
                  .ToListAsync();
 
             if (tests is null)
@@ -56,7 +56,7 @@ namespace TestMe.Controllers
 
             var appUsers = await _userManager.Users.AsNoTracking()
                     .Where(u => u.NormalizedUserName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
+                    .Take(_config.Value.TakeAmount)
                     .ToListAsync();
 
             if (appUsers is null)
@@ -168,7 +168,7 @@ namespace TestMe.Controllers
                   .GetAll()
                   .Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                   .OrderByDescending(t => t.TestReports.Count)
-                  .Take(Int32.Parse(_config.Value.TakeAmount))
+                  .Take(_config.Value.TakeAmount)
                   .ToListAsync();
 
             if (tests is null)

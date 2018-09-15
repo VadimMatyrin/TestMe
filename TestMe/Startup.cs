@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TestMe.Models;
 using TestMe.Middleware;
 using TestMe.Sevices.Extentions;
+using TestMe.Config;
 
 namespace TestMe
 {
@@ -39,9 +40,6 @@ namespace TestMe
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
-            //services.AddDefaultIdentity<AppUser>()
-            //    .AddEntityFrameworkStores<ApplicationDbContext>();
-
             services.AddIdentity<AppUser, IdentityRole>()
                .AddEntityFrameworkStores<ApplicationDbContext>()
                .AddDefaultTokenProviders()
@@ -50,19 +48,19 @@ namespace TestMe
             services.AddDistributedMemoryCache();
             services.AddSession(options => 
             {
-                options.IdleTimeout = TimeSpan.FromHours(3);
+                options.IdleTimeout = TimeSpan.FromHours(1);
             });
 
+            services.AddOptions();
+            services.Configure<LoadConfig>(Configuration.GetSection("AppSettings"));
+            services.Configure<PhotoConfig>(Configuration.GetSection("PhotoSettings"));
             services.AddTestMe();
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddJsonOptions(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-            services.AddOptions();
-            services.Configure<MyConfig>(Configuration.GetSection("AppSettings"));
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
