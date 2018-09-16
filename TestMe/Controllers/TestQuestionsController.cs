@@ -122,7 +122,9 @@ namespace TestMe.Controllers
                 return NotFound();
 
             var testQuestion = await _testingPlatform.TestQuestionManager
-                .FindAsync(t => t.AppUserId == _userId && t.Id == id);
+                .GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.AppUserId == _userId && t.Id == id);
             if (testQuestion is null)
                 return NotFound();
 
@@ -140,28 +142,16 @@ namespace TestMe.Controllers
                 return NotFound();
 
             var test = await _testingPlatform.TestManager
-                .FindAsync(t => t.AppUserId == _userId && t.Id == testQuestion.TestId);
+                .GetAll()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.AppUserId == _userId && t.Id == testQuestion.TestId);
             if (test is null)
                 return NotFound();
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    testQuestion.AppUserId = _userId;
-                    await _testingPlatform.TestQuestionManager.UpdateAsync(testQuestion);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (_testingPlatform.TestQuestionManager.FindAsync(tq => tq.AppUserId == _userId && tq.Id == id) is null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                testQuestion.AppUserId = _userId;
+                await _testingPlatform.TestQuestionManager.UpdateAsync(testQuestion);
                 return RedirectToAction(nameof(Index), new { id = testQuestion.TestId });
             }
             testQuestion = await _testingPlatform.TestQuestionManager.FindAsync(tq => tq.AppUserId == _userId && tq.Id == id);
