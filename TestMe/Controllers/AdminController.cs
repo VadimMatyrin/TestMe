@@ -85,7 +85,7 @@ namespace TestMe.Controllers
             if (user is null)
                 return false;
 
-            if (!(await _userManager.IsInRoleAsync(user, "Admin")))
+            if (!(await _userManager.IsInRoleAsync(user, "Admin")) && User.Identity.Name != user.UserName)
             {
                 if (user.IsBanned != isBanned)
                 {

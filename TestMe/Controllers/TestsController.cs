@@ -143,7 +143,7 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TestName,CreationDate, TestDuration")] Test test)
+        public async Task<IActionResult> Edit(int id, [Bind("Id, TestName,CreationDate, TestDuration")] Test test)
         {
             if (id != test.Id)
                 return NotFound();
