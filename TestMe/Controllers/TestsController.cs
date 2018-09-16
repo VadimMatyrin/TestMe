@@ -21,13 +21,13 @@ namespace TestMe.Controllers
     {
         private readonly ITestingPlatform _testingPlatform;
         private readonly UserManager<AppUser> _userManager;
-        private readonly IOptions<LoadConfig> _config;
+        private readonly IOptions<LoadConfig> _loadConfig;
         private string _userId;
-        public TestsController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<LoadConfig> config)
+        public TestsController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<LoadConfig> loadConfig)
         {
             _testingPlatform = testingPlatform;
             _userManager = userManager;
-            _config = config;
+            _loadConfig = loadConfig;
         }
         public override void OnActionExecuting(ActionExecutingContext context)
         {
@@ -237,8 +237,8 @@ namespace TestMe.Controllers
                 .Where(t => 
                     !(t.TestCode == null) &&
                     t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase) && 
-                    t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1)
-                .Take(_config.Value.TakeAmount)
+                    t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= _loadConfig.Value.MinTopRatedRate)
+                .Take(_loadConfig.Value.TakeAmount)
                 .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
                 .ToListAsync();
 
@@ -257,7 +257,7 @@ namespace TestMe.Controllers
             var tests = await _testingPlatform.TestManager
                 .GetAll()
                 .Where(t => t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                .Take(_config.Value.TakeAmount)
+                .Take(_loadConfig.Value.TakeAmount)
                 .ToListAsync();
 
             if (tests is null)
@@ -311,7 +311,7 @@ namespace TestMe.Controllers
 
             var tests = await _testingPlatform.TestManager
                 .GetAll()
-                .Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                .Where(t => t.TestReports.Count >= _loadConfig.Value.MinReportAmount && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 .Skip(skipAmount.Value)
                 .Take(amount.Value)
                 .ToListAsync();
@@ -373,7 +373,9 @@ namespace TestMe.Controllers
 
             var topRatedTests = await _testingPlatform.TestManager
                 .GetAll()
-                .Where(t => t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase) && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= 1)
+                .Where(t =>
+                t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase) 
+                && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= _loadConfig.Value.MinTopRatedRate)
                 .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
                 .Skip(skipAmount.Value)
                 .Take(amount.Value)

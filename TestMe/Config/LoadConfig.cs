@@ -9,5 +9,7 @@ namespace TestMe.Models
     {
         public int TakeAmount { get; set; }
         public int TopRatedHomePageAmount { get; set; }
+        public int MinTopRatedRate { get; set; }
+        public int MinReportAmount { get; set; }
     }
 }

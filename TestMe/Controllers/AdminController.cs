@@ -19,12 +19,12 @@ namespace TestMe.Controllers
     {
         private readonly ITestingPlatform _testingPlatform;
         private readonly UserManager<AppUser> _userManager;
-        private readonly IOptions<LoadConfig> _config;
-        public AdminController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<LoadConfig> config)
+        private readonly IOptions<LoadConfig> _loadConfig;
+        public AdminController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<LoadConfig> loadConfig)
         {
             _testingPlatform = testingPlatform;
             _userManager = userManager;
-            _config = config;
+            _loadConfig = loadConfig;
         }
 
         [HttpGet]
@@ -38,7 +38,7 @@ namespace TestMe.Controllers
             var tests = await _testingPlatform.TestManager
                  .GetAll()
                  .Where(t => t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                 .Take(_config.Value.TakeAmount)
+                 .Take(_loadConfig.Value.TakeAmount)
                  .ToListAsync();
 
             if (tests is null)
@@ -56,7 +56,7 @@ namespace TestMe.Controllers
 
             var appUsers = await _userManager.Users.AsNoTracking()
                     .Where(u => u.NormalizedUserName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                    .Take(_config.Value.TakeAmount)
+                    .Take(_loadConfig.Value.TakeAmount)
                     .ToListAsync();
 
             if (appUsers is null)
@@ -67,16 +67,16 @@ namespace TestMe.Controllers
         [Authorize(Roles ="Admin")]
         public async Task<IActionResult> BanUser(string id)
         {
-            await ChangeBanStatusAsync(id, true);
+            await ChangeUserBanStatusAsync(id, true);
             return RedirectToAction("Users");
         }
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UnBanUser(string id)
         {
-            await ChangeBanStatusAsync(id, false);
+            await ChangeUserBanStatusAsync(id, false);
             return RedirectToAction("Users");
         }
-        private async Task<bool> ChangeBanStatusAsync(string id, bool isBanned)
+        private async Task<bool> ChangeUserBanStatusAsync(string id, bool isBanned)
         {
             if (String.IsNullOrEmpty(id))
                 return false;
@@ -166,9 +166,9 @@ namespace TestMe.Controllers
 
             var tests = await _testingPlatform.TestManager
                   .GetAll()
-                  .Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                  .Where(t => t.TestReports.Count >= _loadConfig.Value.MinReportAmount && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                   .OrderByDescending(t => t.TestReports.Count)
-                  .Take(_config.Value.TakeAmount)
+                  .Take(_loadConfig.Value.TakeAmount)
                   .ToListAsync();
 
             if (tests is null)
@@ -216,7 +216,7 @@ namespace TestMe.Controllers
             var usersOptimized = await Task.WhenAll(users.Select(async u =>
             new
             {
-                id = u.Id,
+                u.Id,
                 u.UserName,
                 u.Name,
                 u.Surname,
