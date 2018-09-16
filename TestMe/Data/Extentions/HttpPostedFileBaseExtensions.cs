@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace TestMe.Data.Extentions
 {
     public static class HttpPostedFileBaseExtensions
     { 
-        public static bool IsImage(this IFormFile postedFile, IOptions<PhotoConfig> photoConfig)
+        public static bool IsImage(this IFormFile postedFile, IOptions<PhotoConfig> photoConfig, ModelStateDictionary modelState = null)
         {
             if (postedFile.ContentType.ToLower() != "image/jpg" &&
                         postedFile.ContentType.ToLower() != "image/jpeg" &&
@@ -21,6 +22,7 @@ namespace TestMe.Data.Extentions
                         postedFile.ContentType.ToLower() != "image/x-png" &&
                         postedFile.ContentType.ToLower() != "image/png")
             {
+                modelState?.AddModelError("ImageName", "Incorrect image format");
                 return false;
             }
             if (Path.GetExtension(postedFile.FileName).ToLower() != ".jpg"
@@ -28,6 +30,7 @@ namespace TestMe.Data.Extentions
                 && Path.GetExtension(postedFile.FileName).ToLower() != ".gif"
                 && Path.GetExtension(postedFile.FileName).ToLower() != ".jpeg")
             {
+                modelState?.AddModelError("ImageName", "Incorrect image format");
                 return false;
             }
 
@@ -35,10 +38,17 @@ namespace TestMe.Data.Extentions
             {
                 if (!postedFile.OpenReadStream().CanRead)
                 {
+                    modelState?.AddModelError("ImageName", "Image can not be read");
                     return false;
                 }
-                if (postedFile.Length < photoConfig.Value.MinSize || postedFile.Length > photoConfig.Value.MaxSize)
+                if (postedFile.Length < photoConfig.Value.MinSize)
                 {
+                    modelState?.AddModelError("ImageName", "Image size is too small");
+                    return false;
+                }
+                if (postedFile.Length > photoConfig.Value.MaxSize)
+                {
+                    modelState?.AddModelError("ImageName", "Image size is too big");
                     return false;
                 }
 
@@ -48,11 +58,13 @@ namespace TestMe.Data.Extentions
                 if (Regex.IsMatch(content, @"<script|<html|<head|<title|<body|<pre|<table|<a\s+href|<img|<plaintext|<cross\-domain\-policy",
                     RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Multiline))
                 {
+                    modelState?.AddModelError("ImageName", "Wrong image format");
                     return false;
                 }
             }
             catch (Exception)
             {
+                modelState?.AddModelError("ImageName", "There is an error with your file");
                 return false;
             }
             postedFile.OpenReadStream().Position = 0;

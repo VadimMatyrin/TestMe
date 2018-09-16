@@ -104,9 +104,9 @@ namespace TestMe.Controllers
         public async Task<IActionResult> Create([Bind("AnswerText,IsCorrect,TestQuestionId, IsCode")] TestAnswer testAnswer)
         {
             var files = HttpContext.Request.Form.Files;
-            if (files.Count != 0 && !files.First().IsImage(_photoConfig))
+            if (files.Count != 0)
             {
-                ModelState.AddModelError("ImageName", "File is not an image");
+                files.First().IsImage(_photoConfig, ModelState);
             }
             if (ModelState.IsValid)
             {
@@ -163,9 +163,9 @@ namespace TestMe.Controllers
                 return NotFound();
             }
             var files = HttpContext.Request.Form.Files;
-            if (files.Count != 0 && !files.First().IsImage(_photoConfig))
+            if (files.Count != 0)
             {
-                ModelState.AddModelError("ImageName", "File is not an image");
+                files.First().IsImage(_photoConfig, ModelState);
             }
             if (ModelState.IsValid)
             {
