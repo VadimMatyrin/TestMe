@@ -204,7 +204,7 @@
             data: dataWithAntiforgeryToken,
             success: function(data) {
                 this.endTime = data;
-                startTimer();
+                this.timer = startTimer();
             },
             error: function () {
                 //$("#questionForm").empty();
@@ -334,6 +334,7 @@
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
+                clearInterval(this.timer);
                 this.showResult(data);
                 if ('isRated' in data) {
                     if (data.isRated)
@@ -436,7 +437,7 @@ function navButtonClick(event) {
 function startTimer() {
     var countDownDate = new Date(test.endTime).getTime();
 
-    var x = setInterval(function () {
+    return setInterval(function () {
 
         var now = new Date().getTime();
 
