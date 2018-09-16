@@ -70,6 +70,11 @@ namespace TestMe.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
+            var userWithEmail = await _userManager.FindByEmailAsync(Input.Email);
+            if (!(userWithEmail is null))
+            {
+                ModelState.AddModelError(string.Empty, "Email is already in use");
+            }
             if (ModelState.IsValid)
             {
                 var user = new AppUser { UserName = Input.Username, Email = Input.Email };
@@ -97,7 +102,6 @@ namespace TestMe.Areas.Identity.Pages.Account
                 }
             }
 
-            // If we got this far, something failed, redisplay form
             return Page();
         }
     }
