@@ -286,26 +286,31 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetCorrectAnswers(int? id)
+        public async Task<IActionResult> GetCorrectAnswers()
         {
-            if (id is null)
-            {
-                var code = HttpContext.Session.GetString("testCode");
-                if (code is null)
-                    throw new TestNotFoundException();
+            var code = HttpContext.Session.GetString("testCode");
+            if (code is null)
+                throw new TestNotFoundException();
 
-                id = (await _testingPlatform.TestManager.FindAsync(t => t.TestCode == code)).Id;
-
-            }
+            var test = await _testingPlatform.TestManager.FindAsync(t => t.TestCode == code);
+            if (test is null)
+                throw new TestNotFoundException(code);
 
             var testResult = await _testingPlatform.TestResultManager
-                .FindAsync(tr => tr.AppUserId == _userManager.GetUserId(User) && tr.TestId == id);
-
+                .FindAsync(tr => tr.AppUserId == _userManager.GetUserId(User) && tr.Test.TestCode == code);
             if (testResult is null)
                 return NotFound();
 
-            var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
-            return Json("");
+            var optimizedQuestions = test.TestQuestions.Select(tq => new
+            {
+                tq.Id,
+                tq.QuestionText,
+                tq.PreformattedText,
+                tq.TestAnswers,
+                userAnswers = JsonConvert
+                           .DeserializeObject<List<int>>(HttpContext.Session.GetString(tq.Id.ToString()) ?? "{}")
+            });
+            return Json(optimizedQuestions);
 
         }
         [HttpPost]
