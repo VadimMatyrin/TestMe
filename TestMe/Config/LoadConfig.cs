@@ -8,5 +8,6 @@ namespace TestMe.Models
     public class LoadConfig
     {
         public int TakeAmount { get; set; }
+        public int TopRatedHomePageAmount { get; set; }
     }
 }

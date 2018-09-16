@@ -50,10 +50,8 @@ namespace TestMe.Controllers
         }
         public async Task<IActionResult> StopSharing(int? id)
         {
-            if (id == null)
-            {
+            if (id is null)
                 return NotFound();
-            }
 
             var test = await _testingPlatform.TestManager.FindAsync(t => t.AppUserId == _userId && t.Id == id);
             if (test is null)
@@ -68,16 +66,13 @@ namespace TestMe.Controllers
         }
         public async Task<IActionResult> CreateCode(int? id)
         {
-            if (id == null)
-            {
+            if (id is null)
                 return NotFound();
-            }
+
             var test = await _testingPlatform.TestManager.FindAsync(t => t.AppUserId == _userId && t.Id == id);
                 
-            if (test == null)
-            {
+            if (test is null)
                 return NotFound();
-            }
 
             if (await HasValidationErrorsAsync(id))
                 return RedirectToAction(nameof(ValidateTest), new { id });
@@ -101,16 +96,12 @@ namespace TestMe.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             if (id is null)
-            {
                 return NotFound();
-            }
 
             var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
 
             if (test is null)
-            {
                 return NotFound();
-            }
 
             return View(test);
         }
@@ -136,13 +127,13 @@ namespace TestMe.Controllers
         }
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (id is null)
             {
                 return NotFound();
             }
 
             var test = await _testingPlatform.TestManager.FindAsync(t => t.AppUserId == _userId && t.Id == id);
-            if (test == null)
+            if (test is null)
                 return NotFound();
 
             if (!(test.TestCode is null))
@@ -204,6 +195,9 @@ namespace TestMe.Controllers
             var test = await _testingPlatform.TestManager
                 .FindAsync(t => t.AppUserId == _userId && t.Id == id);
 
+            if (test is null)
+                return NotFound();
+
             var errorModelTest = new Test();
 
             if (test.TestQuestions.Count == 0)
@@ -215,16 +209,17 @@ namespace TestMe.Controllers
             if (test.TestQuestions.Any(tq => tq.TestAnswers.Count == 0))
             {
                 errorModelTest.TestQuestions = new List<TestQuestion>();
-                foreach (var testQuestion in test.TestQuestions.Where(tq => tq.TestAnswers.Count == 0))
-                {
-                    errorModelTest.TestQuestions.Add(testQuestion);
-                }
+                errorModelTest.TestQuestions = errorModelTest.TestQuestions
+                    .Concat(test.TestQuestions.Where(tq => tq.TestAnswers.Count == 0))
+                    .ToList();
             }
 
             if (test.TestQuestions.Any(tq => tq.TestAnswers.All(ta => !ta.IsCorrect)))
             {
                 errorModelTest.TestQuestions = new List<TestQuestion>();
-                errorModelTest.TestQuestions.Union(test.TestQuestions.Where(tq => tq.TestAnswers.All(ta => !ta.IsCorrect)));
+                errorModelTest.TestQuestions = errorModelTest.TestQuestions
+                    .Concat(test.TestQuestions.Where(tq => tq.TestAnswers.All(ta => !ta.IsCorrect)))
+                    .ToList();
             }
 
             return View(errorModelTest);
