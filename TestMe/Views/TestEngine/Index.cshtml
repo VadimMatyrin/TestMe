@@ -12,7 +12,7 @@
         </h2>
         <h3 class="col-md-12">Creation date: @Model.CreationDate</h3>
         <h4 class="col-md-12">Question amount: @Model.TestQuestions.Count</h4>
-        @if (Model.TestResults.Count != 0)
+        @if (Model.TestResults.Count != 0 || Model.AppUser.UserName == User.Identity.Name)
         {
             <h4 class="col-md-12">
                 <a asp-action="Index" asp-controller="TestResults" asp-route-id="@Model.Id">Other user results</a>

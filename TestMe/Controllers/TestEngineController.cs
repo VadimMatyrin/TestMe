@@ -42,9 +42,15 @@ namespace TestMe.Controllers
 
             if (testReports is null)
                 return NotFound();
-            test.TestResults.Add(await _testingPlatform.TestResultManager
+
+            var userResult = await _testingPlatform.TestResultManager
                 .GetAll()
-                .FirstOrDefaultAsync(tr => tr.AppUser.Name == User.Identity.Name && tr.TestId == test.Id));
+                .FirstOrDefaultAsync(tr => tr.AppUser.UserName == User.Identity.Name && tr.TestId == test.Id);
+
+            test.TestResults = new List<TestResult>();
+            if (!(userResult is null))
+                test.TestResults.Add(userResult);
+            
 
             test.TestReports = testReports;
             HttpContext.Session.SetString("testCode", code);

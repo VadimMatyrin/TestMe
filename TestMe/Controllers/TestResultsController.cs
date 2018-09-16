@@ -31,6 +31,13 @@ namespace TestMe.Controllers
             if (test is null)
                 return NotFound();
 
+            var userResult = await _testingPlatform.TestResultManager
+                .GetAll()
+                .FirstOrDefaultAsync(tr => tr.AppUser.UserName == User.Identity.Name && tr.TestId == test.Id);
+
+            if (userResult is null && test.AppUser.UserName != User.Identity.Name)
+                return NotFound();
+
             var testResults = await _testingPlatform.TestResultManager
                 .GetAll()
                 .Where(tr => tr.TestId == id)
@@ -42,6 +49,7 @@ namespace TestMe.Controllers
         }
         public async Task<IActionResult> UserResults()
         {
+
             var userId = _userManager.GetUserId(User);
             var tests = await _testingPlatform.TestManager
                 .GetAll()
