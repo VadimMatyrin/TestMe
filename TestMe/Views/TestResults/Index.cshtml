@@ -43,7 +43,7 @@
                     <b>@counter</b>
                 </td>
                 <td>
-                    <strong>@Html.DisplayFor(modelItem => item.Score)</strong> / @ViewBag.questionAmount
+                    <strong>@Html.DisplayFor(modelItem => item.Score)</strong> / @Model.TestQuestions.Count
                 </td>
                 <td>
                     <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.AppUser.Id">@Html.DisplayFor(modelItem => item.AppUser.UserName)</a>

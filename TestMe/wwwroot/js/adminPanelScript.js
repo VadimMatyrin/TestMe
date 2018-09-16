@@ -2,7 +2,7 @@
     var token = $('input[name="__RequestVerificationToken"]', $('#testTable')).val();
     var skipAmount = { skipAmount: $('#testTable tr').length - 1 };
     var amount = { amount: 10 };
-    var searchString = { searchString: getUrlParameter("SearchString") };
+    var searchString = { searchString: getUrlParameter("searchString") };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken); 
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
@@ -80,7 +80,7 @@ function getReportedTests() {
     var token = $('input[name="__RequestVerificationToken"]', $('#reportedTestTable')).val();
     var skipAmount = { skipAmount: $('#reportedTestTable tr').length - 1 };
     var amount = { amount: 1 };
-    var searchString = { searchString: getUrlParameter("SearchString") };
+    var searchString = { searchString: getUrlParameter("searchString") };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
@@ -146,7 +146,7 @@ function getUsers() {
     var token = $('input[name="__RequestVerificationToken"]', $('#userTable')).val();
     var skipAmount = { skipAmount: $('#userTable tr').length - 1 };
     var amount = { amount: 1 };
-    var searchString = { searchString: getUrlParameter("SearchString") };
+    var searchString = { searchString: getUrlParameter("searchString") };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
@@ -188,6 +188,16 @@ function appendUsersControlls(tr, user) {
          }
     }
     else {
+        if (user.isBanned) {
+            var unBanRef = $('<a/>', { href: '/Admin/UnBanUser/' + user.id, text: 'Unban' });
+            td.append(unBanRef);
+            td.append('<span> | </span>');
+        }
+        else {
+            var banRef = $('<a/>', { href: '/Admin/BanUser/' + user.id, text: 'Ban' });
+            td.append(banRef);
+            td.append('<span> | </span>');
+        }
         if (user.role === "Moderator") {
             if (user.currentUserUsername !== user.userName) {
                 var removeFromModeratorsRef = $('<a/>', { href: '/Admin/RemoveFromModerators/' + user.id, text: 'Remove from moderators' });

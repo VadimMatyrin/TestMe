@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using TestMe.Config;
 using TestMe.Data;
 using TestMe.Data.Extentions;
 using TestMe.Models;
@@ -24,67 +26,72 @@ namespace TestMe.Controllers
         private readonly ITestingPlatform _testingPlatform;
         private readonly IHostingEnvironment _appEnvironment;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IOptions<PhotoConfig> _photoConfig;
         private string _userId;
-        public TestAnswersController(ITestingPlatform testingPlatform, IHostingEnvironment appEnvironment, UserManager<AppUser> userManager)
+        public TestAnswersController(ITestingPlatform testingPlatform,
+            IHostingEnvironment appEnvironment, 
+            UserManager<AppUser> userManager,
+            IOptions<PhotoConfig> photoConfig)
         {
             _testingPlatform = testingPlatform;
             _appEnvironment = appEnvironment;
             _userManager = userManager;
+            _photoConfig = photoConfig;
         }
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             if (User.IsInRole("Admin"))
             {
                 if (!(context.RouteData.Values["id"] is null))
+                {
                     if (Int32.TryParse(context.RouteData.Values["id"].ToString(), out int answerId))
-                        _userId = _testingPlatform.TestAnswerManager.GetAll().AsNoTracking().Where(t => t.Id == answerId).ToList().FirstOrDefault()?.AppUserId;
+                    {
+                        if (context.RouteData.Values["action"].ToString() == "Index" || context.RouteData.Values["action"].ToString() == "Create")
+                            _userId = _testingPlatform.TestQuestionManager.GetAll().AsNoTracking().FirstOrDefault(tq => tq.Id == answerId)?.AppUserId;
+                        else
+                            _userId = _testingPlatform.TestAnswerManager.GetAll().AsNoTracking().FirstOrDefault(t => t.Id == answerId)?.AppUserId;
+                    }
+                        
+                }
             }
             _userId = _userId ?? _userManager.GetUserId(User);
         }
         public async Task<IActionResult> Index(int? id)
         {
-            if (id == null)
-            {
+            if (id is null)
                 return NotFound();
-            }
 
-            var testQuestion = await _testingPlatform.TestQuestionManager.GetAll().FirstAsync(tq => tq.AppUserId == _userId && tq.Id == id);
-            var test = testQuestion.Test;
-            if (test == null)
-            {
+            var testQuestion = await _testingPlatform.TestQuestionManager
+                .FindAsync(tq => tq.AppUserId == _userId && tq.Id == id);
+            if (testQuestion is null)
                 return NotFound();
-            }
-            return View(test);
+
+            return View(testQuestion);
         }
 
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
+            if (id is null)
                 return NotFound();
-            }
 
-            var testAnswer = await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id);
-            if (testAnswer == null)
-            {
+            var testAnswer = await _testingPlatform.TestAnswerManager.FindAsync(ta => ta.AppUserId == _userId && ta.Id == id);
+            if (testAnswer is null)
                 return NotFound();
-            }
 
             return View(testAnswer);
         }
 
         public async Task<IActionResult> Create(int? id)
         {
-            if (id == null)
-            {
+            if (id is null)
                 return NotFound();
-            }
 
-            var testQuestion = await _testingPlatform.TestQuestionManager.GetAll().FirstAsync(tq => tq.AppUserId == _userId && tq.Id == id);
-            if (testQuestion == null)
-            {
+            var testQuestion = await _testingPlatform.TestQuestionManager
+                .FindAsync(tq => tq.AppUserId == _userId && tq.Id == id);
+
+            if (testQuestion is null)
                 return NotFound();
-            }
+
             if (!(testQuestion.Test.TestCode is null))
                 return NotFound();
 
@@ -94,12 +101,12 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("AnswerText,IsCorrect,TestQuestionId")] TestAnswer testAnswer)
+        public async Task<IActionResult> Create([Bind("AnswerText,IsCorrect,TestQuestionId, IsCode")] TestAnswer testAnswer)
         {
             var files = HttpContext.Request.Form.Files;
-            if (files.Count != 0 && !files.First().IsImage())
+            if (files.Count != 0)
             {
-                ModelState.AddModelError("ImageName", "File is not an image");
+                files.First().IsImage(_photoConfig, ModelState);
             }
             if (ModelState.IsValid)
             {
@@ -118,8 +125,9 @@ namespace TestMe.Controllers
             }
             else
             {
-                var testQuestion = await _testingPlatform.TestQuestionManager.GetAll().FirstAsync(tq => tq.AppUserId == _userId && tq.Id == testAnswer.TestQuestionId);
-                if (testQuestion == null)
+                var testQuestion = await _testingPlatform.TestQuestionManager
+                    .FindAsync(tq => tq.AppUserId == _userId && tq.Id == testAnswer.TestQuestionId);
+                if (testQuestion is null)
                 {
                     return NotFound();
                 }
@@ -130,13 +138,13 @@ namespace TestMe.Controllers
 
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (id is null)
             {
                 return NotFound();
             }
 
-            var testAnswer = await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id);
-            if (testAnswer == null)
+            var testAnswer = await _testingPlatform.TestAnswerManager.FindAsync(ta => ta.AppUserId == _userId && ta.Id == id);
+            if (testAnswer is null)
             {
                 return NotFound();
             }
@@ -148,16 +156,16 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id, AnswerText,IsCorrect,TestQuestionId, ImageName")] TestAnswer testAnswer)
+        public async Task<IActionResult> Edit(int id, [Bind("Id, AnswerText,IsCorrect,TestQuestionId, ImageName, IsCode")] TestAnswer testAnswer)
         {
             if (id != testAnswer.Id)
             {
                 return NotFound();
             }
             var files = HttpContext.Request.Form.Files;
-            if (files.Count != 0 && !files.First().IsImage())
+            if (files.Count != 0)
             {
-                ModelState.AddModelError("ImageName", "File is not an image");
+                files.First().IsImage(_photoConfig, ModelState);
             }
             if (ModelState.IsValid)
             {
@@ -172,45 +180,30 @@ namespace TestMe.Controllers
                 }
                 else
                 {
-                    testAnswer.ImageName = (await _testingPlatform.TestAnswerManager.GetAll().AsNoTracking().Where(ta => ta.Id == id).FirstOrDefaultAsync()).ImageName;
+                    testAnswer.ImageName = (await _testingPlatform.TestAnswerManager
+                        .GetAll()
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(ta => ta.Id == id))
+                        .ImageName;
                 }
                 testAnswer.AppUserId = _userId;
-                try
-                {
-                    _testingPlatform.TestAnswerManager.UpdateAsync(testAnswer).GetAwaiter().GetResult();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id) is null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _testingPlatform.TestAnswerManager.UpdateAsync(testAnswer);
                 return RedirectToAction(nameof(Index), new { id = testAnswer.TestQuestionId });
             }
-            else
-            {
-                testAnswer = await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id);
-            }
+
+            testAnswer = await _testingPlatform.TestAnswerManager.FindAsync(ta => ta.AppUserId == _userId && ta.Id == id);
             return View(testAnswer);
         }
 
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
+            if (id is null)
                 return NotFound();
-            }
 
-            var testAnswer = await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id);
-            if (testAnswer == null)
-            {
+            var testAnswer = await _testingPlatform.TestAnswerManager.FindAsync(ta => ta.AppUserId == _userId && ta.Id == id);
+            if (testAnswer is null)
                 return NotFound();
-            }
+
             if (!(testAnswer.TestQuestion.Test.TestCode is null))
                 return RedirectToAction("Index", new { id = testAnswer.TestQuestionId });
 
@@ -221,7 +214,7 @@ namespace TestMe.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var testAnswer = await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id);
+            var testAnswer = await _testingPlatform.TestAnswerManager.FindAsync(ta => ta.AppUserId == _userId && ta.Id == id);
             if (!(testAnswer.ImageName is null))
                 _testingPlatform.AnswerImageManager.DeleteAnswerImage(testAnswer.ImageName);
 
@@ -234,7 +227,7 @@ namespace TestMe.Controllers
             if (id is null)
                 return NotFound();
 
-            var testAnswer = await _testingPlatform.TestAnswerManager.GetTestAnswerAsync(_userId, id);
+            var testAnswer = await _testingPlatform.TestAnswerManager.FindAsync(ta => ta.AppUserId == _userId && ta.Id == id);
             if(testAnswer is null)
                 return NotFound();
 

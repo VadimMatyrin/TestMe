@@ -42,18 +42,21 @@ namespace TestMe.Data.Extentions
         {
             return dbSet
             .Include(tr => tr.Test)
+            .ThenInclude(t => t.AppUser)
             .Include(tr => tr.AppUser);
         }
         public static IQueryable<TestReport> ExtractAll(this DbSet<TestReport> dbSet)
         {
             return dbSet
             .Include(tr => tr.Test)
+            .ThenInclude(t => t.AppUser)
             .Include(tr => tr.AppUser);
         }
         public static IQueryable<TestMark> ExtractAll(this DbSet<TestMark> dbSet)
         {
             return dbSet
             .Include(tr => tr.Test)
+            .ThenInclude(t => t.AppUser)
             .Include(tr => tr.AppUser);
         }
     }

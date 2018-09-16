@@ -14,6 +14,9 @@ namespace TestMe.Models
         [StringLength(1000)]
         [Display(Name = "Question")]
         public string QuestionText { get; set; }
+        [StringLength(10000)]
+        [Display(Name = "Preformatted text")]
+        public string PreformattedText { get; set; }
         [JsonIgnore]
         public int TestId { get; set; }
         public Test Test { get; set; }

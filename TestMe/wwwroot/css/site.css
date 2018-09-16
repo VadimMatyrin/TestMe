@@ -88,6 +88,10 @@ body {
 #navButtons button{
     margin-top: 15px;
 }
+#questions > div > button
+{
+    margin-top: 10px;
+}
 .errorMessage{
     color: red;
     text-align:center;

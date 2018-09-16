@@ -1,18 +1,18 @@
-﻿@model Test
+﻿@model TestQuestion
 @{
     ViewData["Title"] = "Test answer manager";
 }
 
-<h2><strong>@Html.DisplayNameFor(model => model.TestQuestions.First().QuestionText)</strong>: @Model.TestQuestions.First().QuestionText</h2>
+<h2><strong>@Html.DisplayNameFor(model => model.QuestionText)</strong>: @Model.QuestionText</h2>
 
 <p>
-    @if (Model.TestCode is null)
+    @if (Model.Test.TestCode is null)
     {
-        <a asp-action="Create" asp-route-id="@Model.TestQuestions.First().Id">Add new answer</a>
+        <a asp-action="Create" asp-route-id="@Model.Id">Add new answer</a>
     }
 </p>
 <p>
-    <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@Model.Id">Return to questions</a>
+    <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@Model.Test.Id">Return to questions</a>
 </p>
 <table class="table">
     <thead>
@@ -23,7 +23,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.TestAnswers.First().AnswerText)
             </th>
-            @if (Model.TestQuestions.First().TestAnswers.Any(ta => !(ta.ImageName is null)))
+            @if (Model.TestAnswers.Any(ta => !(ta.ImageName is null)))
             {
                 <th>
                     @Html.DisplayNameFor(model => model.TestAnswers.First().ImageName)
@@ -33,22 +33,32 @@
                 @Html.DisplayNameFor(model => model.TestAnswers.First().IsCorrect)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.TestAnswers.First().IsCode)
+            </th>
+            <th>
                 Actions
             </th>
         </tr>
     </thead>
     <tbody>
         @{var counter = 1; }
-        @foreach (var item in Model.TestQuestions.First().TestAnswers)
+        @foreach (var item in Model.TestAnswers)
         {
         <tr>
             <td>
                 <b>@counter</b>
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.AnswerText)<br />
+                @if (item.IsCode)
+                {
+                    <pre>@Html.DisplayFor(modelItem => item.AnswerText)</pre>
+                }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.AnswerText)
+                }
             </td>
-            @if (Model.TestQuestions.First().TestAnswers.Any(ta => !(ta.ImageName is null)))
+            @if (Model.TestAnswers.Any(ta => !(ta.ImageName is null)))
             {
                 <td>
                     @if (!(item.ImageName is null))
@@ -59,6 +69,9 @@
             }
             <td>
                 @Html.DisplayFor(modelItem => item.IsCorrect)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsCode)
             </td>
             <td>
                 @if (item.TestQuestion.Test.TestCode is null)

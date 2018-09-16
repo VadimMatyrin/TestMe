@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TestMe.Models;
 using TestMe.Sevices.Interfaces;
 
@@ -25,21 +26,36 @@ namespace TestMe.Controllers
             if (id is null)
                 return NotFound();
 
-            var test = await _testingPlatform.TestManager.FindAsync(t => t.Id == id);
+            var test = await _testingPlatform.TestManager
+                .FindAsync(t => t.Id == id);
             if (test is null)
                 return NotFound();
-            var testResults = _testingPlatform.TestResultManager.GetAll().Where(tm => tm.TestId == id).ToList();
-            if (testResults is null)
+
+            var userResult = await _testingPlatform.TestResultManager
+                .GetAll()
+                .FirstOrDefaultAsync(tr => tr.AppUser.UserName == User.Identity.Name && tr.TestId == test.Id);
+
+            if (userResult is null && test.AppUser.UserName != User.Identity.Name)
                 return NotFound();
+
+            var testResults = await _testingPlatform.TestResultManager
+                .GetAll()
+                .Where(tr => tr.TestId == id)
+                .ToListAsync();
+
             test.TestResults = testResults;
-            var questionAmount = _testingPlatform.TestQuestionManager.GetAll().Count(tq => tq.TestId == id);
-            ViewBag.questionAmount = questionAmount;
+
             return View(test);
         }
         public async Task<IActionResult> UserResults()
         {
+
             var userId = _userManager.GetUserId(User);
-            var tests = _testingPlatform.TestManager.GetAll().Where(t => t.TestResults.Any(tr => tr.AppUserId == userId)).ToList();
+            var tests = await _testingPlatform.TestManager
+                .GetAll()
+                .Where(t => t.TestResults.Any(tr => tr.AppUserId == userId))
+                .ToListAsync();
+
             foreach(var test in tests)
             {
                 test.TestResults = test.TestResults.Where(tr => tr.AppUserId == userId).ToList();

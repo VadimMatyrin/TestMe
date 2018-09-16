@@ -47,7 +47,13 @@ namespace TestMe.Data.Repositories
 
         public async Task<Test> FindAsync(Predicate<Test> predicate)
         {
-            return await _db.Tests.ExtractAll().FirstOrDefaultAsync(test => predicate(test));
+            var test = await _db.Tests.ExtractAll().FirstOrDefaultAsync(t => predicate(t));
+            test.TestAnswers = await _db.TestAnswers.ExtractAll().Where(ta => ta.TestQuestion.TestId == test.Id).ToListAsync();
+            foreach(var testQuestion in test.TestQuestions.Where(tq => tq.TestAnswers == null))
+            {
+                testQuestion.TestAnswers = new List<TestAnswer>(); 
+            }
+            return test; 
         }
 
         public IQueryable<Test> GetAll()

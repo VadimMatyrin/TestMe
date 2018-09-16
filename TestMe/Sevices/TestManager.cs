@@ -21,15 +21,6 @@ namespace TestMe.Sevices
         public Task<Test> FindAsync(Predicate<Test> predicate) => _repository.FindAsync(predicate);
 
         public IQueryable<Test> GetAll() => _repository.GetAll();
-        public async Task UpdateAsync(Test test) => await _repository.UpdateAsync(test );
-        public Task<Test> GetTestAsync(string userId, int? id)
-        {
-            if (userId is null || id is null)
-                throw new ArgumentNullException();
-            return Task.Run(() =>
-            {
-                return GetAll().FirstOrDefault(t => t.Id == id && t.AppUserId == userId);
-            });
-        }
+        public async Task UpdateAsync(Test test) => await _repository.UpdateAsync(test);
     }
 }

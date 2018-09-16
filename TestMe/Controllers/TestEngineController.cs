@@ -39,8 +39,18 @@ namespace TestMe.Controllers
                 .GetAll()
                 .Where(tr => tr.TestId == test.Id && tr.AppUserId == _userManager.GetUserId(User))
                 .ToListAsync();
+
             if (testReports is null)
                 return NotFound();
+
+            var userResult = await _testingPlatform.TestResultManager
+                .GetAll()
+                .FirstOrDefaultAsync(tr => tr.AppUser.UserName == User.Identity.Name && tr.TestId == test.Id);
+
+            test.TestResults = new List<TestResult>();
+            if (!(userResult is null))
+                test.TestResults.Add(userResult);
+            
 
             test.TestReports = testReports;
             HttpContext.Session.SetString("testCode", code);
@@ -117,11 +127,6 @@ namespace TestMe.Controllers
             if (questionId is null)
                 throw new QuestionNotFoundException();
 
-            var testCode = HttpContext.Session.GetString("testCode");
-
-            if (testCode is null)
-                throw new TestNotFoundException();
-
             if (!(HttpContext.Session.GetString(questionId.ToString()) is null))
             {
                 var answers = JsonConvert.DeserializeObject<List<int>>(HttpContext.Session.GetString(questionId.ToString()));
@@ -155,9 +160,6 @@ namespace TestMe.Controllers
 
             if (_answers.Count == 0)
                 throw new QuestionNotFoundException(questionId.ToString());
-
-            if (checkedIds.Any(checkId => _answers.Count(ta => ta.Id == checkId) == 0))
-                throw new UserAnswersException();
 
             bool isCorrect = true;
             var correctAnswers = _answers.Select(ta => ta.Id);
@@ -250,8 +252,7 @@ namespace TestMe.Controllers
                 return Json(new { score, testId = test.Id });
 
             var prevResult = await _testingPlatform.TestResultManager
-                .GetAll()
-                .FirstOrDefaultAsync(tr => tr.AppUser.Id == _userManager.GetUserId(User) && tr.TestId == test.Id);
+                .FindAsync(tr => tr.AppUserId == _userManager.GetUserId(User) && tr.TestId == test.Id);
 
             if (prevResult is null)
             {
@@ -276,15 +277,40 @@ namespace TestMe.Controllers
             HttpContext.Session.SetString("isFinished", "true");
 
             var prevMark = await _testingPlatform.TestMarkManager
-                .GetAll()
-                .FirstOrDefaultAsync(tm => tm.AppUserId == _userManager.GetUserId(User) && tm.TestId == test.Id);
+                .FindAsync(tm => tm.AppUserId == _userManager.GetUserId(User) && tm.TestId == test.Id);
 
             if (prevMark is null)
                 return Json(new { score, testId = test.Id });
 
             return Json(new { score, testId = test.Id, isRated = prevMark.EnjoyedTest });
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GetCorrectAnswers()
+        {
+            var code = HttpContext.Session.GetString("testCode");
+            if (code is null)
+                throw new TestNotFoundException();
 
+            var test = await _testingPlatform.TestManager.FindAsync(t => t.TestCode == code);
+            if (test is null)
+                throw new TestNotFoundException(code);
+
+            if (HttpContext.Session.GetString("isFinished") is null)
+                return NotFound();
+
+                var optimizedQuestions = test.TestQuestions.Select(tq => new
+            {
+                tq.Id,
+                tq.QuestionText,
+                tq.PreformattedText,
+                testAnswers = tq.TestAnswers.Select(ta => new { ta.Id, ta.AnswerText, ta.ImageName, ta.IsCorrect, ta.IsCode }),
+                userAnswers = JsonConvert
+                           .DeserializeObject<List<int>>(HttpContext.Session.GetString(tq.Id.ToString()) ?? "")
+            });
+            return Json(optimizedQuestions);
+
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RateFinishedTestAjax(int? id, bool? mark)
@@ -292,7 +318,6 @@ namespace TestMe.Controllers
             if (mark is null)
                 return NotFound();
 
-            TestResult testResult;
             if (id is null)
             {
                 var code = HttpContext.Session.GetString("testCode");
@@ -303,9 +328,8 @@ namespace TestMe.Controllers
 
             }
 
-            testResult = await _testingPlatform.TestResultManager
-                .GetAll()
-                .FirstOrDefaultAsync(tr => tr.AppUser.UserName == User.Identity.Name && tr.TestId == id);
+            var testResult = await _testingPlatform.TestResultManager
+                .FindAsync(tr => tr.AppUserId == _userManager.GetUserId(User) && tr.TestId == id);
 
             if (testResult is null)
                 return NotFound();

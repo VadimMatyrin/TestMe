@@ -12,5 +12,6 @@ namespace TestMe.Models
         public string Name { get; set; }
         [PersonalData]
         public string Surname { get; set; }
+        public bool IsBanned { get; set; } = false;
     }
 }

@@ -19,12 +19,12 @@ namespace TestMe.Controllers
     {
         private readonly ITestingPlatform _testingPlatform;
         private readonly UserManager<AppUser> _userManager;
-        private readonly IOptions<MyConfig> _config;
-        public AdminController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<MyConfig> config)
+        private readonly IOptions<LoadConfig> _loadConfig;
+        public AdminController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<LoadConfig> loadConfig)
         {
             _testingPlatform = testingPlatform;
             _userManager = userManager;
-            _config = config;
+            _loadConfig = loadConfig;
         }
 
         [HttpGet]
@@ -32,18 +32,14 @@ namespace TestMe.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> IndexGet(string searchString)
         {
-            List<Test> tests;
             if (searchString is null)
-                tests = await _testingPlatform.TestManager
-                    .GetAll()
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
-                    .ToListAsync();
-            else
-               tests = await _testingPlatform.TestManager
-                    .GetAll()
-                    .Where(t => t.TestName.Contains(searchString.ToUpper()))
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
-                    .ToListAsync();
+                searchString = "";
+
+            var tests = await _testingPlatform.TestManager
+                 .GetAll()
+                 .Where(t => t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                 .Take(_loadConfig.Value.TakeAmount)
+                 .ToListAsync();
 
             if (tests is null)
                 return NotFound();
@@ -55,22 +51,50 @@ namespace TestMe.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UsersGet(string searchString)
         {
-            List<AppUser> appUsers;
-
             if (searchString is null)
-                appUsers = await _userManager.Users.AsNoTracking()
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
-                    .ToListAsync();
-            else
-                appUsers = await _userManager.Users.AsNoTracking()
-                    .Where(u => u.NormalizedUserName.Contains(searchString.ToUpper()))
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
+                searchString = "";
+
+            var appUsers = await _userManager.Users.AsNoTracking()
+                    .Where(u => u.NormalizedUserName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    .Take(_loadConfig.Value.TakeAmount)
                     .ToListAsync();
 
             if (appUsers is null)
                 return NotFound();
 
             return View(appUsers);
+        }
+        [Authorize(Roles ="Admin")]
+        public async Task<IActionResult> BanUser(string id)
+        {
+            await ChangeUserBanStatusAsync(id, true);
+            return RedirectToAction("Users");
+        }
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UnBanUser(string id)
+        {
+            await ChangeUserBanStatusAsync(id, false);
+            return RedirectToAction("Users");
+        }
+        private async Task<bool> ChangeUserBanStatusAsync(string id, bool isBanned)
+        {
+            if (String.IsNullOrEmpty(id))
+                return false;
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user is null)
+                return false;
+
+            if (!(await _userManager.IsInRoleAsync(user, "Admin")))
+            {
+                if (user.IsBanned != isBanned)
+                {
+                    user.IsBanned = isBanned;
+                    await _userManager.UpdateAsync(user);
+                }
+            }
+
+            return true;
         }
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddToAdmins(string id)
@@ -137,21 +161,15 @@ namespace TestMe.Controllers
         [Authorize(Roles = "Admin, Moderator")]
         public async Task<IActionResult> ReportedTestsGet(string searchString)
         {
-            List<Test> tests;
             if (searchString is null)
-                tests = await _testingPlatform.TestManager
-                    .GetAll()
-                    .Where(t => t.TestReports.Count >= 1)
-                    .OrderByDescending(t => t.TestReports.Count)
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
-                    .ToListAsync();
-            else
-                tests = await _testingPlatform.TestManager
-                    .GetAll()
-                    .Where(t => t.TestReports.Count >= 1 && t.TestName.Contains(searchString))
-                    .OrderByDescending(t => t.TestReports.Count)
-                    .Take(Int32.Parse(_config.Value.TakeAmount))
-                    .ToListAsync();
+                searchString = "";
+
+            var tests = await _testingPlatform.TestManager
+                  .GetAll()
+                  .Where(t => t.TestReports.Count >= _loadConfig.Value.MinReportAmount && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                  .OrderByDescending(t => t.TestReports.Count)
+                  .Take(_loadConfig.Value.TakeAmount)
+                  .ToListAsync();
 
             if (tests is null)
                 return NotFound();
@@ -187,22 +205,24 @@ namespace TestMe.Controllers
                 searchString = "";
 
             var users = await _userManager.Users.AsNoTracking()
-                .Where(u => u.UserName.Contains(searchString))
+                .Where(u => u.UserName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 .Skip(skipAmount.Value)
                 .Take(amount.Value)
                 .ToListAsync();
+
             if (users is null)
                 return NotFound();
 
             var usersOptimized = await Task.WhenAll(users.Select(async u =>
             new
             {
-                id = u.Id,
+                u.Id,
                 u.UserName,
                 u.Name,
                 u.Surname,
                 u.Email,
                 u.PhoneNumber,
+                u.IsBanned,
                 role = (await _userManager.IsInRoleAsync(u, "Admin")) ? "Admin" : (await _userManager.IsInRoleAsync(u, "Moderator") ? "Moderator" : null),
                 currentUserUsername = User.Identity.Name
             }));
