@@ -62,6 +62,70 @@
             }
         });
     }
+    getCorrectAnswers() {
+        var token = $('input[name="__RequestVerificationToken"]').val();
+        var dataWithAntiforgeryToken = { '__RequestVerificationToken': token };
+
+        $.ajax({
+            context: this,
+            url: "/TestEngine/GetCorrectAnswers",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                this.displayCorrectAnswers(data);
+            },
+            error: function () {
+
+            }
+        });
+    }
+    displayCorrectAnswers(questions) {
+        let counter = 0;
+        questions.forEach(function (elem) {
+            let div = $('<div/>', { class: 'correctAnswerBlock' });
+            div.append($('<h1/>', { text: ++counter + ') ' + elem.questionText }));
+
+            if (elem.preformattedText != null) {
+                var preText = $('<pre/>', { text: elem.preformattedText });
+                div.append(preText);
+            }
+
+            elem.testAnswers.forEach(function (answer) {
+                var input = $('<input />', { type: 'checkbox', name: 'answer', value: answer.id, disabled: 'true' });
+                var answerId = answer.id;
+                if (elem.userAnswers !== null && elem.userAnswers.indexOf(answerId) !== -1)
+                    input.prop({ checked: true });
+
+                var answerText;
+                if (answer.isCode)
+                    answerText = $('<pre />', { text: answer.answerText });
+                else
+                    answerText = $('<label />', { text: answer.answerText });
+
+                if (answer.isCorrect)
+                    answerText.addClass('text-success');
+
+                var answDiv = $('<div />', { class: "questionAnswer" });
+                input.appendTo(answDiv);
+                answerText.appendTo(answDiv);
+                $('<br>').appendTo(answDiv);
+                if (answer.imageName) {
+                    var image = $('<img />', { src: '/uploads/answerPics/' + answer.imageName, height: "200", class: 'answerImage' });
+                    image.appendTo(answDiv);
+                    image.click(function () {
+                        if ($(this).hasClass('max')) {
+                            $(this).animate({ height: 200 }, 200).removeClass('max');
+                        } else {
+                            $(this).animate({ height: 600 }, 200).addClass('max');
+                        }
+                    });
+                }
+                div.append(answDiv);
+            });
+            div.appendTo($('#mainContainer'));
+        });
+    }
+
     appendQuestion() {
         $('#testQuestionFieldSet div').remove();
         $('#answerButton').removeClass('btn-default');
@@ -289,7 +353,16 @@
         $('#mainContainer').append('<h1> Your score: ' + data.score + ' out of ' + this.testQuestionsIds.length + '</h1>');
         this.showRateButtons();
         $('#mainContainer').append(link);
-
+        $('#mainContainer').append($('<br/>'));
+        var correctAnswButton = $('<button/>', {
+            id: 'correctAnswButton',
+            text: 'Show correct answers',
+            class: 'btn btn-sm btn-primary',
+            click: function (e) {
+                showCorrectAnswersClick();
+            }
+        });
+        $('#mainContainer').append(correctAnswButton);
     }
     showRateButtons() {
         let likeButton = $('<button/>', { type: 'button', class: 'btn btn-default btn-sm', id: 'likeButton' });
@@ -387,6 +460,10 @@ function startTimer() {
 }
 function rateTestClick(mark) {
     test.rateTest(mark);
+}
+function showCorrectAnswersClick() {
+    $('#correctAnswButton').hide();
+    test.getCorrectAnswers();
 }
 $("#questionBlock").hide();
 

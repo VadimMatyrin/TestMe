@@ -296,19 +296,17 @@ namespace TestMe.Controllers
             if (test is null)
                 throw new TestNotFoundException(code);
 
-            var testResult = await _testingPlatform.TestResultManager
-                .FindAsync(tr => tr.AppUserId == _userManager.GetUserId(User) && tr.Test.TestCode == code);
-            if (testResult is null)
+            if (HttpContext.Session.GetString("isFinished") is null)
                 return NotFound();
 
-            var optimizedQuestions = test.TestQuestions.Select(tq => new
+                var optimizedQuestions = test.TestQuestions.Select(tq => new
             {
                 tq.Id,
                 tq.QuestionText,
                 tq.PreformattedText,
-                tq.TestAnswers,
+                testAnswers = tq.TestAnswers.Select(ta => new { ta.Id, ta.AnswerText, ta.ImageName, ta.IsCorrect, ta.IsCode }),
                 userAnswers = JsonConvert
-                           .DeserializeObject<List<int>>(HttpContext.Session.GetString(tq.Id.ToString()) ?? "{}")
+                           .DeserializeObject<List<int>>(HttpContext.Session.GetString(tq.Id.ToString()) ?? "")
             });
             return Json(optimizedQuestions);
 
