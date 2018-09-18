@@ -12,7 +12,7 @@ using TestMe.Sevices.Interfaces;
 
 namespace TestMe.Controllers
 {
-    [Authorize(Roles = "Admin, Moderator")]
+    [Authorize]
     public class TestReportsController : Controller
     {
         private readonly ITestingPlatform _testingPlatform;
@@ -27,6 +27,7 @@ namespace TestMe.Controllers
         { 
             _userId = _userManager.GetUserId(User);
         }
+        [Authorize(Roles = "Admin, Moderator")]
         public async Task<IActionResult> Index(int? id)
         {
             if (id is null)

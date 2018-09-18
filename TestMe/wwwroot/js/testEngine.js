@@ -327,14 +327,14 @@
     finishTest() {
         var token = $('input[name="__RequestVerificationToken"]').val();
         var dataWithAntiforgeryToken = { '__RequestVerificationToken': token };
-
+        $('#timer').remove();
+        clearInterval(this.timer);
         $.ajax({
             context: this,
             url: "/TestEngine/FinishTest",
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
-                clearInterval(this.timer);
                 this.showResult(data);
                 if ('isRated' in data) {
                     if (data.isRated)
@@ -454,7 +454,6 @@ function startTimer() {
             + minutes + ":" + seconds + "s ");
 
         if (distance <= 500) {
-            clearInterval(x);
             test.finishTest();
         }
     }, 1000);
