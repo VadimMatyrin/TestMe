@@ -31,7 +31,7 @@
     @Html.AntiForgeryToken()
     <thead>
         <tr>
-            <th class="hidden-xs">
+            <th>
                 @Html.DisplayNameFor(model => model.Id)
             </th>
             <th>
@@ -61,7 +61,7 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td class="hidden-xs">
+                <td>
                     @Html.DisplayFor(modelItem => item.Id)
                 </td>
                 <td>

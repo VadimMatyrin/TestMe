@@ -26,7 +26,8 @@ function appendTopTests(tests) {
         var testTd = $('<td/>').append(testRef);
         tr.append(testTd);
         var formattedDate = new Date(element.creationDate);
-        tr.append($('<td/>', { text: formattedDate.toLocaleString(), class: 'hidden-xs' }));
+        var timeTd = $('<td/>', { text: formattedDate.toLocaleString(), class: 'hidden-xs' });
+        tr.append(timeTd);
         tr.append($('<td/>', { text: element.testDuration.slice(0, -3) }));
         var rateClass = '';
         if (element.testRating > 0)
