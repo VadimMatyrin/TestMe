@@ -34,16 +34,16 @@
             <th>
                 @Html.DisplayNameFor(model => model.First().UserName)
             </th>
-            <th>
+            <th class="hidden-xs">
                 @Html.DisplayNameFor(model => model.First().Name)
             </th>
-            <th>
+            <th class="hidden-xs">
                 @Html.DisplayNameFor(model => model.First().Surname)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.First().Email)
             </th>
-            <th>
+            <th class="hidden-xs">
                 @Html.DisplayNameFor(model => model.First().PhoneNumber)
             </th>
             <th>
@@ -58,16 +58,16 @@
                 <td>
                     <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.UserName)</a>
                 </td>
-                <td>
+                <td class="hidden-xs">
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
-                <td>
+                <td class="hidden-xs">
                     @Html.DisplayFor(modelItem => item.Surname)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Email)
                 </td>
-                <td>
+                <td class="hidden-xs">
                     @Html.DisplayFor(modelItem => item.PhoneNumber)
                 </td>
                 <td>

@@ -37,7 +37,7 @@
             <th>
                 Name
             </th>
-            <th>
+            <th class="hidden-xs">
                 @Html.DisplayNameFor(model => model.AppUser)
             </th>
             <th>
@@ -69,7 +69,7 @@
                     }
 
                 </td>
-                <td>
+                <td class="hidden-xs">
                     <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.AppUserId">
                         @Html.DisplayFor(modelItem => item.AppUser.UserName)
                     </a>

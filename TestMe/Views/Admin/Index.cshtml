@@ -31,16 +31,16 @@
     @Html.AntiForgeryToken()
     <thead>
         <tr>
-            <th>
+            <th class="hidden-xs">
                 @Html.DisplayNameFor(model => model.Id)
             </th>
             <th>
                 Name
             </th>
-            <th>
+            <th class="hidden-xs">
                 @Html.DisplayNameFor(model => model.CreationDate)
             </th>
-            <th>
+            <th class="hidden-xs">
                 @Html.DisplayNameFor(model => model.TestCode)
             </th>
             <th>
@@ -49,7 +49,7 @@
             <th>
                 Test rating
             </th>
-            <th>
+            <th class="hidden-xs">
                 @Html.DisplayNameFor(model => model.AppUser)
             </th>
             <th>
@@ -61,16 +61,16 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>
+                <td class="hidden-xs">
                     @Html.DisplayFor(modelItem => item.Id)
                 </td>
                 <td>
                     <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.TestName)</a>
                 </td>
-                <td>
+                <td class="hidden-xs">
                     @Html.DisplayFor(modelItem => item.CreationDate)
                 </td>
-                <td>
+                <td class="hidden-xs">
                         @Html.DisplayFor(modelItem => item.TestCode)
                 </td>
                 <td>
@@ -92,7 +92,7 @@
                     }
 
                 </td>
-                <td>
+                <td class="hidden-xs">
                     <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.AppUser.Id">@Html.DisplayFor(modelItem => item.AppUser.UserName)</a>
                 </td>
                 <td>

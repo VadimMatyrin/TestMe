@@ -32,7 +32,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.TestName)
             </th>
-            <th>
+            <th class="hidden-xs">
                 @Html.DisplayNameFor(model => model.CreationDate)
             </th>
             <th>
@@ -53,7 +53,7 @@
                 <td>
                     <a asp-action="Index" asp-controller="TestEngine" asp-route-code="@item.TestCode">@Html.DisplayFor(modelItem => item.TestName)</a>
                 </td>
-                <td>
+                <td class="hidden-xs">
                     @Html.DisplayFor(modelItem => item.CreationDate)
                 </td>
                 <td>

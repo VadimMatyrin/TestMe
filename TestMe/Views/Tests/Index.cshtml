@@ -18,15 +18,15 @@
             <th>
                 @Html.DisplayNameFor(model => model.TestName)
             </th>
-            <th>
+            <th class="hidden-xs">
                 @Html.DisplayNameFor(model => model.CreationDate)
             </th>
-            <th>
+            <th class="hidden-xs">
                 Question amount
             </th>
             @if (Model.Any(t => !(t.TestCode is null)))
             {
-                <th>
+                <th class="hidden-xs">
                     @Html.DisplayNameFor(model => model.First().TestCode)
                 </th>
             }
@@ -49,15 +49,15 @@
             <td>
                 <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.TestName)</a>
             </td>
-            <td>
+            <td class="hidden-xs">
                 @Html.DisplayFor(modelItem => item.CreationDate)
             </td>
-            <td>
+            <td class="hidden-xs">
                 @item.TestQuestions.Count
             </td>
             @if (Model.Any(t => !(t.TestCode is null)))
             {
-                <td>
+                <td class="hidden-xs">
                     @item.TestCode
                 </td>
             }

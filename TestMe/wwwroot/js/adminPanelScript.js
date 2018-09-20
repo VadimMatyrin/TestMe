@@ -27,8 +27,8 @@ function appendTests(tests) {
         var testNameTd = $('<td/>').append(testNameRef);
         tr.append(testNameTd);
         var formattedDate = new Date(element.creationDate);
-        tr.append($('<td/>', { text: formattedDate.toLocaleString() }));
-        tr.append($('<td/>', { text: element.testCode }));
+        tr.append($('<td/>', { text: formattedDate.toLocaleString() , class: 'hidden-xs'}));
+        tr.append($('<td/>', { text: element.testCode, class: 'hidden-xs' }));
         tr.append($('<td/>', { text: element.testDuration.slice(0, -3) }));
         var rateClass = '';
         if (element.testRating > 0)
@@ -38,7 +38,7 @@ function appendTests(tests) {
         var td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
         tr.append(td);
         var userRef = $('<a/>', { href: '/Profile/Index/' + element.userId, text: element.userName });
-        var userTd = $('<td/>').append(userRef);
+        var userTd = $('<td/>', {class: 'hidden-xs'}).append(userRef);
         tr.append(userTd);
         appendControls(tr, element);
         table.append(tr);
@@ -101,12 +101,12 @@ function appendReportedTests(tests)
     var table = $('#reportedTestTable');
     tests.forEach(function (element) {
         var tr = $('<tr/>');
-        tr.append($('<td/>', { text: element.id }));
+        tr.append($('<td/>', { text: element.id  }));
         var testNameRef = $('<a/>', { href: '/TestQuestions/Index/' + element.id, text: element.testName });
         var testNameTd = $('<td/>').append(testNameRef);
         tr.append(testNameTd);
         var userRef = $('<a/>', { href: '/Profile/Index/' + element.userId, text: element.userName });
-        var userTd = $('<td/>').append(userRef);
+        var userTd = $('<td/>', { class: 'hidden-xs' }).append(userRef);
         tr.append(userTd);
         tr.append($('<td/>', { text: element.reportAmount }));
         var rateClass = '';
@@ -170,10 +170,10 @@ function appendUsers(users) {
         var userRef = $('<a/>', { href: '/Profile/Index/' + element.id, text: element.userName });
         var userTd = $('<td/>').append(userRef);
         tr.append(userTd);
-        tr.append($('<td/>', { text: element.name }));
-        tr.append($('<td/>', { text: element.surname }));
+        tr.append($('<td/>', { text: element.name, class: 'hidden-xs' }));
+        tr.append($('<td/>', { text: element.surname, class: 'hidden-xs' }));
         tr.append($('<td/>', { text: element.email }));
-        tr.append($('<td/>', { text: element.phoneNumber }));
+        tr.append($('<td/>', { text: element.phoneNumber, class: 'hidden-xs' }));
         appendUsersControlls(tr, element);
         table.append(tr);
     });
