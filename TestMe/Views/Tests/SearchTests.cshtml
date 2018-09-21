@@ -39,10 +39,10 @@
                                     }
                                     else
                                     {
-                                        <input type="number" class="form-control" name="testRatingFrom" id="testRatingFrom" placeholder='1' />
+                                        <input type="number" class="form-control" name="testRatingFrom" id="testRatingFrom" placeholder='0' />
                                     }
                                     <label for="testRatingTo">to</label>
-                                    @if (Context.Request.Query["testRatingTo"].Count != 0 && @Context.Request.Query["testRatingFrom"][0] != "")
+                                    @if (Context.Request.Query["testRatingTo"].Count != 0 && @Context.Request.Query["testRatingTo"][0] != "")
                                     {
                                         <input type="number" class="form-control" name="testRatingTo" id="testRatingTo" value='@Context.Request.Query["testRatingTo"][0]' />
                                     }
