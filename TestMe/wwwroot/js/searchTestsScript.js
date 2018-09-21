@@ -3,13 +3,23 @@
     var skipAmount = { skipAmount: $('#testTable tr').length - 1 };
     var amount = { amount: 10 };
     var searchString = { searchString: getUrlParameter("searchString") };
+
     var testRatingFrom = { testRatingFrom: getUrlParameter("testRatingFrom") };
     var testRatingTo = { testRatingTo: getUrlParameter("testRatingTo") };
+
+    var testDurationFrom = { testDurationFrom: getUrlParameter("testDurationFrom") };
+    var testDurationTo = { testDurationTo: getUrlParameter("testDurationTo") };
+
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
+
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
+
     dataWithAntiforgeryToken = $.extend(testRatingFrom, dataWithAntiforgeryToken); 
     dataWithAntiforgeryToken = $.extend(testRatingTo, dataWithAntiforgeryToken); 
+
+    dataWithAntiforgeryToken = $.extend(testDurationFrom, dataWithAntiforgeryToken);
+    dataWithAntiforgeryToken = $.extend(testDurationTo, dataWithAntiforgeryToken); 
     $.ajax({
         url: "/Tests/GetSharedTestsAjax",
         type: "POST",
@@ -48,4 +58,14 @@ function appendTopTestsControls(tr, test) {
     var detailsRef = $('<a/>', { href: '/Tests/Details/' + test.id, text: 'Details' });
     var td = $('<td/>').append(detailsRef);
     tr.append(td);
+}
+$('#resetFilterButton').click(function (e) {
+    ResetFilters(e);
+});
+function ResetFilters(e) {
+    e.stopPropagation();
+    $('input[name="testRatingFrom"]').val('');
+    $('input[name="testRatingTo"]').val('');
+    $('input[name="testDurationFrom"]').val('');
+    $('input[name="testDurationTo"]').val('');
 }
