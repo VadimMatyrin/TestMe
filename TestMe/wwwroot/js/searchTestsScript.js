@@ -3,9 +3,13 @@
     var skipAmount = { skipAmount: $('#testTable tr').length - 1 };
     var amount = { amount: 10 };
     var searchString = { searchString: getUrlParameter("searchString") };
+    var testRatingFrom = { testRatingFrom: getUrlParameter("testRatingFrom") };
+    var testRatingTo = { testRatingTo: getUrlParameter("testRatingTo") };
     var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
+    dataWithAntiforgeryToken = $.extend(testRatingFrom, dataWithAntiforgeryToken); 
+    dataWithAntiforgeryToken = $.extend(testRatingTo, dataWithAntiforgeryToken); 
     $.ajax({
         url: "/Tests/GetSharedTestsAjax",
         type: "POST",

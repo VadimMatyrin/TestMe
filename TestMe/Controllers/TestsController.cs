@@ -249,17 +249,32 @@ namespace TestMe.Controllers
         }
         [HttpGet]
         [ActionName("SearchTests")]
-        public async Task<IActionResult> SearchTestsGet(string searchString)
+        public async Task<IActionResult> SearchTestsGet(string searchString, int? testRatingFrom, int? testRatingTo)
         {
             if (searchString is null)
                 searchString = "";
 
-            var tests = await _testingPlatform.TestManager
-                .GetAll()
-                .Where(t => t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                .Take(_loadConfig.Value.TakeAmount)
-                .ToListAsync();
+            if (testRatingFrom is null)
+                testRatingFrom = 0;
 
+            if (testRatingTo is null)
+                testRatingTo = Int32.MaxValue;
+
+            if (testRatingTo < testRatingFrom)
+            {
+                int tmp = testRatingTo.Value;
+                testRatingTo = testRatingFrom;
+                testRatingFrom = tmp;
+            }
+
+            var tests = await _testingPlatform.TestManager
+              .GetAll()
+              .Where(t => t.TestCode != null &&
+                t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase) &&
+                t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= testRatingFrom &&
+                t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) <= testRatingTo)
+              .Take(_loadConfig.Value.TakeAmount)
+              .ToListAsync();
             if (tests is null)
                 return NotFound();
 
@@ -332,7 +347,7 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetSharedTestsAjax(int? skipAmount, int? amount, string searchString)
+        public async Task<IActionResult> GetSharedTestsAjax(int? skipAmount, int? amount, string searchString, int? testRatingFrom, int? testRatingTo)
         {
             if (skipAmount is null || amount is null)
                 return NotFound();
@@ -340,12 +355,28 @@ namespace TestMe.Controllers
             if (searchString is null)
                 searchString = "";
 
+            if (testRatingFrom is null)
+                testRatingFrom = 0;
+
+            if (testRatingTo is null)
+                testRatingTo = Int32.MaxValue;
+
+            if (testRatingTo < testRatingFrom)
+            {
+                int tmp = testRatingTo.Value;
+                testRatingTo = testRatingFrom;
+                testRatingFrom = tmp;
+            }
+
             var tests = await _testingPlatform.TestManager
-                .GetAll()
-                .Where(t => t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                .Skip(skipAmount.Value)
-                .Take(amount.Value)
-                .ToListAsync();
+             .GetAll()
+             .Where(t => t.TestCode != null &&
+               t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase) &&
+               t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= testRatingFrom &&
+               t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) <= testRatingTo)
+             .Skip(skipAmount.Value)
+             .Take(_loadConfig.Value.TakeAmount)
+             .ToListAsync();
 
             var optimizedTests = tests.Select(t =>
             new

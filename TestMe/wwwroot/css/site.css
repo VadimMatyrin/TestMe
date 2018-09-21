@@ -106,3 +106,8 @@ body {
 #ImageName[hidden] {
     display: none !important;
 }
+
+#filterDropdown{
+    padding:20px;
+    width: 300px !important;
+}
