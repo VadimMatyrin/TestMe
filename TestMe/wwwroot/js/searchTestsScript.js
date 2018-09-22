@@ -37,7 +37,8 @@ function appendTests(tests) {
     if (tests.length === 0 || tests.length !== amount.amount) {
         let button = $('#loadMoreButton');
         button.unbind("click");
-        button.prop({disabled: true});
+        button.prop({ disabled: true });
+        return;
     }
 
     tests.forEach(function (element) {
