@@ -1,16 +1,16 @@
-﻿function getTopTests() {
-    var token = $('input[name="__RequestVerificationToken"]', $('#testTable')).val();
-    var skipAmount = { skipAmount: $('#testTable tr').length - 1 };
-    var amount = { amount: 10 };
-    var searchString = { searchString: getUrlParameter("searchString") };
+﻿const amount = { amount: 10 };
+function getTests() {
+    let token = $('input[name="__RequestVerificationToken"]', $('#testTable')).val();
+    let skipAmount = { skipAmount: $('#testTable tr').length - 1 };
+    let searchString = { searchString: getUrlParameter("searchString") };
 
-    var testRatingFrom = { testRatingFrom: getUrlParameter("testRatingFrom") };
-    var testRatingTo = { testRatingTo: getUrlParameter("testRatingTo") };
+    let testRatingFrom = { testRatingFrom: getUrlParameter("testRatingFrom") };
+    let testRatingTo = { testRatingTo: getUrlParameter("testRatingTo") };
 
-    var testDurationFrom = { testDurationFrom: getUrlParameter("testDurationFrom") };
-    var testDurationTo = { testDurationTo: getUrlParameter("testDurationTo") };
+    let testDurationFrom = { testDurationFrom: getUrlParameter("testDurationFrom") };
+    let testDurationTo = { testDurationTo: getUrlParameter("testDurationTo") };
 
-    var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
+    let dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
 
     dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
@@ -25,43 +25,53 @@
         type: "POST",
         data: dataWithAntiforgeryToken,
         success: function (data) {
-            appendTopTests(data);
+            appendTests(data);
         },
         error: function () {
 
         }
     });
 }
-function appendTopTests(tests) {
-    var table = $('#testTable');
+function appendTests(tests) {
+    let table = $('#testTable');
+    if (tests.length === 0 || tests.length !== amount.amount) {
+        let button = $('#loadMoreButton');
+        button.unbind("click");
+        button.prop({disabled: true});
+    }
+
     tests.forEach(function (element) {
-        var tr = $('<tr/>');
-        var testRef = $('<a/>', { href: '/' + element.testCode, text: element.testName });
-        var testTd = $('<td/>').append(testRef);
+        let tr = $('<tr/>');
+        let testRef = $('<a/>', { href: '/' + element.testCode, text: element.testName });
+        let testTd = $('<td/>').append(testRef);
         tr.append(testTd);
-        var formattedDate = new Date(element.creationDate);
-        var timeTd = $('<td/>', { text: formattedDate.toLocaleString(), class: 'hidden-xs' });
+        let formattedDate = new Date(element.creationDate);
+        let timeTd = $('<td/>', { text: formattedDate.toLocaleString(), class: 'hidden-xs' });
         tr.append(timeTd);
         tr.append($('<td/>', { text: element.testDuration.slice(0, -3) }));
-        var rateClass = '';
+        let rateClass = '';
         if (element.testRating > 0)
             rateClass = 'text-success';
         else if (element.testRating < 0)
             rateClass = 'text-danger';
-        var td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
+        let td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
         tr.append(td);
-        appendTopTestsControls(tr, element);
+        appendTestsControls(tr, element);
         table.append(tr);
     });
 }
-function appendTopTestsControls(tr, test) {
-    var detailsRef = $('<a/>', { href: '/Tests/Details/' + test.id, text: 'Details' });
-    var td = $('<td/>').append(detailsRef);
+function appendTestsControls(tr, test) {
+    let detailsRef = $('<a/>', { href: '/Tests/Details/' + test.id, text: 'Details' });
+    let td = $('<td/>').append(detailsRef);
     tr.append(td);
 }
 $('#resetFilterButton').click(function (e) {
     ResetFilters(e);
 });
+$('#loadMoreButton').click(function (e) {
+    getTests();
+});
+
 function ResetFilters(e) {
     e.stopPropagation();
     $('input[name="testRatingFrom"]').val('');
