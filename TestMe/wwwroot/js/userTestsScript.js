@@ -1,11 +1,9 @@
-﻿const amount = { amount: 10 };
-function getUserSharedTests() {
+﻿function getUserSharedTests() {
     let token = $('input[name="__RequestVerificationToken"]', $('#userTests')).val();
     let skipAmount = { skipAmount: $('#userTests tr').length - 1 };
     let searchString = { searchString: getUrlParameter("searchString") };
     let userId = { userId: $('input[name="userId"]').val() };
     let dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
-    dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     dataWithAntiforgeryToken = $.extend(userId, dataWithAntiforgeryToken);
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
 
@@ -22,11 +20,10 @@ function getUserSharedTests() {
     });
 }
 function appendUserTests(tests) {
-    if (tests.length === 0 || tests.length !== amount.amount) {
+    if (tests.length === 0 || tests.length !== amount) {
         let button = $('#loadMoreButton');
         button.unbind("click");
         button.prop({ disabled: true });
-        return;
     }
     let table = $('#userTests');
     tests.forEach(function (element) {
@@ -57,3 +54,9 @@ function appendUserTestsControls(tr, test) {
 $('#loadMoreButton').click(function (e) {
     getUserSharedTests();
 });
+
+if ($('#userTests tr').length - 1 < amount) {
+    let button = $('#loadMoreButton');
+    button.unbind("click");
+    button.prop({ disabled: true });
+}

@@ -11,5 +11,6 @@ namespace TestMe.Models
         public int TopRatedHomePageAmount { get; set; }
         public int MinTopRatedRate { get; set; }
         public int MinReportAmount { get; set; }
+        public int AjaxTakeAmount { get; set; }
     }
 }

@@ -270,6 +270,7 @@ namespace TestMe.Controllers
             if (topRatedTests is null)
                 return NotFound();
 
+            ViewBag.AjaxTakeAmount = _loadConfig.Value.AjaxTakeAmount;
             return View(topRatedTests);
         }
         [HttpGet]
@@ -309,14 +310,15 @@ namespace TestMe.Controllers
             if (tests is null)
                 return NotFound();
 
+            ViewBag.AjaxTakeAmount = _loadConfig.Value.AjaxTakeAmount;
             return View(tests);
         }
         [HttpPost]
         [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetTestsAjax(int? skipAmount, int? amount, FilterModel filterModel)
+        public async Task<IActionResult> GetTestsAjax(int? skipAmount, FilterModel filterModel)
         {
-            if (skipAmount is null || amount is null)
+            if (skipAmount is null)
                 return BadRequest();
 
             if (filterModel.SearchString is null)
@@ -326,7 +328,7 @@ namespace TestMe.Controllers
                 .GetAll()
                 .Where(t => t.TestName.Contains(filterModel.SearchString, StringComparison.OrdinalIgnoreCase))
                 .Skip(skipAmount.Value)
-                .Take(amount.Value)
+                .Take(_loadConfig.Value.AjaxTakeAmount)
                 .ToListAsync();
 
             var optimizedTests = tests.Select(t =>
@@ -347,9 +349,9 @@ namespace TestMe.Controllers
         [HttpPost]
         [Authorize(Roles = "Admin, Moderator")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetReportedTestsAjax(int? skipAmount, int? amount,FilterModel filterModel)
+        public async Task<IActionResult> GetReportedTestsAjax(int? skipAmount, FilterModel filterModel)
         {
-            if (skipAmount is null || amount is null)
+            if (skipAmount is null)
                 return NotFound();
 
             if (filterModel.SearchString is null)
@@ -359,7 +361,7 @@ namespace TestMe.Controllers
                 .GetAll()
                 .Where(t => t.TestReports.Count >= _loadConfig.Value.MinReportAmount && t.TestName.Contains(filterModel.SearchString, StringComparison.OrdinalIgnoreCase))
                 .Skip(skipAmount.Value)
-                .Take(amount.Value)
+                .Take(_loadConfig.Value.AjaxTakeAmount)
                 .ToListAsync();
 
             var optimizedTests = tests.Select(t =>
@@ -378,9 +380,9 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetSharedTestsAjax(int? skipAmount, int? amount, FilterModel filterModel)
+        public async Task<IActionResult> GetSharedTestsAjax(int? skipAmount, FilterModel filterModel)
         {
-            if (skipAmount is null || amount is null)
+            if (skipAmount is null)
                 return NotFound();
 
             if (filterModel.SearchString is null)
@@ -411,7 +413,7 @@ namespace TestMe.Controllers
                t.TestDuration >= filterModel.TestDurationFrom && 
                t.TestDuration <= filterModel.TestDurationTo)
              .Skip(skipAmount.Value)
-             .Take(_loadConfig.Value.TakeAmount)
+             .Take(_loadConfig.Value.AjaxTakeAmount)
              .ToListAsync();
 
             var optimizedTests = tests.Select(t =>
@@ -430,9 +432,9 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetTopTestsAjax(int? skipAmount, int? amount, FilterModel filterModel)
+        public async Task<IActionResult> GetTopTestsAjax(int? skipAmount, FilterModel filterModel)
         {
-            if (skipAmount is null || amount is null)
+            if (skipAmount is null)
                 return NotFound();
 
             if (filterModel.SearchString is null)
@@ -445,7 +447,7 @@ namespace TestMe.Controllers
                 && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= _loadConfig.Value.MinTopRatedRate)
                 .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
                 .Skip(skipAmount.Value)
-                .Take(amount.Value)
+                .Take(_loadConfig.Value.AjaxTakeAmount)
                 .ToListAsync();
             
             var optimizedTests = topRatedTests.Select(t =>

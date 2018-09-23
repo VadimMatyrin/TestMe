@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using TestMe.Models;
 using TestMe.Sevices.Interfaces;
 
@@ -16,10 +17,12 @@ namespace TestMe.Controllers
     {
         private readonly ITestingPlatform _testingPlatform;
         private readonly UserManager<AppUser> _userManager;
-        public ProfileController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager)
+        private readonly IOptions<LoadConfig> _loadConfig;
+        public ProfileController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<LoadConfig> loadConfig)
         {
             _testingPlatform = testingPlatform;
             _userManager = userManager;
+            _loadConfig = loadConfig;
         }
         [HttpGet]
         [ActionName("Index")]
@@ -43,20 +46,19 @@ namespace TestMe.Controllers
             if (searchString is null)
                 searchString = "";
 
-            //profile.TestMarks = _testingPlatform.TestMarkManager.GetAll().Where(tm => tm.AppUserId == profile.AppUser.Id).ToList();
             profile.UserTests = await _testingPlatform.TestManager
                 .GetAll()
                 .Where(t => t.AppUserId == profile.AppUser.Id && t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                .Take(1)
+                .Take(_loadConfig.Value.TakeAmount)
                 .ToListAsync();
-            //profile.TestResults = _testingPlatform.TestResultManager.GetAll().Where(tm => tm.AppUserId == profile.AppUser.Id).ToList();
+
             return View(profile);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetUserProfileTestsAjax(string userId, int? skipAmount, int? amount, string searchString)
+        public async Task<IActionResult> GetUserProfileTestsAjax(string userId, int? skipAmount, string searchString)
         {
-            if (userId is null || skipAmount is null || amount is null)
+            if (userId is null || skipAmount is null)
                 return BadRequest();
 
             if (searchString is null)
@@ -66,7 +68,7 @@ namespace TestMe.Controllers
                 .GetAll()
                 .Where(t => t.AppUserId == userId && t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 .Skip(skipAmount.Value)
-                .Take(amount.Value)
+                .Take(_loadConfig.Value.AjaxTakeAmount)
                 .ToListAsync();
 
             var optimizedTests = tests.Select(t =>

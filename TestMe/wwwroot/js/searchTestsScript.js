@@ -1,5 +1,4 @@
-﻿const amount = { amount: 10 };
-function getTests() {
+﻿function getTests() {
     let token = $('input[name="__RequestVerificationToken"]', $('#testTable')).val();
     let skipAmount = { skipAmount: $('#testTable tr').length - 1 };
     let searchString = { searchString: getUrlParameter("searchString") };
@@ -12,7 +11,6 @@ function getTests() {
 
     let dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
 
-    dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
 
     dataWithAntiforgeryToken = $.extend(testRatingFrom, dataWithAntiforgeryToken); 
@@ -34,11 +32,10 @@ function getTests() {
 }
 function appendTests(tests) {
     let table = $('#testTable');
-    if (tests.length === 0 || tests.length !== amount.amount) {
+    if (tests.length === 0 || tests.length !== amount) {
         let button = $('#loadMoreButton');
         button.unbind("click");
         button.prop({ disabled: true });
-        return;
     }
 
     tests.forEach(function (element) {
@@ -79,4 +76,10 @@ function ResetFilters(e) {
     $('input[name="testRatingTo"]').val('');
     $('input[name="testDurationFrom"]').val('');
     $('input[name="testDurationTo"]').val('');
+}
+
+if ($('#testTable tr').length - 1 < amount) {
+    let button = $('#loadMoreButton');
+    button.unbind("click");
+    button.prop({ disabled: true });
 }

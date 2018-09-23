@@ -1,10 +1,8 @@
-﻿const amount = { amount: 10 };
-function getTopTests() {
+﻿function getTopTests() {
     let token = $('input[name="__RequestVerificationToken"]', $('#topTestTable')).val();
     let skipAmount = { skipAmount: $('#topTestTable tr').length - 1 };
     let searchString = { searchString: getUrlParameter("searchString") };
     let dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
-    dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
     $.ajax({
         url: "/Tests/GetTopTestsAjax",
@@ -19,11 +17,10 @@ function getTopTests() {
     });
 }
 function appendTopTests(tests) {
-    if (tests.length === 0 || tests.length !== amount.amount) {
+    if (tests.length === 0 || tests.length !== amount) {
         let button = $('#loadMoreButton');
         button.unbind("click");
         button.prop({ disabled: true });
-        return;
     }
     let table = $('#topTestTable');
     tests.forEach(function (element) {
@@ -55,3 +52,9 @@ function appendTopTestsControls(tr, test) {
 $('#loadMoreButton').click(function (e) {
     getTopTests();
 });
+
+if ($('#topTestTable tr').length - 1 < amount) {
+    let button = $('#loadMoreButton');
+    button.unbind("click");
+    button.prop({ disabled: true });
+}

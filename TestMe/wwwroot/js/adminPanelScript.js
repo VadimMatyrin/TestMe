@@ -1,10 +1,8 @@
-﻿const amount = { amount: 10 };
-function getTests() {
+﻿function getTests() {
     let token = $('input[name="__RequestVerificationToken"]', $('#testTable')).val();
     let skipAmount = { skipAmount: $('#testTable tr').length - 1 };
     let searchString = { searchString: getUrlParameter("searchString") };
     let dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
-    dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken); 
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
     $.ajax({
         url: "/Tests/GetTestsAjax",
@@ -19,11 +17,10 @@ function getTests() {
     });
 }
 function appendTests(tests) {
-    if (tests.length === 0 || tests.length !== amount.amount) {
+    if (tests.length === 0 || tests.length !== amount) {
         let button = $('#loadMoreTestsButton');
         button.unbind("click");
         button.prop({ disabled: true });
-        return;
     }
     let table = $('#testTable');
     tests.forEach(function (element) {
@@ -90,7 +87,6 @@ function getReportedTests() {
     let skipAmount = { skipAmount: $('#reportedTestTable tr').length - 1 };
     let searchString = { searchString: getUrlParameter("searchString") };
     let dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
-    dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
     $.ajax({
         url: "/Tests/GetReportedTestsAjax",
@@ -105,13 +101,12 @@ function getReportedTests() {
     });
 }
 function appendReportedTests(tests) {
-    if (tests.length === 0 || tests.length !== amount.amount) {
+    if (tests.length === 0 || tests.length !== amount) {
         let button = $('#loadMoreReportedTestsButton');
         button.unbind("click");
         button.prop({ disabled: true });
-        return;
     }
-    var table = $('#reportedTestTable');
+    let table = $('#reportedTestTable');
     tests.forEach(function (element) {
         let tr = $('<tr/>');
         tr.append($('<td/>', { text: element.id }));
@@ -127,7 +122,7 @@ function appendReportedTests(tests) {
             rateClass = 'text-success';
         else if (element.testRating < 0)
             rateClass = 'text-danger';
-        var td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
+        let td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
         tr.append(td);
         appendReportedTestControlls(tr, element);
         table.append(tr);
@@ -160,7 +155,6 @@ function getUsers() {
     let skipAmount = { skipAmount: $('#userTable tr').length - 1 };
     let searchString = { searchString: getUrlParameter("searchString") };
     let dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
-    dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
     $.ajax({
         url: "/Admin/GetUsersAjax",
@@ -176,11 +170,10 @@ function getUsers() {
 }
 
 function appendUsers(users) {
-    if (users.length === 0 || users.length !== amount.amount) {
+    if (users.length === 0 || users.length !== amount) {
         let button = $('#loadMoreUsersButton');
         button.unbind("click");
         button.prop({ disabled: true });
-        return;
     }
     let table = $('#userTable');
     users.forEach(function (element) {
@@ -245,3 +238,21 @@ $('#loadMoreReportedTestsButton').click(function (e) {
 $('#loadMoreUsersButton').click(function (e) {
     getUsers();
 });
+
+if ($('#testTable tr').length - 1 < amount) {
+    let button = $('#loadMoreTestsButton');
+    button.unbind("click");
+    button.prop({ disabled: true });
+}
+
+if ($('#reportedTestTable tr').length - 1 < amount) {
+    let button = $('#loadMoreReportedTestsButton');
+    button.unbind("click");
+    button.prop({ disabled: true });
+}
+
+if ($('#userTable tr').length - 1 < amount) {
+    let button = $('#loadMoreUsersButton');
+    button.unbind("click");
+    button.prop({ disabled: true });
+} 
