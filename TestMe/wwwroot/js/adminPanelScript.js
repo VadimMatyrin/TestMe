@@ -1,10 +1,8 @@
 ﻿function getTests() {
-    var token = $('input[name="__RequestVerificationToken"]', $('#testTable')).val();
-    var skipAmount = { skipAmount: $('#testTable tr').length - 1 };
-    var amount = { amount: 10 };
-    var searchString = { searchString: getUrlParameter("searchString") };
-    var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
-    dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken); 
+    let token = $('input[name="__RequestVerificationToken"]', $('#testTable')).val();
+    let skipAmount = { skipAmount: $('#testTable tr').length - 1 };
+    let searchString = { searchString: getUrlParameter("searchString") };
+    let dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
     $.ajax({
         url: "/Tests/GetTestsAjax",
@@ -19,70 +17,76 @@
     });
 }
 function appendTests(tests) {
-    var table = $('#testTable');
+    if (tests.length === 0 || tests.length !== amount) {
+        let button = $('#loadMoreTestsButton');
+        button.unbind("click");
+        button.prop({ disabled: true });
+    }
+    let table = $('#testTable');
     tests.forEach(function (element) {
-        var tr = $('<tr/>');
-        tr.append($('<td/>', { text: element.id }));
-        var testNameRef = $('<a/>', { href: '/TestQuestions/Index/' + element.id, text: element.testName});
-        var testNameTd = $('<td/>').append(testNameRef);
+        let tr = $('<tr/>');
+        let testIdTd = $('<td/>', { text: element.id});
+        tr.append(testIdTd);
+        let testNameRef = $('<a/>', { href: '/TestQuestions/Index/' + element.id, text: element.testName});
+        let testNameTd = $('<td/>').append(testNameRef);
         tr.append(testNameTd);
-        var formattedDate = new Date(element.creationDate);
-        tr.append($('<td/>', { text: formattedDate.toLocaleString() }));
-        tr.append($('<td/>', { text: element.testCode }));
+        let formattedDate = new Date(element.creationDate);
+        let timeTd = $('<td/>', { text: formattedDate.toLocaleString(), class: 'hidden-xs' });
+        tr.append(timeTd);
+        let testCodeTd = $('<td/>', { text: element.testCode, class: 'hidden-xs' });
+        tr.append(testCodeTd);
         tr.append($('<td/>', { text: element.testDuration.slice(0, -3) }));
-        var rateClass = '';
+        let rateClass = '';
         if (element.testRating > 0)
             rateClass = 'text-success';
         else if (element.testRating < 0)
             rateClass = 'text-danger';
-        var td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
+        let td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
         tr.append(td);
-        var userRef = $('<a/>', { href: '/Profile/Index/' + element.userId, text: element.userName });
-        var userTd = $('<td/>').append(userRef);
+        let userRef = $('<a/>', { href: '/Profile/Index/' + element.userId, text: element.userName });
+        let userTd = $('<td/>', { class: 'hidden-xs'}).append(userRef);
         tr.append(userTd);
         appendControls(tr, element);
         table.append(tr);
     });
 }
 function appendControls(tr, test) {
-    var td = $('<td/>');
+    let td = $('<td/>');
     if (test.testCode === null) {
-        var editRef = $('<a/>', { href: '/Tests/Edit/' + test.id, text: 'Edit' });
+        let editRef = $('<a/>', { href: '/Tests/Edit/' + test.id, text: 'Edit' });
         td.append(editRef);
         td.append('<span> | </span>');
-        var deleteRef = $('<a/>', { href: '/Tests/Delete/' + test.id, text: 'Delete' });
+        let deleteRef = $('<a/>', { href: '/Tests/Delete/' + test.id, text: 'Delete' });
         td.append(deleteRef);
         td.append('<span> | </span>');
-        var shareTestRef = $('<a/>', { href: '/Tests/CreateCode/' + test.id, text: 'Share test' });
+        let shareTestRef = $('<a/>', { href: '/Tests/CreateCode/' + test.id, text: 'Share test' });
         td.append(shareTestRef);
         td.append('<span> | </span>');
-        var validateTestRef = $('<a/>', { href: '/Tests/ValidateTest/' + test.id, text: 'Validate test' });
+        let validateTestRef = $('<a/>', { href: '/Tests/ValidateTest/' + test.id, text: 'Validate test' });
         td.append(validateTestRef);
         td.append('<span> | </span>');
     }
     else {
-        var tryTestRef = $('<a/>', { href: '/TestEngine?code=' + test.testCode, text: 'Try test out' });
+        let tryTestRef = $('<a/>', { href: '/TestEngine?code=' + test.testCode, text: 'Try test out' });
         td.append(tryTestRef);
         td.append('<span> | </span>');
-        var stopShareRef = $('<a/>', { href: '/Tests/StopSharing/' + test.id, text: 'Stop sharing' });
+        let stopShareRef = $('<a/>', { href: '/Tests/StopSharing/' + test.id, text: 'Stop sharing' });
         td.append(stopShareRef);
         td.append('<span> | </span>');
     }
-    var userResultsRef = $('<a/>', { href: '/TestResults/Index/' + test.id, text: 'User results' });
+    let userResultsRef = $('<a/>', { href: '/TestResults/Index/' + test.id, text: 'User results' });
     td.append(userResultsRef);
     td.append('<span> | </span>');
-    var detailsRef = $('<a/>', { href: '/Tests/Details/' + test.id, text: 'Details' });
+    let detailsRef = $('<a/>', { href: '/Tests/Details/' + test.id, text: 'Details' });
     td.append(detailsRef);
     tr.append(td);
 }
 
 function getReportedTests() {
-    var token = $('input[name="__RequestVerificationToken"]', $('#reportedTestTable')).val();
-    var skipAmount = { skipAmount: $('#reportedTestTable tr').length - 1 };
-    var amount = { amount: 1 };
-    var searchString = { searchString: getUrlParameter("searchString") };
-    var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
-    dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
+    let token = $('input[name="__RequestVerificationToken"]', $('#reportedTestTable')).val();
+    let skipAmount = { skipAmount: $('#reportedTestTable tr').length - 1 };
+    let searchString = { searchString: getUrlParameter("searchString") };
+    let dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
     $.ajax({
         url: "/Tests/GetReportedTestsAjax",
@@ -96,36 +100,40 @@ function getReportedTests() {
         }
     });
 }
-function appendReportedTests(tests)
-{
-    var table = $('#reportedTestTable');
+function appendReportedTests(tests) {
+    if (tests.length === 0 || tests.length !== amount) {
+        let button = $('#loadMoreReportedTestsButton');
+        button.unbind("click");
+        button.prop({ disabled: true });
+    }
+    let table = $('#reportedTestTable');
     tests.forEach(function (element) {
-        var tr = $('<tr/>');
+        let tr = $('<tr/>');
         tr.append($('<td/>', { text: element.id }));
-        var testNameRef = $('<a/>', { href: '/TestQuestions/Index/' + element.id, text: element.testName });
-        var testNameTd = $('<td/>').append(testNameRef);
+        let testNameRef = $('<a/>', { href: '/TestQuestions/Index/' + element.id, text: element.testName });
+        let testNameTd = $('<td/>').append(testNameRef);
         tr.append(testNameTd);
-        var userRef = $('<a/>', { href: '/Profile/Index/' + element.userId, text: element.userName });
-        var userTd = $('<td/>').append(userRef);
+        let userRef = $('<a/>', { href: '/Profile/Index/' + element.userId, text: element.userName });
+        let userTd = $('<td/>', { class: 'hidden-xs' }).append(userRef);
         tr.append(userTd);
         tr.append($('<td/>', { text: element.reportAmount }));
-        var rateClass = '';
+        let rateClass = '';
         if (element.testRating > 0)
             rateClass = 'text-success';
         else if (element.testRating < 0)
             rateClass = 'text-danger';
-        var td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
+        let td = $('<td/>').append($('<span/>', { text: element.testRating, class: rateClass }));
         tr.append(td);
         appendReportedTestControlls(tr, element);
         table.append(tr);
     });
 }
 function appendReportedTestControlls(tr, test) {
-    var td = $('<td/>');
-    var ignoreRef = $('<a/>', { href: '/Admin/DeleteReports/' + test.id, text: 'Ignore reports' });
+    let td = $('<td/>');
+    let ignoreRef = $('<a/>', { href: '/Admin/DeleteReports/' + test.id, text: 'Ignore reports' });
     td.append(ignoreRef);
     td.append('<span> | </span>');
-    var deleteRef = $('<a/>', { href: '/Tests/Delete/' + test.id, text: 'Delete test' });
+    let deleteRef = $('<a/>', { href: '/Tests/Delete/' + test.id, text: 'Delete test' });
     td.append(deleteRef);
     td.append('<span> | </span>');
     if (test.testCode !== null) {
@@ -134,21 +142,19 @@ function appendReportedTestControlls(tr, test) {
         td.append(tryTestRef);
         td.append('<span> | </span>');
     }
-    var detailsRef = $('<a/>', { href: '/Tests/Details/' + test.id, text: 'Details' });
+    let detailsRef = $('<a/>', { href: '/Tests/Details/' + test.id, text: 'Details' });
     td.append(detailsRef);
     td.append('<span> | </span>');
-    var reportsRef = $('<a/>', { href: '/TestReports/Index/' + test.id, text: 'Reports' });
+    let reportsRef = $('<a/>', { href: '/TestReports/Index/' + test.id, text: 'Reports' });
     td.append(reportsRef);
     tr.append(td);
 }
 
 function getUsers() {
-    var token = $('input[name="__RequestVerificationToken"]', $('#userTable')).val();
-    var skipAmount = { skipAmount: $('#userTable tr').length - 1 };
-    var amount = { amount: 1 };
-    var searchString = { searchString: getUrlParameter("searchString") };
-    var dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
-    dataWithAntiforgeryToken = $.extend(amount, dataWithAntiforgeryToken);
+    let token = $('input[name="__RequestVerificationToken"]', $('#userTable')).val();
+    let skipAmount = { skipAmount: $('#userTable tr').length - 1 };
+    let searchString = { searchString: getUrlParameter("searchString") };
+    let dataWithAntiforgeryToken = $.extend(skipAmount, { '__RequestVerificationToken': token });
     dataWithAntiforgeryToken = $.extend(searchString, dataWithAntiforgeryToken); 
     $.ajax({
         url: "/Admin/GetUsersAjax",
@@ -164,54 +170,89 @@ function getUsers() {
 }
 
 function appendUsers(users) {
-    var table = $('#userTable');
+    if (users.length === 0 || users.length !== amount) {
+        let button = $('#loadMoreUsersButton');
+        button.unbind("click");
+        button.prop({ disabled: true });
+    }
+    let table = $('#userTable');
     users.forEach(function (element) {
-        var tr = $('<tr/>');
-        var userRef = $('<a/>', { href: '/Profile/Index/' + element.id, text: element.userName });
-        var userTd = $('<td/>').append(userRef);
+        let tr = $('<tr/>');
+        let userRef = $('<a/>', { href: '/Profile/Index/' + element.id, text: element.userName });
+        let userTd = $('<td/>').append(userRef);
         tr.append(userTd);
-        tr.append($('<td/>', { text: element.name }));
-        tr.append($('<td/>', { text: element.surname }));
+        let nameTd = $('<td/>', { text: element.name, class: 'hidden-xs' });
+        tr.append(nameTd);
+        let surnameTd = $('<td/>', { text: element.surname, class: 'hidden-xs' });
+        tr.append(surnameTd);
         tr.append($('<td/>', { text: element.email }));
-        tr.append($('<td/>', { text: element.phoneNumber }));
+        let phoneNumberTd = $('<td/>', { text: element.phoneNumber, class: 'hidden-xs' });
+        tr.append(phoneNumberTd);
         appendUsersControlls(tr, element);
         table.append(tr);
     });
 }
 function appendUsersControlls(tr, user) {
-    var td = $('<td/>');
+    let td = $('<td/>');
     if (user.role === "Admin") {
         if (user.currentUserUsername !== user.UserName) {
-            var removeFromAdminsRef = $('<a/>', { href: '/Admin/RemoveFromAdmins/' + user.id, text: 'Remove from admins' });
+            let removeFromAdminsRef = $('<a/>', { href: '/Admin/RemoveFromAdmins/' + user.id, text: 'Remove from admins' });
             td.append(removeFromAdminsRef);
             td.append('<span> | </span>');
          }
     }
     else {
         if (user.isBanned) {
-            var unBanRef = $('<a/>', { href: '/Admin/UnBanUser/' + user.id, text: 'Unban' });
+            let unBanRef = $('<a/>', { href: '/Admin/UnBanUser/' + user.id, text: 'Unban' });
             td.append(unBanRef);
             td.append('<span> | </span>');
         }
         else {
-            var banRef = $('<a/>', { href: '/Admin/BanUser/' + user.id, text: 'Ban' });
+            let banRef = $('<a/>', { href: '/Admin/BanUser/' + user.id, text: 'Ban' });
             td.append(banRef);
             td.append('<span> | </span>');
         }
         if (user.role === "Moderator") {
             if (user.currentUserUsername !== user.userName) {
-                var removeFromModeratorsRef = $('<a/>', { href: '/Admin/RemoveFromModerators/' + user.id, text: 'Remove from moderators' });
+                let removeFromModeratorsRef = $('<a/>', { href: '/Admin/RemoveFromModerators/' + user.id, text: 'Remove from moderators' });
                 td.append(removeFromModeratorsRef);
                 td.append('<span> | </span>');
             }
         }
         else {
-            var addToModeratorsRef = $('<a/>', { href: '/Admin/AddToModerators/' + user.id, text: 'Add to moderators' });
+            let addToModeratorsRef = $('<a/>', { href: '/Admin/AddToModerators/' + user.id, text: 'Add to moderators' });
             td.append(addToModeratorsRef);
             td.append('<span> | </span>');
         }
-        var addToAdminsRef = $('<a/>', { href: '/Admin/AddToAdmins/' + user.id, text: 'Add to admins' });
+        let addToAdminsRef = $('<a/>', { href: '/Admin/AddToAdmins/' + user.id, text: 'Add to admins' });
         td.append(addToAdminsRef);
     }
     tr.append(td);
 }
+$('#loadMoreTestsButton').click(function (e) {
+    getTests();
+});
+$('#loadMoreReportedTestsButton').click(function (e) {
+    getReportedTests();
+});
+$('#loadMoreUsersButton').click(function (e) {
+    getUsers();
+});
+
+if ($('#testTable tr').length - 1 < amount) {
+    let button = $('#loadMoreTestsButton');
+    button.unbind("click");
+    button.prop({ disabled: true });
+}
+
+if ($('#reportedTestTable tr').length - 1 < amount) {
+    let button = $('#loadMoreReportedTestsButton');
+    button.unbind("click");
+    button.prop({ disabled: true });
+}
+
+if ($('#userTable tr').length - 1 < amount) {
+    let button = $('#loadMoreUsersButton');
+    button.unbind("click");
+    button.prop({ disabled: true });
+} 

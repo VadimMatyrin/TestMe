@@ -22,7 +22,7 @@
 
             </div>
             <div class="col-xs-12 col-md-offset-2 col-md-3">
-                <input type="submit" class="form-control " id="submit" value="Search">
+                <input type="submit" class="form-control btn-primary" id="submit" value="Search">
             </div>
         </div>
     </div>
@@ -37,7 +37,7 @@
             <th>
                 Name
             </th>
-            <th>
+            <th class="hidden-xs">
                 @Html.DisplayNameFor(model => model.AppUser)
             </th>
             <th>
@@ -69,7 +69,7 @@
                     }
 
                 </td>
-                <td>
+                <td class="hidden-xs">
                     <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.AppUserId">
                         @Html.DisplayFor(modelItem => item.AppUser.UserName)
                     </a>
@@ -108,7 +108,7 @@
 </table>
 <div class="row">
     <div class="col-md-offset-3 col-md-6 text-center">
-        <button type="button" class="btn btn-primary" onclick="getReportedTests()">Load more tests</button>
+        <button type="button" class="btn btn-primary" id="loadMoreReportedTestsButton">Load more tests</button>
     </div>
 </div>
 

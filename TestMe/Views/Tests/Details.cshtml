@@ -34,6 +34,14 @@
         <dd>
             @Html.DisplayFor(model => model.TestDuration)
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AppUser)
+        </dt>
+        <dd>
+            <a asp-action="Index" asp-controller="Profile" asp-route-id="@Model.AppUser.Id">
+                @Html.DisplayFor(model => model.AppUser.UserName)
+            </a>
+        </dd>
         @if (!(Model.TestCode is null))
         {
             <dt>
@@ -46,29 +54,27 @@
     </dl>
 </div>
 <div>
-    @if (User.Identity.Name == Model.AppUser.UserName || User.IsInRole("Admin"))
+    @if (Model.TestCode is null && (User.Identity.Name == Model.AppUser.UserName || User.IsInRole("Admin")))
     {
         <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
     }
     @if (User.Identity.Name == Model.AppUser.UserName)
     {
         <div>
-            <a asp-action="Index" asp-controller="Tests">Backs to tests</a>
+            <a asp-action="Index" asp-controller="Tests">Your tests</a>
+        </div>
+    }
+    @if (User.IsInRole("Admin"))
+    {
+        <div>
+            <a asp-action="Index" asp-controller="Admin">Administration</a>
         </div>
     }
     else
     {
-        if (User.IsInRole("Admin"))
-        {
-            <div>
-                <a asp-action="Index" asp-controller="Admin">Back to administration</a>
-            </div>
-        }
-        else
-        {
-            <div>
-                <a asp-action="ReportedTests" asp-controller="Admin">Back to moderation</a>
-            </div>
-        }
+        <div>
+            <a asp-action="ReportedTests" asp-controller="Admin">Moderation</a>
+        </div>
     }
+
 </div>

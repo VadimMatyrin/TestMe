@@ -20,10 +20,74 @@
                 }
 
             </div>
-            <div class="col-xs-12 col-md-offset-2 col-md-3">
-                <input type="submit" class="form-control " id="submit" value="Search">
+            <div class="col-xs-2 col-md-offset-1 col-md-1 dropdown">
+                <button class="btn dropdown-toggle" type="button" id="dropDownMenuButton" data-toggle="dropdown">
+                    <span class="glyphicon glyphicon-filter"></span>
+                </button>
+                <div class="dropdown-menu" id="filterDropdown" aria-labelledby="dropdownMenuButton">
+                    <div class="row">
+                        <div class="col-xs-12 form-group">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <label for="testRating">Test rating</label>
+                                </div>
+                                <div class="col-xs-12" id="testRating">
+                                    <label for="testRatingFrom">from</label>
+                                    @if (Context.Request.Query["testRatingFrom"].Count != 0 && @Context.Request.Query["testRatingFrom"][0] != "")
+                                    {
+                                        <input type="number" class="form-control" name="testRatingFrom" id="testRatingFrom" value='@Context.Request.Query["testRatingFrom"][0]' />
+                                    }
+                                    else
+                                    {
+                                        <input type="number" class="form-control" name="testRatingFrom" id="testRatingFrom" placeholder='0' />
+                                    }
+                                    <label for="testRatingTo">to</label>
+                                    @if (Context.Request.Query["testRatingTo"].Count != 0 && @Context.Request.Query["testRatingTo"][0] != "")
+                                    {
+                                        <input type="number" class="form-control" name="testRatingTo" id="testRatingTo" value='@Context.Request.Query["testRatingTo"][0]' />
+                                    }
+                                    else
+                                    {
+                                        <input type="number" class="form-control" name="testRatingTo" id="testRatingTo" placeholder='10' />
+                                    }
+                                </div>
+                                <div class="col-xs-12">
+                                    <label for="testRating">Test duration</label>
+                                </div>
+                                <div class="col-xs-12" id="testRating">
+                                    <label for="testDurationFrom">from</label>
+                                    @if (Context.Request.Query["testDurationFrom"].Count != 0 && @Context.Request.Query["testDurationFrom"][0] != "")
+                                    {
+                                        <input type="time" class="form-control" name="testDurationFrom" id="testDurationFrom" placeholder='1' value='@Context.Request.Query["testDurationFrom"][0]' />
+                                    }
+                                    else
+                                    {
+                                        <input type="time" class="form-control" name="testDurationFrom" id="testDurationFrom" placeholder='1' />
+                                    }
+                                    <label for="testDurationTo">to</label>
+                                    @if (Context.Request.Query["testDurationTo"].Count != 0 && @Context.Request.Query["testDurationTo"][0] != "")
+                                    {
+                                        <input type="time" class="form-control" name="testDurationTo" id="testDurationTo" placeholder='10' value='@Context.Request.Query["testDurationTo"][0]' />
+                                    }
+                                    else
+                                    {
+                                        <input type="time" class="form-control" name="testDurationTo" id="testDurationTo" placeholder='10' />
+                                    }
+                                </div>
+                                <div class="col-xs-12">
+                                    <button class="btn btn-info center-block" id="resetFilterButton" type="button">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+            <div class="col-xs-10 col-md-3">
+                <input type="submit" class="form-control btn-primary" id="submit" value="Search">
+            </div>
+
         </div>
+
     </div>
 </form>
 <table class="table" id="testTable">
@@ -33,7 +97,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.TestName)
             </th>
-            <th>
+            <th class="hidden-xs">
                 @Html.DisplayNameFor(model => model.CreationDate)
             </th>
             <th>
@@ -56,7 +120,7 @@
                         @Html.DisplayFor(modelItem => item.TestName)
                     </a>
                 </td>
-                <td>
+                <td class="hidden-xs">
                     @Html.DisplayFor(modelItem => item.CreationDate)
                 </td>
                 <td>
@@ -86,9 +150,12 @@
 </table>
 <div class="row">
     <div class="col-md-offset-3 col-md-6 text-center">
-         <button type="button" class="btn btn-primary" onclick="getTopTests()">Load more tests</button>
+         <button type="button" class="btn btn-primary" id="loadMoreButton">Load more tests</button>
     </div>
 </div>
+<script>
+    const amount = @ViewBag.AjaxTakeAmount;
+</script>
 @section Scripts{
     <script type="text/javascript" src="~/js/searchTestsScript.js"></script>
 }

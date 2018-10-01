@@ -61,7 +61,8 @@ namespace TestMe.Controllers
 
             if (context.RouteData.Values["action"].ToString() != "Index" &&
                 context.RouteData.Values["action"].ToString() != "FinishTest" &&
-                context.RouteData.Values["action"].ToString() != "RateFinishedTestAjax")
+                context.RouteData.Values["action"].ToString() != "RateFinishedTestAjax" &&
+                context.RouteData.Values["action"].ToString() != "GetCorrectAnswers")
             {
                 var startTimeStr = HttpContext.Session.GetString("startTime");
                 var endTimeStr = HttpContext.Session.GetString("endTime");

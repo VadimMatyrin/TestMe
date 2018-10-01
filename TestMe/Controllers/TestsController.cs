@@ -23,6 +23,31 @@ namespace TestMe.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IOptions<LoadConfig> _loadConfig;
         private string _userId;
+        public class FilterModel{
+            public string SearchString { get; set; }
+            public int? TestRatingFrom { get; set; }
+            public int? TestRatingTo { get; set; }
+            public TimeSpan? TestDurationFrom { get; set; }
+            public TimeSpan? TestDurationTo { get; set; }
+            public void SwapRatingBounds()
+            {
+                if (TestRatingFrom > TestRatingTo)
+                {
+                    int tmp = TestRatingFrom.Value;
+                    TestRatingFrom = TestRatingTo;
+                    TestRatingTo = tmp;
+                }
+            }
+            public void SwapDurationBounds()
+            {
+                if (TestDurationFrom > TestDurationTo)
+                {
+                    var tmp = TestDurationFrom;
+                    TestDurationFrom = TestDurationTo;
+                    TestDurationTo = tmp;
+                }
+            }
+        }
         public TestsController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<LoadConfig> loadConfig)
         {
             _testingPlatform = testingPlatform;
@@ -245,42 +270,65 @@ namespace TestMe.Controllers
             if (topRatedTests is null)
                 return NotFound();
 
+            ViewBag.AjaxTakeAmount = _loadConfig.Value.AjaxTakeAmount;
             return View(topRatedTests);
         }
         [HttpGet]
         [ActionName("SearchTests")]
-        public async Task<IActionResult> SearchTestsGet(string searchString)
+        public async Task<IActionResult> SearchTestsGet(FilterModel filterModel)
         {
-            if (searchString is null)
-                searchString = "";
+            if (filterModel.SearchString is null)
+                filterModel.SearchString = "";
+
+            if (filterModel.TestRatingFrom is null || filterModel.TestRatingFrom < 0)
+                filterModel.TestRatingFrom = 0;
+
+            if (filterModel.TestRatingTo is null || filterModel.TestRatingTo < 0)
+                filterModel.TestRatingTo = Int32.MaxValue;
+
+            filterModel.SwapRatingBounds();
+
+            if (filterModel.TestDurationFrom is null)
+                filterModel.TestDurationFrom = new TimeSpan(0, 0, 0);
+
+            if (filterModel.TestDurationTo is null)
+                filterModel.TestDurationTo = new TimeSpan(23, 59, 0);
+
+            filterModel.SwapDurationBounds();
 
             var tests = await _testingPlatform.TestManager
-                .GetAll()
-                .Where(t => t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                .Take(_loadConfig.Value.TakeAmount)
-                .ToListAsync();
+             .GetAll()
+             .Where(t => t.TestCode != null &&
+               t.TestName.Contains(filterModel.SearchString, StringComparison.OrdinalIgnoreCase) &&
+               t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= filterModel.TestRatingFrom &&
+               t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) <= filterModel.TestRatingTo &&
+               t.TestDuration >= filterModel.TestDurationFrom &&
+               t.TestDuration <= filterModel.TestDurationTo)
+             .Take(_loadConfig.Value.TakeAmount)
+             .ToListAsync();
 
             if (tests is null)
                 return NotFound();
 
+            ViewBag.AjaxTakeAmount = _loadConfig.Value.AjaxTakeAmount;
             return View(tests);
         }
         [HttpPost]
         [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetTestsAjax(int? skipAmount, int? amount, string searchString)
+        public async Task<IActionResult> GetTestsAjax(int? skipAmount, FilterModel filterModel)
         {
-            if (skipAmount is null || amount is null)
+            if (skipAmount is null)
                 return BadRequest();
 
-            if (searchString is null)
-                searchString = "";
+            if (filterModel.SearchString is null)
+                filterModel.SearchString = "";
 
             var tests = await _testingPlatform.TestManager
                 .GetAll()
-                .Where(t => t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                .Where(t => t.TestName.Contains(filterModel.SearchString, StringComparison.OrdinalIgnoreCase))
                 .Skip(skipAmount.Value)
-                .Take(amount.Value)
+                .Take(_loadConfig.Value.AjaxTakeAmount)
                 .ToListAsync();
 
             var optimizedTests = tests.Select(t =>
@@ -301,19 +349,19 @@ namespace TestMe.Controllers
         [HttpPost]
         [Authorize(Roles = "Admin, Moderator")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetReportedTestsAjax(int? skipAmount, int? amount, string searchString)
+        public async Task<IActionResult> GetReportedTestsAjax(int? skipAmount, FilterModel filterModel)
         {
-            if (skipAmount is null || amount is null)
+            if (skipAmount is null)
                 return NotFound();
 
-            if (searchString is null)
-                searchString = "";
+            if (filterModel.SearchString is null)
+                filterModel.SearchString = "";
 
             var tests = await _testingPlatform.TestManager
                 .GetAll()
-                .Where(t => t.TestReports.Count >= _loadConfig.Value.MinReportAmount && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                .Where(t => t.TestReports.Count >= _loadConfig.Value.MinReportAmount && t.TestName.Contains(filterModel.SearchString, StringComparison.OrdinalIgnoreCase))
                 .Skip(skipAmount.Value)
-                .Take(amount.Value)
+                .Take(_loadConfig.Value.AjaxTakeAmount)
                 .ToListAsync();
 
             var optimizedTests = tests.Select(t =>
@@ -332,20 +380,41 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetSharedTestsAjax(int? skipAmount, int? amount, string searchString)
+        public async Task<IActionResult> GetSharedTestsAjax(int? skipAmount, FilterModel filterModel)
         {
-            if (skipAmount is null || amount is null)
+            if (skipAmount is null)
                 return NotFound();
 
-            if (searchString is null)
-                searchString = "";
+            if (filterModel.SearchString is null)
+                filterModel.SearchString = "";
 
+            if (filterModel.TestRatingFrom is null || filterModel.TestRatingFrom < 0)
+                filterModel.TestRatingFrom = 0;
+
+            if (filterModel.TestRatingTo is null || filterModel.TestRatingTo < 0)
+                filterModel.TestRatingTo = Int32.MaxValue;
+
+            filterModel.SwapRatingBounds();
+
+            if (filterModel.TestDurationFrom is null)
+                filterModel.TestDurationFrom = new TimeSpan(0, 0, 0);
+
+            if (filterModel.TestDurationTo is null)
+                filterModel.TestDurationTo = new TimeSpan(23, 59, 0);
+
+            filterModel.SwapDurationBounds();
+            
             var tests = await _testingPlatform.TestManager
-                .GetAll()
-                .Where(t => t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                .Skip(skipAmount.Value)
-                .Take(amount.Value)
-                .ToListAsync();
+             .GetAll()
+             .Where(t => t.TestCode != null &&
+               t.TestName.Contains(filterModel.SearchString, StringComparison.OrdinalIgnoreCase) &&
+               t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= filterModel.TestRatingFrom &&
+               t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) <= filterModel.TestRatingTo &&
+               t.TestDuration >= filterModel.TestDurationFrom && 
+               t.TestDuration <= filterModel.TestDurationTo)
+             .Skip(skipAmount.Value)
+             .Take(_loadConfig.Value.AjaxTakeAmount)
+             .ToListAsync();
 
             var optimizedTests = tests.Select(t =>
             new
@@ -363,22 +432,22 @@ namespace TestMe.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetTopTestsAjax(int? skipAmount, int? amount, string searchString)
+        public async Task<IActionResult> GetTopTestsAjax(int? skipAmount, FilterModel filterModel)
         {
-            if (skipAmount is null || amount is null)
+            if (skipAmount is null)
                 return NotFound();
 
-            if (searchString is null)
-                searchString = "";
+            if (filterModel.SearchString is null)
+                filterModel.SearchString = "";
 
             var topRatedTests = await _testingPlatform.TestManager
                 .GetAll()
                 .Where(t =>
-                t.TestCode != null && t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase) 
+                t.TestCode != null && t.TestName.Contains(filterModel.SearchString, StringComparison.OrdinalIgnoreCase) 
                 && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= _loadConfig.Value.MinTopRatedRate)
                 .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
                 .Skip(skipAmount.Value)
-                .Take(amount.Value)
+                .Take(_loadConfig.Value.AjaxTakeAmount)
                 .ToListAsync();
             
             var optimizedTests = topRatedTests.Select(t =>

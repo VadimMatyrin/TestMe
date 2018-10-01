@@ -32,13 +32,13 @@
 @if (User.Identity.Name == Model.AppUser.UserName)
 {
     <div>
-        <a asp-action="Index">Back to tests</a>
+        <a asp-action="Index">Your tests</a>
     </div>
 }
 else
 {
     <div>
-        <a asp-action="Index" asp-controller="Admin">Back to administration</a>
+        <a asp-action="Index" asp-controller="Admin">Administration</a>
     </div>
 }
 

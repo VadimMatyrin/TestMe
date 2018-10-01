@@ -44,6 +44,7 @@ namespace TestMe.Controllers
             if (tests is null)
                 return NotFound();
 
+            ViewBag.AjaxTakeAmount = _loadConfig.Value.AjaxTakeAmount;
             return View(tests);
         }
         [HttpGet]
@@ -62,6 +63,7 @@ namespace TestMe.Controllers
             if (appUsers is null)
                 return NotFound();
 
+            ViewBag.AjaxTakeAmount = _loadConfig.Value.AjaxTakeAmount;
             return View(appUsers);
         }
         [Authorize(Roles ="Admin")]
@@ -174,6 +176,7 @@ namespace TestMe.Controllers
             if (tests is null)
                 return NotFound();
 
+            ViewBag.AjaxTakeAmount = _loadConfig.Value.AjaxTakeAmount;
             return View(tests);
         }
         [Authorize(Roles = "Admin, Moderator")]
@@ -196,9 +199,9 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetUsersAjax(int? skipAmount, int? amount, string searchString)
+        public async Task<IActionResult> GetUsersAjax(int? skipAmount, string searchString)
         {
-            if (skipAmount is null || amount is null)
+            if (skipAmount is null)
                 return BadRequest();
 
             if (searchString is null)
@@ -207,7 +210,7 @@ namespace TestMe.Controllers
             var users = await _userManager.Users.AsNoTracking()
                 .Where(u => u.UserName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 .Skip(skipAmount.Value)
-                .Take(amount.Value)
+                .Take(_loadConfig.Value.AjaxTakeAmount)
                 .ToListAsync();
 
             if (users is null)

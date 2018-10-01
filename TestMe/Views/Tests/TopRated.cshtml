@@ -20,7 +20,7 @@
                 }
             </div>
             <div class="col-xs-12 col-md-offset-2 col-md-3">
-                <input type="submit" class="form-control " id="submit" value="Search">
+                <input type="submit" class="form-control btn-primary" id="submit" value="Search">
             </div>
         </div>
     </div>
@@ -32,7 +32,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.TestName)
             </th>
-            <th>
+            <th class="hidden-xs">
                 @Html.DisplayNameFor(model => model.CreationDate)
             </th>
             <th>
@@ -53,7 +53,7 @@
                 <td>
                     <a asp-action="Index" asp-controller="TestEngine" asp-route-code="@item.TestCode">@Html.DisplayFor(modelItem => item.TestName)</a>
                 </td>
-                <td>
+                <td class="hidden-xs">
                     @Html.DisplayFor(modelItem => item.CreationDate)
                 </td>
                 <td>
@@ -83,9 +83,12 @@
 </table>
 <div class="row">
     <div class="col-md-offset-3 col-md-6 text-center">
-         <button type="button" class="btn btn-primary" onclick="getTopTests()">Load more tests</button>
+         <button type="button" class="btn btn-primary" id="loadMoreButton">Load more tests</button>
     </div>
 </div>
+<script>
+    const amount = @ViewBag.AjaxTakeAmount;
+</script>
 @section Scripts{ 
     <script type="text/javascript" src="~/js/topRatedTestsScript.js"></script>
 }
