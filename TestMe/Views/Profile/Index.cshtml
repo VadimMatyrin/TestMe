@@ -59,7 +59,7 @@
                     </div>
                 </div>
             </form>
-            <input type="hidden" name="userId" value="@Model.AppUser.Id"/>
+            <input type="hidden" name="userId" value="@Model.AppUser.Id" />
             <table class="table" id="userTests">
                 @Html.AntiForgeryToken()
                 <thead>
@@ -126,9 +126,9 @@
     </div>
 
 </div>
-<script>
-    const amount = @ViewBag.AjaxTakeAmount;
-</script>
-@section Scripts{ 
+@section Scripts{
+    <script>
+        const amount = @ViewBag.AjaxTakeAmount;
+    </script>
     <script type="text/javascript" src="~/js/userTestsScript.js"></script>
 }
