@@ -170,10 +170,16 @@ namespace TestMe.Controllers
             if (checkedIds.Count == 0)
                 throw new UserAnswersException();
 
-            var _answers = await _testingPlatform.TestAnswerManager
+            var questionAnswers = _testingPlatform.TestAnswerManager
                 .GetAll()
-                .Where(ta => ta.TestQuestion.Test.TestCode == testCode && ta.TestQuestionId == questionId && ta.IsCorrect)
-                .ToListAsync();
+                .Where(qa =>
+                qa.TestQuestion.Test.TestCode == testCode &&
+                qa.TestQuestionId == questionId);
+           
+            if(checkedIds.Except(questionAnswers.Select(qa => qa.Id)).Count() != 0)
+                throw new UserAnswersException();
+
+            var _answers = questionAnswers.Where(qa => qa.IsCorrect).ToList();
 
             if (_answers.Count == 0)
                 throw new QuestionNotFoundException(questionId.ToString());
@@ -190,7 +196,28 @@ namespace TestMe.Controllers
             var answeredQuestions = JsonConvert.DeserializeObject<Dictionary<int, bool>>(answeredQuestionsStr);
             answeredQuestions[questionId.Value] = isCorrect;
             HttpContext.Session.SetString("answeredQuestions", JsonConvert.SerializeObject(answeredQuestions));
+            var userId = _userManager.GetUserId(User);
+            foreach (var answer in checkedIds)
+            {
+                var prevAnswer = await _testingPlatform.UserAnswerManager.FindAsync(ua =>
+                ua.AppUserId == userId &&
+                ua.TestAnswerId == answer);
+                if (prevAnswer is null)
+                {
+                    var userAnswer = new UserAnswer {
+                        TestAnswerId = answer,
+                        AppUserId = userId,
+                        AnswerTime = DateTime.Now
+                    };
+                    await _testingPlatform.UserAnswerManager.AddAsync(userAnswer);
+                }
+                else
+                {
+                    prevAnswer.AnswerTime = DateTime.Now;
+                    await _testingPlatform.UserAnswerManager.UpdateAsync(prevAnswer);
+                }
 
+            }
             var serializedAnswers = JsonConvert.SerializeObject(checkedIds);
             HttpContext.Session.SetString(questionId.ToString(), serializedAnswers);
 

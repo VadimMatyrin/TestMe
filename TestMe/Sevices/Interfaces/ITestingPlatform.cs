@@ -15,5 +15,6 @@ namespace TestMe.Sevices.Interfaces
         IAnswerImageManager AnswerImageManager { get; }
         ITestReportManager TestReportManager { get; }
         ITestMarkManager TestMarkManager { get; }
+        IUserAnswerManager UserAnswerManager { get; }
     }
 }
