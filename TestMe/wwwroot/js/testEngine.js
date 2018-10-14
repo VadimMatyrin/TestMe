@@ -189,7 +189,8 @@ class TestEngine {
     }
     static isStarted() {
         let token = $('input[name="__RequestVerificationToken"]').val();
-        let dataWithAntiforgeryToken = { '__RequestVerificationToken': token };
+        var myData = { code: $("#testCode").val() };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
         let res;
         $.ajax({
             async: false,
@@ -222,7 +223,8 @@ class TestEngine {
     }
     getEndTime() {
         var token = $('input[name="__RequestVerificationToken"]').val();
-        var dataWithAntiforgeryToken = { '__RequestVerificationToken': token };
+        var myData = { code: $('#testQuestionFieldSet').data('testCode') };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
 
         $.ajax({
             context: this,

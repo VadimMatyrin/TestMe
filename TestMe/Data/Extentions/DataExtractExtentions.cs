@@ -64,7 +64,8 @@ namespace TestMe.Data.Extentions
             return dbSet
             .Include(ua => ua.AppUser)
             .Include(ua => ua.TestAnswer)
-            .ThenInclude(ua => ua.TestQuestion);
+            .ThenInclude(ta => ta.TestQuestion)
+            .ThenInclude(tq =>tq.Test);
         }
     }
 }

@@ -29,7 +29,6 @@ namespace TestMe.Controllers
 
         public async Task<IActionResult> Index(string code)
         {
-            ClearSessionForNewTest();
 
             var test = await _testingPlatform.TestManager
                 .FindAsync(t => t.TestCode == code);
@@ -54,10 +53,12 @@ namespace TestMe.Controllers
             
 
             test.TestReports = testReports;
-            if (HttpContext.Session.GetString("endTime") is null)
+            var testCode = HttpContext.Session.GetString("testCode");
+            if (HttpContext.Session.GetString("endTime") is null || testCode is null || (!(testCode is null) && testCode != code))
                 HttpContext.Session.Clear();
 
             HttpContext.Session.SetString("testCode", code);
+
             return View(test);
         }
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -83,19 +84,21 @@ namespace TestMe.Controllers
 
             }
         }
-        private void ClearSessionForNewTest()
+
+        private async Task DeleteOldAnswerAsync()
         {
-            var endTimeStr = HttpContext.Session.GetString("endTime");
+            var testCode = HttpContext.Session.GetString("testCode");
+            if (testCode is null)
+                throw new TestNotFoundException();
 
-            if (!(endTimeStr is null))
-            {
-                var endTime = JsonConvert.DeserializeObject<DateTime>(endTimeStr);
-                if (DateTime.Compare(endTime, DateTime.Now) < 0)
-                {
-                    HttpContext.Session.Clear();
-                }
-            }
+            var userId = _userManager.GetUserId(User);
+            var oldAnswers = _testingPlatform.UserAnswerManager
+                .GetAll()
+                .Where(ua =>
+                ua.AppUserId == userId && 
+                ua.TestAnswer.TestQuestion.Test.TestCode == testCode);
 
+            await _testingPlatform.UserAnswerManager.DeleteRangeAsync(oldAnswers);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -103,6 +106,7 @@ namespace TestMe.Controllers
         {
             return Json(User.Identity.Name);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> StartTest()
@@ -132,8 +136,11 @@ namespace TestMe.Controllers
                 HttpContext.Session.SetString("endTime", endTimeSerialized);
             }
 
+            await DeleteOldAnswerAsync();
+
             if (HttpContext.Session.GetString("answeredQuestions") is null)
                 HttpContext.Session.SetString("answeredQuestions", JsonConvert.SerializeObject(new Dictionary<int, bool>()));
+
             return Json(testQuestion);
         }
 
@@ -270,8 +277,12 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult GetEndTime()
+        public IActionResult GetEndTime(string code)
         {
+            var codeFromSession = HttpContext.Session.GetString("testCode");
+            if (!(codeFromSession is null) && codeFromSession != code)
+                throw new TestTimeException();
+
             var endTimeStr = HttpContext.Session.GetString("endTime");
             if (endTimeStr is null)
                 throw new TestTimeException();

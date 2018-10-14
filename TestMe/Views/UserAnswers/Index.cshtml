@@ -1,0 +1,84 @@
+﻿@model Dictionary<TestQuestion, List<UserAnswer>>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Test: @Model.Keys.First().Test.TestName</h2>
+<h3>User results: @Model.Values.First().First().AppUser.UserName</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Keys.First().QuestionText)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Keys.First().PreformattedText)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Keys) {
+        <tr>
+            <td>
+                <div class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" id="@item.Id">
+                        @Html.DisplayFor(modelItem => item.QuestionText)
+                    </a>
+                    <div class="dropdown-menu testAnswersDropDown" aria-labelledby="@item.Id">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Answer
+                                    </th>
+                                    <th>
+                                        isCorrect
+                                    </th>
+                                    <th>
+                                        User answer
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var answer in item.TestAnswers)
+                                {
+                                <tr>
+                                    <td>
+                                        @if (answer.IsCode)
+                                        {
+                                            <pre>@answer.AnswerText</pre>
+                                        }
+                                        else
+                                        {
+                                            @answer.AnswerText
+                                        }
+
+                                    </td>
+                                    <td>
+                                        @if (answer.IsCorrect)
+                                        {
+                                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (Model.Values.Any(e => e.Any(ua => ua.TestAnswerId == answer.Id)))
+                                        {
+                                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        }
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </td>
+                <td>
+                    <pre>@Html.DisplayFor(modelItem => item.PreformattedText)</pre>
+                </td>   
+        </tr>
+}
+    </tbody>
+</table>
