@@ -32,6 +32,9 @@
             <th>
                 Test time
             </th>
+            <th>
+                Details
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -56,6 +59,11 @@
                 </td>
                 <td>
                     @((item.FinishTime - item.StartTime).Duration().StripMilliseconds())
+                </td>
+                <td>
+                    <a asp-action="Index" asp-controller="UserAnswers" asp-route-testId="@item.TestId" asp-route-userId="@item.AppUserId">
+                        Details
+                    </a>  
                 </td>
             </tr>
             counter++;

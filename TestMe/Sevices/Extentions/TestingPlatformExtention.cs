@@ -25,7 +25,8 @@ namespace TestMe.Sevices.Extentions
         private static IServiceCollection AddModelManagers(this IServiceCollection service) =>
             service.AddTestManager().AddTestQuestionManager()
             .AddTestAnswerManager().AddTestResultManager()
-            .AddTestReportManager().AddTestMarkManager();
+            .AddTestReportManager().AddTestMarkManager()
+            .AddUserAnswerManager();
 
         private static IServiceCollection AddTestManager(this IServiceCollection service) =>
             service.AddScoped<ITestManager, TestManager>();
@@ -42,6 +43,8 @@ namespace TestMe.Sevices.Extentions
             service.AddScoped<ITestReportManager, TestReportManager>();
         private static IServiceCollection AddTestMarkManager(this IServiceCollection service) =>
             service.AddScoped<ITestMarkManager, TestMarkManager>();
+        private static IServiceCollection AddUserAnswerManager(this IServiceCollection service) =>
+           service.AddScoped<IUserAnswerManager, UserAnswerManager>();
 
         #endregion
 
@@ -50,7 +53,8 @@ namespace TestMe.Sevices.Extentions
         private static IServiceCollection AddRepositories(this IServiceCollection service) =>
             service.AddTestRepository().AddTestAnswerRepository()
                 .AddTestQuestionRepository().AddTestResultRepository()
-            .AddTestReportRepository().AddTestMarkRepository();
+            .AddTestReportRepository().AddTestMarkRepository()
+            .AddUserAnswerRepository();
 
         private static IServiceCollection AddTestRepository(this IServiceCollection service) =>
             service.AddScoped<IRepository<Test>, TestRepository>();
@@ -67,6 +71,8 @@ namespace TestMe.Sevices.Extentions
             service.AddScoped<IRepository<TestReport>, TestReportRepository>();
         private static IServiceCollection AddTestMarkRepository(this IServiceCollection service) =>
             service.AddScoped<IRepository<TestMark>, TestMarkRepository>();
+        private static IServiceCollection AddUserAnswerRepository(this IServiceCollection service) =>
+           service.AddScoped<IRepository<UserAnswer>, UserAnswerRepository>();
         #endregion
 
         private static IServiceCollection AddRandomStringGenerator(this IServiceCollection service) =>

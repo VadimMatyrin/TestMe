@@ -59,5 +59,13 @@ namespace TestMe.Data.Extentions
             .ThenInclude(t => t.AppUser)
             .Include(tr => tr.AppUser);
         }
+        public static IQueryable<UserAnswer> ExtractAll(this DbSet<UserAnswer> dbSet)
+        {
+            return dbSet
+            .Include(ua => ua.AppUser)
+            .Include(ua => ua.TestAnswer)
+            .ThenInclude(ta => ta.TestQuestion)
+            .ThenInclude(tq =>tq.Test);
+        }
     }
 }

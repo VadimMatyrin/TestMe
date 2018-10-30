@@ -29,7 +29,7 @@ namespace TestMe.Controllers
 
         public async Task<IActionResult> Index(string code)
         {
-            HttpContext.Session.Clear();
+
             var test = await _testingPlatform.TestManager
                 .FindAsync(t => t.TestCode == code);
             if (test is null)
@@ -53,7 +53,12 @@ namespace TestMe.Controllers
             
 
             test.TestReports = testReports;
+            var testCode = HttpContext.Session.GetString("testCode");
+            if (HttpContext.Session.GetString("endTime") is null || testCode is null || (!(testCode is null) && testCode != code))
+                HttpContext.Session.Clear();
+
             HttpContext.Session.SetString("testCode", code);
+
             return View(test);
         }
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -62,14 +67,11 @@ namespace TestMe.Controllers
             if (context.RouteData.Values["action"].ToString() != "Index" &&
                 context.RouteData.Values["action"].ToString() != "FinishTest" &&
                 context.RouteData.Values["action"].ToString() != "RateFinishedTestAjax" &&
+                context.RouteData.Values["action"].ToString() != "StartTest" &&
                 context.RouteData.Values["action"].ToString() != "GetCorrectAnswers")
             {
                 var startTimeStr = HttpContext.Session.GetString("startTime");
                 var endTimeStr = HttpContext.Session.GetString("endTime");
-
-                if (context.RouteData.Values["action"].ToString() != "StartTest" &&
-                    startTimeStr is null)
-                    throw new TestTimeException();
 
                 if (!(startTimeStr is null) && !(endTimeStr is null))
                 {
@@ -77,13 +79,27 @@ namespace TestMe.Controllers
                     if (DateTime.Compare(endTime.AddSeconds(1), DateTime.Now) < 0)
                     {
                         FinishTest().GetAwaiter().GetResult();
-                        throw new TestTimeException();
                     }
                 }
 
             }
         }
 
+        private async Task DeleteOldAnswerAsync()
+        {
+            var testCode = HttpContext.Session.GetString("testCode");
+            if (testCode is null)
+                throw new TestNotFoundException();
+
+            var userId = _userManager.GetUserId(User);
+            var oldAnswers = _testingPlatform.UserAnswerManager
+                .GetAll()
+                .Where(ua =>
+                ua.AppUserId == userId && 
+                ua.TestAnswer.TestQuestion.Test.TestCode == testCode);
+
+            await _testingPlatform.UserAnswerManager.DeleteRangeAsync(oldAnswers);
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult GetUserName()
@@ -107,17 +123,24 @@ namespace TestMe.Controllers
             if (testQuestion is null)
                 throw new QuestionNotFoundException();
 
-            if (!(HttpContext.Session.GetString("startTime") is null))
-                throw new TestTimeException(testCode);
+            if (HttpContext.Session.GetString("startTime") is null)
+            {
+                var currentTimeSerialized = JsonConvert.SerializeObject(DateTime.Now);
+                HttpContext.Session.SetString("startTime", currentTimeSerialized);
+            }
 
-            var currentTime = DateTime.Now;
-            var currentTimeSerialized = JsonConvert.SerializeObject(currentTime);
-            HttpContext.Session.SetString("startTime", currentTimeSerialized);
-                
-            var endTime = currentTime + testQuestion.Test.TestDuration;
-            var endTimeSerialized = JsonConvert.SerializeObject(endTime);
-            HttpContext.Session.SetString("endTime", endTimeSerialized);
-            HttpContext.Session.SetString("answeredQuestions", JsonConvert.SerializeObject(new Dictionary<int, bool>()));
+            if (HttpContext.Session.GetString("endTime") is null)
+            {
+                var endTime = DateTime.Now + testQuestion.Test.TestDuration;
+                var endTimeSerialized = JsonConvert.SerializeObject(endTime);
+                HttpContext.Session.SetString("endTime", endTimeSerialized);
+            }
+
+            await DeleteOldAnswerAsync();
+
+            if (HttpContext.Session.GetString("answeredQuestions") is null)
+                HttpContext.Session.SetString("answeredQuestions", JsonConvert.SerializeObject(new Dictionary<int, bool>()));
+
             return Json(testQuestion);
         }
 
@@ -154,10 +177,16 @@ namespace TestMe.Controllers
             if (checkedIds.Count == 0)
                 throw new UserAnswersException();
 
-            var _answers = await _testingPlatform.TestAnswerManager
+            var questionAnswers = _testingPlatform.TestAnswerManager
                 .GetAll()
-                .Where(ta => ta.TestQuestion.Test.TestCode == testCode && ta.TestQuestionId == questionId && ta.IsCorrect)
-                .ToListAsync();
+                .Where(qa =>
+                qa.TestQuestion.Test.TestCode == testCode &&
+                qa.TestQuestionId == questionId);
+           
+            if(checkedIds.Except(questionAnswers.Select(qa => qa.Id)).Count() != 0)
+                throw new UserAnswersException();
+
+            var _answers = questionAnswers.Where(qa => qa.IsCorrect).ToList();
 
             if (_answers.Count == 0)
                 throw new QuestionNotFoundException(questionId.ToString());
@@ -174,7 +203,28 @@ namespace TestMe.Controllers
             var answeredQuestions = JsonConvert.DeserializeObject<Dictionary<int, bool>>(answeredQuestionsStr);
             answeredQuestions[questionId.Value] = isCorrect;
             HttpContext.Session.SetString("answeredQuestions", JsonConvert.SerializeObject(answeredQuestions));
+            var userId = _userManager.GetUserId(User);
+            foreach (var answer in checkedIds)
+            {
+                var prevAnswer = await _testingPlatform.UserAnswerManager.FindAsync(ua =>
+                ua.AppUserId == userId &&
+                ua.TestAnswerId == answer);
+                if (prevAnswer is null)
+                {
+                    var userAnswer = new UserAnswer {
+                        TestAnswerId = answer,
+                        AppUserId = userId,
+                        AnswerTime = DateTime.Now
+                    };
+                    await _testingPlatform.UserAnswerManager.AddAsync(userAnswer);
+                }
+                else
+                {
+                    prevAnswer.AnswerTime = DateTime.Now;
+                    await _testingPlatform.UserAnswerManager.UpdateAsync(prevAnswer);
+                }
 
+            }
             var serializedAnswers = JsonConvert.SerializeObject(checkedIds);
             HttpContext.Session.SetString(questionId.ToString(), serializedAnswers);
 
@@ -196,7 +246,11 @@ namespace TestMe.Controllers
                 .Where(tq => tq.Test.TestCode == testCode)
                 .ToListAsync();
 
-            return Json(questions.Select(tq => tq.Id));
+            return Json(questions.Select(tq => 
+            new {
+                tq.Id,
+                answered = !(HttpContext.Session.GetString(tq.Id.ToString()) is null)
+            }));
         }
 
         [HttpPost]
@@ -223,8 +277,12 @@ namespace TestMe.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult GetEndTime()
+        public IActionResult GetEndTime(string code)
         {
+            var codeFromSession = HttpContext.Session.GetString("testCode");
+            if (!(codeFromSession is null) && codeFromSession != code)
+                throw new TestTimeException();
+
             var endTimeStr = HttpContext.Session.GetString("endTime");
             if (endTimeStr is null)
                 throw new TestTimeException();
@@ -249,13 +307,10 @@ namespace TestMe.Controllers
             if (test is null)
                 throw new TestNotFoundException(code);
 
-            if (!(HttpContext.Session.GetString("isFinished") is null))
-                return Json(new { score, testId = test.Id });
-
             var prevResult = await _testingPlatform.TestResultManager
                 .FindAsync(tr => tr.AppUserId == _userManager.GetUserId(User) && tr.TestId == test.Id);
 
-            if (prevResult is null)
+            if (prevResult is null && HttpContext.Session.GetString("isFinished") is null)
             {
                 var startTimeStr = HttpContext.Session.GetString("startTime");
                 if (startTimeStr is null)
@@ -279,6 +334,9 @@ namespace TestMe.Controllers
 
             var prevMark = await _testingPlatform.TestMarkManager
                 .FindAsync(tm => tm.AppUserId == _userManager.GetUserId(User) && tm.TestId == test.Id);
+
+            HttpContext.Session.Remove("endTime");
+            HttpContext.Session.Remove("startTime");
 
             if (prevMark is null)
                 return Json(new { score, testId = test.Id });

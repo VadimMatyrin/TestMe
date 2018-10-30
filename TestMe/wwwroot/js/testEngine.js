@@ -1,8 +1,12 @@
-﻿class TestEngine {
+﻿var test;
+function startTest() {
+    test = TestEngine.startTest();
+}
+class TestEngine {
     constructor(question) {
         this.currentQuestion = question;
-        this.testQuestionsIds = "";
-        this.endTime = "";
+        this.testQuestionsIds = '';
+        this.endTime = '';
         this.configureForTheFirstQuestion();
     }
 
@@ -31,8 +35,11 @@
         $('#questionBlock').show();
         $('#startTestElem').remove();
         this.appendQuestion();
+        this.getIfAnswered();
         this.getUserName();
-        this.getEndTime();
+        if (this.endTime === '')
+            this.getEndTime();
+
         $('#nextQuestionButton').click(function (event) {
             var testQuestionId = $(this).data('nextQuestionId');
             $("button[value='" + testQuestionId + "']").click();
@@ -54,8 +61,11 @@
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
-                this.testQuestionsIds = data;
-                this.displayQuestionNav();
+                this.testQuestionsIds = [];
+                for (var i = 0; i < data.length; i++) {
+                    this.testQuestionsIds.push(data[i].id);
+                }
+                this.displayQuestionNav(data);
             },
             error: function () {
                 
@@ -85,7 +95,7 @@
             let div = $('<div/>', { class: 'correctAnswerBlock' });
             div.append($('<h1/>', { text: ++counter + ') ' + elem.questionText }));
 
-            if (elem.preformattedText != null) {
+            if (elem.preformattedText !== null) {
                 var preText = $('<pre/>', { text: elem.preformattedText });
                 div.append(preText);
             }
@@ -125,7 +135,6 @@
             div.appendTo($('#mainContainer'));
         });
     }
-
     appendQuestion() {
         $('#testQuestionFieldSet div').remove();
         $('#answerButton').removeClass('btn-default');
@@ -137,7 +146,7 @@
         $('#question').css('padding', '0')
         $('#question').append(h1);
 
-        if (this.currentQuestion.preformattedText != null) {
+        if (this.currentQuestion.preformattedText !== null) {
             var preText = $('<pre/>', { text: this.currentQuestion.preformattedText });
             $('#question').append(preText);
         }
@@ -178,6 +187,25 @@
         });
         this.setNavButtonsQuestIds();
     }
+    static isStarted() {
+        let token = $('input[name="__RequestVerificationToken"]').val();
+        var myData = { code: $("#testCode").val() };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+        let res;
+        $.ajax({
+            async: false,
+            url: "/TestEngine/GetEndTime",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+               res = (data !== null);
+            },
+            error: function () {
+                res = false;
+            }
+        });
+        return res;
+    }
     getUserName() {
         var token = $('input[name="__RequestVerificationToken"]', $('#questionBlock')).val();
         var dataWithAntiforgeryToken = { '__RequestVerificationToken': token };
@@ -195,14 +223,15 @@
     }
     getEndTime() {
         var token = $('input[name="__RequestVerificationToken"]').val();
-        var dataWithAntiforgeryToken = { '__RequestVerificationToken': token };
+        var myData = { code: $('#testQuestionFieldSet').data('testCode') };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
 
         $.ajax({
             context: this,
             url: "/TestEngine/GetEndTime",
             type: "POST",
             data: dataWithAntiforgeryToken,
-            success: function(data) {
+            success: function (data) {
                 this.endTime = data;
                 this.timer = startTimer();
             },
@@ -211,23 +240,29 @@
             }
         });
     }
-    displayQuestionNav() {
+    displayQuestionNav(data) {
         this.setNavButtonsQuestIds();
         for (let i = 0; i < this.testQuestionsIds.length; i++) {
             let button = $('<button />', {
                 type: 'button',
-                class: 'btn btn-info',
+                class: 'btn',
                 value: this.testQuestionsIds[i],
                 text: (i + 1),
                 click: function (event) {
                     navButtonClick(event);
                 }
             });
-            $('#questions > div > button').first().removeClass('btn-info');
-            $('#questions > div > button').first().addClass('btn-primary');
+            if (data[i].answered)
+                button.addClass('btn-default');
+            else {
+                button.addClass('btn-info');
+            }
+
             $('<div />', { class: 'col-xs-1' }).append(button).appendTo('div#questions');
         }
-        $('#questions > button:first-child').addClass('btn-primary');
+        let firstButton = $('#questions button').first();
+        firstButton.removeClass('btn-info');
+        firstButton.addClass('btn-primary');
     }
     setNavButtonsQuestIds() {
         var currIdIndex = this.testQuestionsIds.indexOf(this.currentQuestion.id);
@@ -406,10 +441,6 @@
         });
     }
 }
-var test;
-function startTest() {
-    test = TestEngine.startTest();
-}
 function checkAnswerClick() {
     if ($('input[name="answer"]:checked').length === 0)
         return;
@@ -465,7 +496,10 @@ function showCorrectAnswersClick() {
     $('#correctAnswButton').hide();
     test.getCorrectAnswers();
 }
-$("#questionBlock").hide();
+if (TestEngine.isStarted())
+    startTest();
+else
+    $("#questionBlock").hide();
 
 
     

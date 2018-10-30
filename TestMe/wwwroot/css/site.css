@@ -114,3 +114,15 @@ body {
 #resetFilterButton {
     margin-top: 20px;
 }
+.testAnswersDropDown
+{
+    padding: 10px;
+}
+.testAnswersDropDown tr th
+{
+    padding-left: 10px;
+}
+.testAnswersDropDown tr td {
+    padding-left: 10px;
+    min-height: 30px;
+}
