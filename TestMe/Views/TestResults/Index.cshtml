@@ -11,6 +11,57 @@
         <a asp-action="Index" asp-controller="Tests">Back to tests</a>
     </p>
 }
+@{ var leaderBoardResults = Model.TestResults.Where(tr => tr.Score == Model.TestQuestions.Count).OrderBy(tr => tr.StartTime).Take(5);}
+@if (leaderBoardResults.Count() != 0)
+{
+<table class="table leaderBoard">
+    <thead>
+        <tr>
+            <th>
+                №
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestResults.First().Score)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestResults.First().AppUser.UserName)
+            </th>
+            <th>
+                Test time
+            </th>
+            <th>
+                Details
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ var counter = 1; }
+        @foreach (var item in leaderBoardResults)
+        {
+            <tr>
+                <td>
+                    <b>@counter</b>
+                </td>
+                <td>
+                    <strong>@Html.DisplayFor(modelItem => item.Score)</strong> / @Model.TestQuestions.Count
+                </td>
+                <td>
+                    <a asp-action="Index" asp-controller="Profile" asp-route-id="@item.AppUser.Id">@Html.DisplayFor(modelItem => item.AppUser.UserName)</a>
+                </td>
+                <td>
+                    @((item.FinishTime - item.StartTime).Duration().StripMilliseconds())
+                </td>
+                <td>
+                    <a asp-action="Index" asp-controller="UserAnswers" asp-route-testId="@item.TestId" asp-route-userId="@item.AppUserId">
+                        Details
+                    </a>
+                </td>
+            </tr>
+            counter++;
+        }
+    </tbody>
+</table>
+}
 <table class="table">
     <thead>
         <tr>
@@ -38,12 +89,12 @@
         </tr>
     </thead>
     <tbody>
-        @{ var counter = 1; }
+        @{ var counter2 = 1; }
         @foreach (var item in Model.TestResults)
         {
             <tr>
                 <td>
-                    <b>@counter</b>
+                    <b>@counter2</b>
                 </td>
                 <td>
                     <strong>@Html.DisplayFor(modelItem => item.Score)</strong> / @Model.TestQuestions.Count
@@ -66,7 +117,7 @@
                     </a>  
                 </td>
             </tr>
-            counter++;
+            counter2++;
         }
     </tbody>
 </table>

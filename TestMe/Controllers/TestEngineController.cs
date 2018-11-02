@@ -47,12 +47,12 @@ namespace TestMe.Controllers
                 .GetAll()
                 .FirstOrDefaultAsync(tr => tr.AppUser.UserName == User.Identity.Name && tr.TestId == test.Id);
 
-            test.TestResults = new List<TestResult>();
+
             if (!(userResult is null))
-                test.TestResults.Add(userResult);
-            
+                test.TestResults = new List<TestResult> { userResult };
 
             test.TestReports = testReports;
+
             var testCode = HttpContext.Session.GetString("testCode");
             if (HttpContext.Session.GetString("endTime") is null || testCode is null || (!(testCode is null) && testCode != code))
                 HttpContext.Session.Clear();

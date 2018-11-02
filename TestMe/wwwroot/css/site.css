@@ -126,3 +126,6 @@ body {
     padding-left: 10px;
     min-height: 30px;
 }
+.dropdown-toggle{
+    cursor: pointer;
+}
