@@ -257,8 +257,8 @@ if ($('#userTable tr').length - 1 < amount) {
     button.prop({ disabled: true });
 } 
 
-var th = jQuery('th'),
-    li = jQuery('li'),
+var th = $('th'),
+    li = $('table li'),
     inverse = false;
 
 th.click(function () {

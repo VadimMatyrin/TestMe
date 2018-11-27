@@ -47,6 +47,9 @@
                 Duration
             </th>
             <th>
+                Tries amount
+            </th>
+            <th>
                 Test rating
             </th>
             <th class="hidden-xs">
@@ -71,10 +74,13 @@
                     @Html.DisplayFor(modelItem => item.CreationDate)
                 </td>
                 <td class="hidden-xs">
-                        @Html.DisplayFor(modelItem => item.TestCode)
+                    @Html.DisplayFor(modelItem => item.TestCode)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.TestDuration)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TestResults.Count)
                 </td>
                 <td>
                     @{var rating = item.TestMarks.Count(tm => tm.EnjoyedTest) - item.TestMarks.Count(tm => !tm.EnjoyedTest); }
