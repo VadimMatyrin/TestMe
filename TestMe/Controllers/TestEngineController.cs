@@ -12,6 +12,7 @@ using TestMe.Exceptions;
 using TestMe.Sevices.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using TestMe.ViewModels;
 
 namespace TestMe.Controllers
 {
@@ -47,11 +48,22 @@ namespace TestMe.Controllers
                 .GetAll()
                 .FirstOrDefaultAsync(tr => tr.AppUser.UserName == User.Identity.Name && tr.TestId == test.Id);
 
+            var testResults = await _testingPlatform.TestResultManager
+                .GetAll()
+                .Where(tr => tr.TestId == test.Id)
+                .ToListAsync();
 
-            if (!(userResult is null))
-                test.TestResults = new List<TestResult> { userResult };
+
+            var testViewModel = new TestEngineViewModel();
+                //test.TestResults = new List<TestResult> { userResult };
+            
 
             test.TestReports = testReports;
+            test.TestResults = testResults;
+
+            testViewModel.Test = test;
+            testViewModel.UserTestResult = userResult;
+
 
             var testCode = HttpContext.Session.GetString("testCode");
             if (HttpContext.Session.GetString("endTime") is null || testCode is null || (!(testCode is null) && testCode != code))
@@ -59,7 +71,7 @@ namespace TestMe.Controllers
 
             HttpContext.Session.SetString("testCode", code);
 
-            return View(test);
+            return View(testViewModel);
         }
         public override void OnActionExecuting(ActionExecutingContext context)
         {
