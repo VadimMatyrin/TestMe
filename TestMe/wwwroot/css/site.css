@@ -129,3 +129,6 @@ body {
 .dropdown-toggle{
     cursor: pointer;
 }
+#testTable tr th{
+    cursor: pointer;
+}
