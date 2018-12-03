@@ -110,7 +110,12 @@ namespace TestMe.Controllers
                 var userResults = await _testingPlatform.TestResultManager.GetAll().Where(tr => tr.AppUserId == user.Id).ToListAsync();
                 double avgMark = 0;
                 if (userTests.Count != 0)
-                    avgMark = userTests.Where(t => !(t.TestCode is null)).Average(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest));
+                {
+                    var sharedTests = userTests.Where(t => !(t.TestCode is null));
+                    if(sharedTests.Count() != 0)
+                        avgMark = sharedTests.Average(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest));
+                }
+                    
 
                 var viewModel = new UsersRecordViewModel
                 {
