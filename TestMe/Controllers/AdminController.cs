@@ -108,16 +108,21 @@ namespace TestMe.Controllers
             {
                 var userTests = await _testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == user.Id).ToListAsync();
                 var userResults = await _testingPlatform.TestResultManager.GetAll().Where(tr => tr.AppUserId == user.Id).ToListAsync();
+                double avgMark = 0;
+                if (userTests.Count != 0)
+                    avgMark = userTests.Where(t => !(t.TestCode is null)).Average(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest));
+
                 var viewModel = new UsersRecordViewModel
                 {
                     User = user,
                     Tests = userTests,
-                    TestResults = userResults
+                    TestResults = userResults,
+                    AvgTestMark = avgMark
                 };
 
                 viewModels.Add(viewModel);
-                return View(viewModels);
             }
+            return View(viewModels);
         }
 
         [Authorize(Roles = "Admin")]

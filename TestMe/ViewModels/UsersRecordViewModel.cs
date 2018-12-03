@@ -8,8 +8,10 @@ namespace TestMe.ViewModels
 {
     public class UsersRecordViewModel
     {
-        public AppUser User;
-        public ICollection<Test> Tests;
-        public ICollection<TestResult> TestResults;
+        public AppUser User { get; set; }
+        public ICollection<Test> Tests { get; set; }
+        public ICollection<TestResult> TestResults { get; set; }
+        public double AvgTestMark { get; set; }
+
     }
 }

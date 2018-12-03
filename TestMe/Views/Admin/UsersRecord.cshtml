@@ -5,10 +5,54 @@
 }
 <div class="container-fluid">
     <div class="col-xs-12">
-        <h2>UsersRecord</h2>
+        <h2 class="text-center">Users Records</h2>
     </div>
     <div class="col-xs-12">
-        
+        <table class="table" id="userTable">
+            @Html.AntiForgeryToken()
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.First().User.UserName)
+                    </th>
+                    <th class="hidden-xs">
+                        @Html.DisplayNameFor(model => model.First().User.Email)
+                    </th>
+                    <th class="hidden-xs">
+                        Amount fo created tests
+                    </th>
+                    <th>
+                        User tests avg mark
+                    </th>
+                    <th class="hidden-xs">
+                        Amount of passed tests
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td class="hidden-xs">
+                        @Html.DisplayFor(modelItem => item.User.UserName)
+                    </td>
+                    <td class="hidden-xs">
+                        @Html.DisplayFor(modelItem => item.User.Email)
+                    </td>
+                    <td>
+                        @item.Tests.Count
+                    </td>
+                    <td class="hidden-xs">
+                        @item.AvgTestMark.ToString("0.00")
+                    </td>
+                    <td class="hidden-xs">
+                        @item.TestResults.Count
+                    </td>
+                   
+                </tr>
+                }
+            </tbody>
+        </table>
     </div>
 
 
