@@ -324,8 +324,18 @@ namespace TestMe.Controllers
                 .GetAll()
                 .FirstOrDefaultAsync(t => t.Id == id);
 
+            var testResults = await _testingPlatform.TestResultManager
+                .GetAll()
+                .Where(tr => tr.TestId == test.Id)
+                .ToListAsync();
+
             if (test is null)
                 return BadRequest();
+
+            if (testResults is null)
+                return BadRequest();
+
+            test.TestResults = testResults;
 
             return View(test);
         }

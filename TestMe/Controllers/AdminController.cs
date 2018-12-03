@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using TestMe.Models;
 using TestMe.Sevices.Interfaces;
+using TestMe.ViewModels;
 
 namespace TestMe.Controllers
 {
@@ -98,6 +99,27 @@ namespace TestMe.Controllers
 
             return true;
         }
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UsersRecord()
+        {
+            var users = await _userManager.Users.Take(20).ToListAsync();
+            var viewModels = new List<UsersRecordViewModel>();
+            foreach (var user in users)
+            {
+                var userTests = await _testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == user.Id).ToListAsync();
+                var userResults = await _testingPlatform.TestResultManager.GetAll().Where(tr => tr.AppUserId == user.Id).ToListAsync();
+                var viewModel = new UsersRecordViewModel
+                {
+                    User = user,
+                    Tests = userTests,
+                    TestResults = userResults
+                };
+
+                viewModels.Add(viewModel);
+                return View(viewModels);
+            }
+        }
+
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddToAdmins(string id)
         {
