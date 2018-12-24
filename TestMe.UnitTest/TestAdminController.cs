@@ -6,7 +6,7 @@ namespace TestMe.UnitTest
     public class TestAdminController
     {
         [Fact]
-        public void Test1()
+        public void CheckAnswer_CorrectAnswers_Returns()
         {
 
         }
