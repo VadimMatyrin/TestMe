@@ -42,9 +42,6 @@ namespace TestMe.Controllers
                  .Take(_loadConfig.Value.TakeAmount)
                  .ToListAsync();
 
-            if (tests is null)
-                return NotFound();
-
             ViewBag.AjaxTakeAmount = _loadConfig.Value.AjaxTakeAmount;
             return View(tests);
         }
@@ -60,9 +57,6 @@ namespace TestMe.Controllers
                     .Where(u => u.NormalizedUserName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                     .Take(_loadConfig.Value.TakeAmount)
                     .ToListAsync();
-
-            if (appUsers is null)
-                return NotFound();
 
             ViewBag.AjaxTakeAmount = _loadConfig.Value.AjaxTakeAmount;
             return View(appUsers);
@@ -181,7 +175,7 @@ namespace TestMe.Controllers
             if (String.IsNullOrEmpty(id))
                 return RedirectToAction("Users");
 
-            var user = await _userManager.FindByIdAsync(id);
+            var   = await _userManager.FindByIdAsync(id);
             if (user is null)
                 return NotFound();
 
@@ -205,9 +199,6 @@ namespace TestMe.Controllers
                   .Take(_loadConfig.Value.TakeAmount)
                   .ToListAsync();
 
-            if (tests is null)
-                return NotFound();
-
             ViewBag.AjaxTakeAmount = _loadConfig.Value.AjaxTakeAmount;
             return View(tests);
         }
@@ -217,12 +208,9 @@ namespace TestMe.Controllers
             if (id is null)
                 return NotFound();
 
-            var testReports = await _testingPlatform.TestReportManager
+            var testReports = _testingPlatform.TestReportManager
                 .GetAll()
-                .Where(tr => tr.TestId == id)
-                .ToListAsync();
-            if (testReports is null)
-                return NotFound();
+                .Where(tr => tr.TestId == id);
 
             await _testingPlatform.TestReportManager.DeleteRangeAsync(testReports);
 
@@ -245,9 +233,6 @@ namespace TestMe.Controllers
                 .Take(_loadConfig.Value.AjaxTakeAmount)
                 .ToListAsync();
 
-            if (users is null)
-                return NotFound();
-
             var usersOptimized = await Task.WhenAll(users.Select(async u =>
             new
             {
@@ -258,7 +243,7 @@ namespace TestMe.Controllers
                 u.Email,
                 u.PhoneNumber,
                 u.IsBanned,
-                role = (await _userManager.IsInRoleAsync(u, "Admin")) ? "Admin" : (await _userManager.IsInRoleAsync(u, "Moderator") ? "Moderator" : null),
+                role = await _userManager.GetRolesAsync(u), //(await _userManager.IsInRoleAsync(u, "Admin")) ? "Admin" : (await _userManager.IsInRoleAsync(u, "Moderator") ? "Moderator" : null),
                 currentUserUsername = User.Identity.Name
             }));
 

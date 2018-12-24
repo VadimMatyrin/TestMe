@@ -97,7 +97,7 @@ namespace TestMe.Controllers
             }
         }
 
-        private async Task DeleteOldAnswerAsync()
+        private async Task DeleteOldAnswersAsync()
         {
             var testCode = HttpContext.Session.GetString("testCode");
             if (testCode is null)
@@ -148,7 +148,7 @@ namespace TestMe.Controllers
                 HttpContext.Session.SetString("endTime", endTimeSerialized);
             }
 
-            await DeleteOldAnswerAsync();
+            await DeleteOldAnswersAsync();
 
             if (HttpContext.Session.GetString("answeredQuestions") is null)
                 HttpContext.Session.SetString("answeredQuestions", JsonConvert.SerializeObject(new Dictionary<int, bool>()));
@@ -163,9 +163,10 @@ namespace TestMe.Controllers
             if (questionId is null)
                 throw new QuestionNotFoundException();
 
-            if (!(HttpContext.Session.GetString(questionId.ToString()) is null))
+            var serializedAnswers = HttpContext.Session.GetString(questionId.ToString());
+            if (!(serializedAnswers is null))
             {
-                var answers = JsonConvert.DeserializeObject<List<int>>(HttpContext.Session.GetString(questionId.ToString()));
+                var answers = JsonConvert.DeserializeObject<List<int>>(serializedAnswers);
                 return Json(answers);
             }
             return Json("notAnswered");
@@ -198,9 +199,9 @@ namespace TestMe.Controllers
             if(checkedIds.Except(questionAnswers.Select(qa => qa.Id)).Count() != 0)
                 throw new UserAnswersException();
 
-            var _answers = questionAnswers.Where(qa => qa.IsCorrect).ToList();
+            var _answers = questionAnswers.Where(qa => qa.IsCorrect);
 
-            if (_answers.Count == 0)
+            if (!_answers.Any())
                 throw new QuestionNotFoundException(questionId.ToString());
 
             bool isCorrect = true;

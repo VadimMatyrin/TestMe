@@ -24,7 +24,6 @@ namespace TestMe.Controllers
     public class TestAnswersController : Controller
     {
         private readonly ITestingPlatform _testingPlatform;
-        private readonly IHostingEnvironment _appEnvironment;
         private readonly UserManager<AppUser> _userManager;
         private readonly IOptions<PhotoConfig> _photoConfig;
         private string _userId;
@@ -34,7 +33,6 @@ namespace TestMe.Controllers
             IOptions<PhotoConfig> photoConfig)
         {
             _testingPlatform = testingPlatform;
-            _appEnvironment = appEnvironment;
             _userManager = userManager;
             _photoConfig = photoConfig;
         }

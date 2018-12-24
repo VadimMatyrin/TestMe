@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TestMe.Models;
 using TestMe.Sevices.Interfaces;
 
@@ -40,7 +41,7 @@ namespace TestMe.Controllers
 
             foreach(var testQuestion in test.TestQuestions)
             {
-                model[testQuestion] = userAnswers.Where(ua => ua.TestAnswer.TestQuestionId == testQuestion.Id).ToList();
+                model[testQuestion] = await userAnswers.Where(ua => ua.TestAnswer.TestQuestionId == testQuestion.Id).ToListAsync();
             }
 
             return View(model);

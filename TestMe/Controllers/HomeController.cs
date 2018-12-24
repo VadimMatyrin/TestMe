@@ -27,17 +27,14 @@ namespace TestMe.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var topRatedTest = await _testingPlatform.TestManager
+            var topRatedTests = await _testingPlatform.TestManager
                 .GetAll()
                 .Where(t => !(t.TestCode == null) && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= _loadConfig.Value.MinTopRatedRate)
                 .Take(_loadConfig.Value.TopRatedHomePageAmount)
                 .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
                 .ToListAsync();
 
-            if (topRatedTest is null)
-                return NotFound();
-
-            return View(topRatedTest);
+            return View(topRatedTests);
         }
         public IActionResult About()
         {

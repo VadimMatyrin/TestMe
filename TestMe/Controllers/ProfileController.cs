@@ -43,6 +43,7 @@ namespace TestMe.Controllers
                     AppUser = await _userManager.FindByIdAsync(id)
                 };
             }
+
             if (searchString is null)
                 searchString = "";
 

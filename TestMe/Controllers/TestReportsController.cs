@@ -50,12 +50,11 @@ namespace TestMe.Controllers
             if (test is null)
                 return NotFound();
 
-            var reports = await _testingPlatform.TestReportManager
+            var reports = _testingPlatform.TestReportManager
                 .GetAll()
-                .Where(tr => tr.AppUserId == _userId && tr.TestId == test.Id)
-                .ToListAsync();
+                .Where(tr => tr.AppUserId == _userId && tr.TestId == test.Id);
 
-            if (reports.Count() != 0)
+            if (reports.Any())
                 return RedirectToAction(nameof(Index), "TestEngine", new { code = test.TestCode });
 
             return View(new TestReport { Test = test, TestId = test.Id });
