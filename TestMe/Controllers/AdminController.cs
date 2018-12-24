@@ -175,7 +175,7 @@ namespace TestMe.Controllers
             if (String.IsNullOrEmpty(id))
                 return RedirectToAction("Users");
 
-            var   = await _userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(id);
             if (user is null)
                 return NotFound();
 

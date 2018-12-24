@@ -14,7 +14,7 @@ namespace TestMe.Sevices.Extentions
     public static class TestingPlatformExtention
     {
         public static IServiceCollection AddTestMe(this IServiceCollection service) =>
-            service.AddFreelancingPlatformDbContext()
+            service.AddTestingPlatformDbContext()
                 .AddRepositories().AddModelManagers()
                 .AddRandomStringGenerator()
                 .AddAnswerImageManager()
@@ -80,7 +80,7 @@ namespace TestMe.Sevices.Extentions
         private static IServiceCollection AddAnswerImageManager(this IServiceCollection service) =>
             service.AddScoped<IAnswerImageManager, AnswerImageManager>();
 
-        private static IServiceCollection AddFreelancingPlatformDbContext(this IServiceCollection service) =>
+        private static IServiceCollection AddTestingPlatformDbContext(this IServiceCollection service) =>
             service.AddScoped<ITestingPlatformDbContext, ApplicationDbContext>();
     }
 }
