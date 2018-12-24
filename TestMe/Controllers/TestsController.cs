@@ -313,6 +313,32 @@ namespace TestMe.Controllers
             ViewBag.AjaxTakeAmount = _loadConfig.Value.AjaxTakeAmount;
             return View(tests);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> TestRecord(int? id)
+        {
+            if (id is null)
+                return BadRequest();
+
+            var test = await _testingPlatform.TestManager
+                .GetAll()
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            var testResults = await _testingPlatform.TestResultManager
+                .GetAll()
+                .Where(tr => tr.TestId == test.Id)
+                .ToListAsync();
+
+            if (test is null)
+                return BadRequest();
+
+            if (testResults is null)
+                return BadRequest();
+
+            test.TestResults = testResults;
+
+            return View(test);
+        }
         [HttpPost]
         [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]

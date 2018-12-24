@@ -1,26 +1,31 @@
-﻿@model TestMe.Models.Test
+﻿@model TestMe.ViewModels.TestEngineViewModel
 @{
-    ViewData["Title"] = Model.TestName;
+    ViewData["Title"] = Model.Test.TestName;
 }
 <div id="mainContainer" class="container-fluid">
     <div id="startTestElem" class="row">
         @Html.AntiForgeryToken()
-        <h1 class="text-center col-md-12">@Model.TestName</h1>
+        <h1 class="text-center col-md-12">@Model.Test.TestName</h1>
         <h2 class="col-md-12">
             Author:
-            <a asp-action="Index" asp-controller="Profile" asp-route-id="@Model.AppUser.Id">@Model.AppUser.UserName</a>
+            <a asp-action="Index" asp-controller="Profile" asp-route-id="@Model.Test.AppUser.Id">@Model.Test.AppUser.UserName</a>
         </h2>
-        <h3 class="col-md-12">Creation date: @Model.CreationDate</h3>
-        <h4 class="col-md-12">Question amount: @Model.TestQuestions.Count</h4>
-        @if (Model.TestResults.Count != 0 || Model.AppUser.UserName == User.Identity.Name)
+        <h3 class="col-md-12">Creation date: @Model.Test.CreationDate</h3>
+        <h4 class="col-md-12">Question amount: @Model.Test.TestQuestions.Count</h4>
+        <h4 class="col-md-12">Test tries amount: @Model.Test.TestResults.Count</h4>
+        @if (!(Model.UserTestResult is null) || Model.Test.AppUser.UserName == User.Identity.Name)
         {
             <h4 class="col-md-12">
-                <a asp-action="Index" asp-controller="TestResults" asp-route-id="@Model.Id">Other user results</a>
+                <a asp-action="Index" asp-controller="TestResults" asp-route-id="@Model.Test.Id">Other user results</a>
             </h4>
+        }
+        @if (Model.Test.TestResults.Count != 0)
+        {
+            <h4 class="col-md-12">Your results: @Model.Test.TestResults.First().Score</h4>
         }
         <h4 class="col-md-12">
             Test rating:
-            @{var rating = Model.TestMarks.Count(tm => tm.EnjoyedTest) - Model.TestMarks.Count(tm => !tm.EnjoyedTest); }
+            @{var rating = Model.Test.TestMarks.Count(tm => tm.EnjoyedTest) - Model.Test.TestMarks.Count(tm => !tm.EnjoyedTest); }
             @if (rating > 0)
             {
                 <span class="text-success">@rating</span>
@@ -34,8 +39,8 @@
                 <span>@rating</span>
             }
         </h4>
-        <h4 class="col-md-12">Test time: @Model.TestDuration</h4>
-        <input type="hidden" value="@Model.TestCode" id="testCode" />
+        <h4 class="col-md-12">Test time: @Model.Test.TestDuration</h4>
+        <input type="hidden" value="@Model.Test.TestCode" id="testCode" />
         <button type="button" class="btn btn-primary btn-lg center-block col-md-12" id="startButton" onclick="startTest()">Start test</button>
     </div>
     <div id="questionBlock" class="row" display="none">
@@ -71,12 +76,12 @@
         </div>
     </div>
 </div>
-@if (Model.AppUser.UserName != User.Identity.Name && Model.TestReports.Count == 0)
+@if (Model.Test.AppUser.UserName != User.Identity.Name && Model.Test.TestReports.Count == 0)
 {
-    <a asp-action="Create" asp-controller="TestReports" asp-route-id="@Model.Id">Report test</a>
+    <a asp-action="Create" asp-controller="TestReports" asp-route-id="@Model.Test.Id">Report test</a>
 }
 else{
-    if (Model.AppUser.UserName != User.Identity.Name)
+    if (Model.Test.AppUser.UserName != User.Identity.Name)
     {   
         <h6 class="text-danger">You have already reported this test</h6>
     }

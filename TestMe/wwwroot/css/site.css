@@ -112,7 +112,7 @@ body {
     width: 300px !important;
 }
 #resetFilterButton {
-    margin-top: 20px;
+    /*margin-top: 20px;*/
 }
 .testAnswersDropDown
 {
@@ -125,4 +125,10 @@ body {
 .testAnswersDropDown tr td {
     padding-left: 10px;
     min-height: 30px;
+}
+.dropdown-toggle{
+    cursor: pointer;
+}
+#testTable tr th{
+    cursor: pointer;
 }
