@@ -4,39 +4,215 @@
     ViewData["Title"] = "Register";
 }
 
-<h2>@ViewData["Title"]</h2>
+<html lang="ru">
+<head>
+    <!--<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="~/css/main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h4>Create a new account.</h4>
-            <hr />
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Input.Username"></label>
-                <input asp-for="Input.Username" class="form-control" />
-                <span asp-validation-for="Input.Username" class="text-danger"></span>
+    <title>TestMe</title>
+
+</head>
+<body>
+
+    <div class="container-main col-lg-12">
+
+        <!-- LEFT SIDE -->
+        <div class="left-side-container col-lg-4 col-lg-push-1">
+            <div class="col-lg-12">
+                <a href="" id="header_logo">TestMe</a>
             </div>
-            <div class="form-group">
-                <label asp-for="Input.Email"></label>
-                <input asp-for="Input.Email" class="form-control" />
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            <div class="col-lg-12 visible-lg" style="padding-top: 25%"></div>
+            <div class="col-lg-12 main-left-block no-padding">
+                <span class="col-lg-9 titletext">
+                    New learning application
+                </span>
+                <span class="col-lg-9 text">
+                    Create your own tests for learning. Improve performance by preparing for the test with the help of tests, as well as many other things.
+                </span>
+                <a href="#" class="col-lg-9">To know more</a>
             </div>
-            <div class="form-group">
-                <label asp-for="Input.Password"></label>
-                <input asp-for="Input.Password" class="form-control" />
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="right-side-container col-lg-7 col-lg-push-1">
+            <span class="col-lg-9 titletext">
+                Choose your role
+            </span>
+            <div class="choose_role col-lg-9">
+                <!-- ROLE STUDENT -->
+                <div class="row">
+                    <div class="col-lg-6 role">
+                        <button id="iAmStudent" data-toggle="modal" data-target="#RegisterStudent">
+                            <span class="icon-Student"></span>
+                            <span class="titletext">I am student</span>
+                            <span class="text">I want add my own test and prepare for it</span>
+                        </button>
+                    </div>
+                    <!-- ROLE TEACHER -->
+                    <div class="col-lg-6 role">
+                        <button id="iAmTeacher" data-toggle="modal" data-target="#RegisterTeacher">
+                            <span class="icon-Teacher"></span>
+                            <span class="titletext">I am teacher</span>
+                            <span class="text">I want add test to check students knowledge</span>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Input.ConfirmPassword"></label>
-                <input asp-for="Input.ConfirmPassword" class="form-control" />
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <button type="submit" class="btn btn-default">Register</button>
-        </form>
+        </div>
     </div>
-</div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+
+
+
+
+
+
+    <!-- REGISTER STUDENT -->
+    <div class="modal fade" id="RegisterStudent" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-lg">
+            <div class="modal-content">
+
+
+
+
+                <div class="modal-body">
+                    <div class="container-fluid no-padding">
+                        <div class="col-lg-5  padding-top-5 left-modal">
+                            <span class="icon-Student"></span>
+                            <span class="titletext white-color" ые>Let's get you set up</span>
+                            <span class="text white-color">It should only take a couple minutes</span>
+
+                        </div>
+                        <div class="col-lg-6 col-lg-push-1   right-modal">
+                            <span class="register-hello">Hello, I'm Student</span>
+                            <form asp-route-returnUrl="@Model.ReturnUrl" method="post" class="register">
+                                <div>
+                                    <label asp-for="InputModel.Name" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.Name" class="col-lg-7" placeholder="James Smith" />
+                                </div>
+                                <input asp-for="InputModel.UserType" value="@RegisterModel.UserTypes.Student" type="hidden" />
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div>
+                                    <label asp-for="InputModel.Group" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.Group" class="col-lg-7" placeholder="PZPI-17-4" />
+                                </div>
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div>
+                                    <label asp-for="InputModel.Email" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.Email" class="col-lg-7" placeholder="example@nure.ua" />
+                                </div>
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div>
+                                    <label asp-for="InputModel.Password" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.Password" class="col-lg-7" placeholder="**********" />
+                                </div>
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div>
+                                    <label asp-for="InputModel.ConfirmPassword" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.ConfirmPassword" class="col-lg-7" placeholder="**********" />
+                                </div>
+
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div>
+                                    <button id="Register" class="col-lg-push-3 col-lg-7">
+                                        REGISTER
+                                    </button>
+                                </div>
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div>
+                                    <a class="col-lg-push-3 padding-bottom col-lg-7" style="text-align: center;" href="/login.html">I already have account</a>
+                                </div>
+
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTER TEACHER -->
+    <div class="modal fade" id="RegisterTeacher" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+
+                <div class="modal-body">
+                    <div class="container-fluid no-padding">
+                        <div class="col-lg-5  padding-top-5 left-modal">
+                            <span class="icon-Teacher"></span>
+                            <span class="titletext white-color" ые>Let's get you set up</span>
+                            <span class="text white-color">It should only take a couple minutes</span>
+
+                        </div>
+                        <div class="col-lg-6 col-lg-push-1   right-modal">
+                            <span class="register-hello">Hello, I'm Teacher</span>
+                            <form asp-route-returnUrl="@Model.ReturnUrl" method="post" class="register">
+                                <div>
+                                    <label asp-for="InputModel.Name" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.Name" class="col-lg-7" placeholder="James Smith" />
+                                </div>
+                                <input asp-for="InputModel.UserType" value="@RegisterModel.UserTypes.Teacher" type="hidden" />
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div>
+                                    <label asp-for="InputModel.Email" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.Email" class="col-lg-7" placeholder="example@nure.ua" />
+                                </div>
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div>
+                                    <label asp-for="InputModel.Password" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.Password" class="col-lg-7" placeholder="**********" />
+                                </div>
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div>
+                                    <label asp-for="InputModel.ConfirmPassword" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.ConfirmPassword" class="col-lg-7" placeholder="**********" />
+                                </div>
+
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div>
+                                    <button id="Register" class="col-lg-push-3 col-lg-7">
+                                        REGISTER
+                                    </button>
+                                </div>
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div>
+                                    <a class="col-lg-push-3 padding-bottom col-lg-7" style="text-align: center;" href="/login.html">I already have account</a>
+                                </div>
+
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <!-- Последняя компиляция и сжатый JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</body>
+</html>
