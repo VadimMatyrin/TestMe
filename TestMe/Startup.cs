@@ -99,7 +99,7 @@ namespace TestMe
         {
             var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var UserManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
-            string[] roleNames = { "Admin" , "Moderator"};
+            string[] roleNames = { "Admin" , "Moderator", "Teacher"};
             IdentityResult roleResult;
 
             foreach (var roleName in roleNames)
