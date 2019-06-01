@@ -15,49 +15,31 @@ using TestMe.Sevices.Interfaces;
 
 namespace TestMe.Controllers
 {
-    [Authorize]
     public class HomeController : Controller
     {
         private readonly ITestingPlatform _testingPlatform;
         private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
         private readonly IOptions<LoadConfig> _loadConfig;
-        public HomeController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, IOptions<LoadConfig> loadConfig)
+        public HomeController(ITestingPlatform testingPlatform, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IOptions<LoadConfig> loadConfig)
         {
             _testingPlatform = testingPlatform;
             _userManager = userManager;
+            _signInManager = signInManager;
             _loadConfig = loadConfig;
         }
+
+        [Authorize]
         public async Task<IActionResult> Index()
         {
-            var topRatedTest = await _testingPlatform.TestManager
-                .GetAll()
-                .Where(t => !(t.TestCode == null) && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= _loadConfig.Value.MinTopRatedRate)
-                .Take(_loadConfig.Value.TopRatedHomePageAmount)
-                .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
-                .ToListAsync();
-
-            if (topRatedTest is null)
-                return NotFound();
-
-            return View(topRatedTest);
+            return RedirectToAction("Index", "Tests");
         }
-        public IActionResult About()
+      
+        [AllowAnonymous]
+        public async Task<IActionResult> LogOut()
         {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Register", "Identity/Account");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
