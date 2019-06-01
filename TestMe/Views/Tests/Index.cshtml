@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@model ICollection<Test>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <!--<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">-->
@@ -34,10 +35,12 @@
         </div>
 
         <button class="left-side-buttons col-lg-12 ">
-            <span class="col-lg-1 icon-write"></span>
-            <span class="col-lg-9 text">
-                Add new test
-            </span>
+            <a asp-action="Create">
+                <span class="col-lg-1 icon-write"></span>
+                <span class="col-lg-9 text">
+                    Add new test
+                </span>
+            </a>
         </button>
         <button class="left-side-buttons col-lg-12 ">
             <span class="col-lg-1 icon-user"></span>
@@ -103,24 +106,29 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>Mathematic and Mathimatical analys</td>
-                            <td>katie@nure.ua</td>
-                            <td>100</td>
-                            <td>65%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>Java</td>
-                            <td>dima@nure.ua</td>
-                            <td>1000</td>
-                            <td>75%</td>
-                        </tr>
+                        @foreach (var test in Model)
+                        {
+                            <tr onclick="location.href = '/' + '@test.TestCode'">
+                                <td>@test.TestName</td>
+                                <td>@test.AppUser.Email</td>
+                                <td>@test.TestQuestions.Count</td>
+                                @{ var testResults = test.TestResults.Where(tr => tr.TestId == test.Id);}
+                                @{
+                                    int passProcentage;
+                                    var testQustionCount = test.TestQuestions.Count();
+                                    if (testQustionCount != 0 && test.TestResults.Count() != 0)
+                                    {
+                                        passProcentage = 100 * (test.TestResults.Count(tr => tr.Score == testQustionCount)) / test.TestResults.Count();
+                                    }
+                                    else
+                                    {
+                                        passProcentage = 0;
+                                    }
+                                }
+
+                                <td>@passProcentage %</td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
 
@@ -144,26 +152,35 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @foreach (var test in Model.Where(t => t.AppUser.Email == User.Identity.Name))
+                        {
+                            <tr onclick="location.href = '/' + '@test.TestCode'">
+                                <td>@test.TestName</td>
+                                <td>@test.AppUser.Email</td>
+                                <td>@test.TestQuestions.Count</td>
+                                @{ var testResults = test.TestResults.Where(tr => tr.TestId == test.Id);}
+                                @{
+                                    int passProcentage;
+                                    var testQustionCount = test.TestQuestions.Count();
+                                    if (testQustionCount != 0 && test.TestResults.Count() != 0)
+                                    {
+                                        passProcentage = 100 * (test.TestResults.Count(tr => tr.Score == testQustionCount)) / test.TestResults.Count();
+                                    }
+                                    else
+                                    {
+                                        passProcentage = 0;
+                                    }
+                                }
 
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>Java</td>
-                            <td>dima@nure.ua</td>
-                            <td>1000</td>
-                            <td>75%</td>
-                        </tr>
+                                <td>@passProcentage %</td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
 
 
             </div>
             <div class="tab-pane" id="control_tests">
-
 
                 <!-- CONTROL TESTS -->
                 <table class="table table-striped">

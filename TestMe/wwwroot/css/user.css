@@ -235,5 +235,5 @@ html,body{
 	cursor: pointer;
 	opacity: 0;
 }
-::-webkit-scrollbar-corner { background-color: #999;}}
+::-webkit-scrollbar-corner { background-color: #999;}
 ::-webkit-resizer { background-color: #666;}
