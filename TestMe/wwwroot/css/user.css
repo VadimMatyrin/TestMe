@@ -237,3 +237,10 @@ html,body{
 }
 ::-webkit-scrollbar-corner { background-color: #999;}
 ::-webkit-resizer { background-color: #666;}
+.editButton {
+    background-color: #294486 !important;
+  
+}
+#my_tests table tr td button.editButton a {
+    color: white !important;
+}

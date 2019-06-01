@@ -87,7 +87,10 @@
         <ul class="nav nav-tabs">
             <li class="active"><a href="#all_tests" data-toggle="tab">All tests</a></li>
             <li><a href="#my_tests" data-toggle="tab">My tests</a></li>
-            <li><a href="#control_tests" data-toggle="tab">Control tests</a></li>
+            @if (Model.Any(t => t.RequiresTeacherToStart))
+            {
+                <li><a href="#control_tests" data-toggle="tab">Control tests</a></li>
+            }
         </ul>
 
         <!-- Tab panes -->
@@ -146,174 +149,90 @@
                     <thead>
                         <tr class="thead">
                             <th class="col-lg-5">Name</th>
-                            <th class="col-lg-3">Author</th>
+                            <th class="col-lg-2">Author</th>
                             <th class="col-lg-2">Questions</th>
                             <th class="col-lg-2">Result</th>
+                            <th class="col-lg-2">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var test in Model.Where(t => t.AppUser.Email == User.Identity.Name))
                         {
-                            <tr onclick="location.href = '/' + '@test.TestCode'">
-                                <td>@test.TestName</td>
-                                <td>@test.AppUser.Email</td>
-                                <td>@test.TestQuestions.Count</td>
-                                @{ var testResults = test.TestResults.Where(tr => tr.TestId == test.Id);}
-                                @{
-                                    int passProcentage;
-                                    var testQustionCount = test.TestQuestions.Count();
-                                    if (testQustionCount != 0 && test.TestResults.Count() != 0)
-                                    {
-                                        passProcentage = 100 * (test.TestResults.Count(tr => tr.Score == testQustionCount)) / test.TestResults.Count();
-                                    }
-                                    else
-                                    {
-                                        passProcentage = 0;
-                                    }
+                        <tr onclick="location.href = '/' + '@test.TestCode'">
+                            <td>@test.TestName</td>
+                            <td>@test.AppUser.Email</td>
+                            <td>@test.TestQuestions.Count</td>
+                            @{ var testResults = test.TestResults.Where(tr => tr.TestId == test.Id);}
+                            @{
+                                int passProcentage;
+                                var testQustionCount = test.TestQuestions.Count();
+                                if (testQustionCount != 0 && test.TestResults.Count() != 0)
+                                {
+                                    passProcentage = 100 * (test.TestResults.Count(tr => tr.Score == testQustionCount)) / test.TestResults.Count();
                                 }
+                                else
+                                {
+                                    passProcentage = 0;
+                                }
+                            }
 
-                                <td>@passProcentage %</td>
-                            </tr>
+                            <td>@passProcentage %</td>
+                            <td>
+                                <button class="btn editButton">
+                                    <a asp-action="Edit" asp-route-id="@test.Id">Edit</a>
+                                </button>
+                            </td>
+                        </tr>
                         }
                     </tbody>
                 </table>
 
 
             </div>
-            <div class="tab-pane" id="control_tests">
 
-                <!-- CONTROL TESTS -->
-                <table class="table table-striped">
-                    <thead>
-                        <tr class="thead">
-                            <th class="col-lg-5">Name</th>
-                            <th class="col-lg-3">Author</th>
-                            <th class="col-lg-2">Questions</th>
-                            <th class="col-lg-2">Result</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>Mathematic and Mathimatical analys</td>
-                            <td>katie@nure.ua</td>
-                            <td>100</td>
-                            <td>65%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr onclick="location.href = '/example.html?test_id=0007'">
-                            <td>History</td>
-                            <td>bugor@nure.ua</td>
-                            <td>20</td>
-                            <td>100%</td>
-                        </tr>
+            @if (Model.Any(t => t.RequiresTeacherToStart))
+            {
+                <div class="tab-pane" id="control_tests">
 
-                    </tbody>
-                </table>
+                    <!-- CONTROL TESTS -->
+                    <table class="table table-striped">
+                        <thead>
+                            <tr class="thead">
+                                <th class="col-lg-5">Name</th>
+                                <th class="col-lg-3">Author</th>
+                                <th class="col-lg-2">Questions</th>
+                                <th class="col-lg-2">Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var test in Model.Where(t => t.RequiresTeacherToStart))
+                            {
+                                <tr onclick="location.href = '/' + '@test.TestCode'">
+                                    <td>@test.TestName</td>
+                                    <td>@test.AppUser.Email</td>
+                                    <td>@test.TestQuestions.Count</td>
+                                    @{ var testResults = test.TestResults.Where(tr => tr.TestId == test.Id);}
+                                    @{
+                                        int passProcentage;
+                                        var testQustionCount = test.TestQuestions.Count();
+                                        if (testQustionCount != 0 && test.TestResults.Count() != 0)
+                                        {
+                                            passProcentage = 100 * (test.TestResults.Count(tr => tr.Score == testQustionCount)) / test.TestResults.Count();
+                                        }
+                                        else
+                                        {
+                                            passProcentage = 0;
+                                        }
+                                    }
 
+                                    <td>@passProcentage %</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
 
-
-            </div>
+                </div>
+            }
         </div>
     </div>
 
