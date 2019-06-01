@@ -1,0 +1,246 @@
+
+.no-padding{
+	padding-left: 0!important;
+	padding-right: 0!important;
+}
+
+html,body{
+	height: 100%;
+	background: #F9F9F9;
+}
+.container-main{
+	background-image: url("../img/Vector3.png");
+	background-repeat: no-repeat;
+	background-size: cover;
+	height: 100%;
+}
+.left-side-container{
+	padding-top: 2%;
+}
+#header_logo{
+	font-family: Raleway;
+	font-style: normal;
+	font-weight: 600;
+	font-size: 18px;
+	line-height: 21px;
+	letter-spacing: 0.01em;
+
+	color: #FFFFFF;
+
+
+}
+.main-left-block>a{
+	padding-top: 6%;
+	font-family: Raleway;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 17px;
+	line-height: 20px;/* identical to box height */
+	/*	text-align: center;*/
+	letter-spacing: 0.05em;
+	color: #294486;
+	display: block;
+
+}
+
+.titletext{
+	font-family: Raleway;
+	font-style: normal;
+	font-weight: 600;
+	font-size: 43px;
+	line-height: 46px;
+	letter-spacing: 0.05em;
+
+	color: #fff;
+	display: block;
+	padding-bottom: 5%;
+}
+.text{
+	font-family: RalewaySemiBold;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 16px;
+	line-height: 19px;
+	letter-spacing: 0.05em;
+	display: block;
+	text-align: center;
+	color: #fff;
+}
+
+.right-side-container{
+	height: 70%;
+	margin-top: 3em;
+
+	border-radius: 4px 4px 0px 0px;
+}
+.padding-top-5{
+	padding-top: 5%!important;
+}
+.padding-top-15{
+	padding-top: 15%!important;
+}
+.padding-bottom {
+	padding-bottom: 5%!important;
+}
+
+.padding-bottom-5{
+	padding-bottom: 5%!important;
+}
+#left-side-user>button{
+	background: transparent;
+	border: 0;
+}
+
+#left-side-user .text{
+	font-family: Raleway;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 12px;
+	line-height: 14px;
+	/* identical to box height */
+	letter-spacing: 0.05em;
+
+	color: #FFFFFF;
+}
+#left-side-user>button:hover *,#left-side-user>button:hover *:before{
+	font-size: 13px;
+	background: transparent;
+	border: 0;
+}
+#left-side-user span{
+	text-align: left;
+}
+#left-side-user span:before{
+	font-size: 10px;
+}
+.button-add{
+	font-family: Raleway;
+	font-style: normal;
+	font-weight: 600;
+	font-size: 12px;
+	line-height: 21px;
+	/* identical to box height, or 175% */
+	text-align: center;
+	color: #294486;
+	background: #FFFFFF;
+	border-radius: 4px;
+	border: 0;
+	margin-top: 20%;
+	padding:10px;
+}
+#control-test button{
+	visibility: hidden;
+}
+
+#header{
+	height: 8%;
+	border-bottom: 0.5px solid #C8CACC;
+	box-sizing: border-box;
+}
+#left-side-user{
+	background: #294486;
+	color: #fff;
+	height: 92%;
+}
+#logo_container{
+	background: #294486;
+}
+.container_vertical{
+	height: 100%;
+	display: table;
+}
+.vertical_object{
+	display: table-cell;
+	vertical-align: middle;
+}
+@media (max-width: 1200px) {
+	#left-side-user{
+		height: auto;
+	}
+	.container_vertical{
+		display: block!important;
+	}
+	.vertical_object{
+		display: inline!important;
+	}
+}
+.header-container{
+	height: 100%;
+	background: #fff;
+}
+.left-side-buttons{
+	margin-bottom: 10%;
+	padding: 5px;
+}
+.user-block>*:before{
+	font-size: 20px!important;
+}
+.user-block{
+	margin-bottom: 20%;
+	
+}
+.divider {
+	height: 1px;
+	width:100%;
+	display:block; /* for use on default inline elements like span */
+	margin: 9px 0;
+	overflow: hidden;
+	background-color: #e5e5e5;
+}
+.right-side-container>.tab-content{
+	background: #fff;
+	height: 100%;
+	border: 1px solid #E1E3E5;
+	overflow-y:auto;
+}
+.nav-tabs>li>a{
+	background: #bcbcbc!important;
+	color: #fff;
+}
+.nav-tabs>.active>a{
+	background: #294486!important;
+	color: #fff!important;
+}
+.tab-content .table *{
+	font-family: Raleway;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 14px;
+	line-height: 16px;
+	letter-spacing: 0.01em;
+	color: #4F4F4F!important;
+}
+.tab-content .table tr{
+	cursor: pointer;
+}
+.tab-content .table tr:not(.thead):hover{
+	cursor: pointer;
+	background: #cecdcd;
+}
+::-webkit-scrollbar { width: 6px;cursor: pointer; height: 3px; opacity: 0.5;}
+
+::-webkit-scrollbar-track {  background-color: #999;}
+::-webkit-scrollbar-track-piece { background-color: #ffffff;}
+::-webkit-scrollbar-thumb {
+	height: 50px;
+	background-color: rgba(102, 102, 102, 0.41);
+	border-radius: 3px;
+	cursor: pointer;
+	opacity: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+	height: 50px;
+	background-color: rgba(102, 102, 102, 0.7);
+	border-radius: 3px;
+	cursor: pointer;
+	opacity: 0;
+}
+::-webkit-scrollbar-corner { background-color: #999;}
+::-webkit-resizer { background-color: #666;}
+.editButton {
+    background-color: #294486 !important;
+  
+}
+#my_tests table tr td button.editButton a {
+    color: white !important;
+}

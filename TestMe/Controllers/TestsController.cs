@@ -68,7 +68,9 @@ namespace TestMe.Controllers
         {
             var tests = await _testingPlatform.TestManager
                 .GetAll()
-                .Where(t => t.AppUserId == _userId)
+                .Include(t => t.TestQuestions)
+                .Include(t => t.TestResults)
+                .Include(t => t.AppUser)
                 .ToListAsync();
 
             return View(tests);

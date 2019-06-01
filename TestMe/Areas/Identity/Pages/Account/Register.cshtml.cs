@@ -74,7 +74,6 @@ namespace TestMe.Areas.Identity.Pages.Account
         private readonly ILogger<Model> _logger;
         private readonly IEmailSender _emailSender;
 
-
         [TempData]
         public string ErrorMessage { get; set; }
 
