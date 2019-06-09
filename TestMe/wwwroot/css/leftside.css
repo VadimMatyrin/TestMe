@@ -1,4 +1,9 @@
 
+.no-padding-v{
+	padding-top: 0!important;
+	padding-bottom: 0!important;
+}
+
 .no-padding{
 	padding-left: 0!important;
 	padding-right: 0!important;
@@ -8,12 +13,7 @@ html,body{
 	height: 100%;
 	background: #F9F9F9;
 }
-.container-main{
-	background-image: url("../img/Vector3.png");
-	background-repeat: no-repeat;
-	background-size: cover;
-	height: 100%;
-}
+
 .left-side-container{
 	padding-top: 2%;
 }
@@ -67,12 +67,7 @@ html,body{
 	color: #fff;
 }
 
-.right-side-container{
-	height: 70%;
-	margin-top: 3em;
 
-	border-radius: 4px 4px 0px 0px;
-}
 .padding-top-5{
 	padding-top: 5%!important;
 }
@@ -113,24 +108,7 @@ html,body{
 #left-side-user span:before{
 	font-size: 10px;
 }
-.button-add{
-	font-family: Raleway;
-	font-style: normal;
-	font-weight: 600;
-	font-size: 12px;
-	line-height: 21px;
-	/* identical to box height, or 175% */
-	text-align: center;
-	color: #294486;
-	background: #FFFFFF;
-	border-radius: 4px;
-	border: 0;
-	margin-top: 20%;
-	padding:10px;
-}
-#control-test button{
-	visibility: hidden;
-}
+
 
 #header{
 	height: 8%;
@@ -187,36 +165,6 @@ html,body{
 	overflow: hidden;
 	background-color: #e5e5e5;
 }
-.right-side-container>.tab-content{
-	background: #fff;
-	height: 100%;
-	border: 1px solid #E1E3E5;
-	overflow-y:auto;
-}
-.nav-tabs>li>a{
-	background: #bcbcbc!important;
-	color: #fff;
-}
-.nav-tabs>.active>a{
-	background: #294486!important;
-	color: #fff!important;
-}
-.tab-content .table *{
-	font-family: Raleway;
-	font-style: normal;
-	font-weight: normal;
-	font-size: 14px;
-	line-height: 16px;
-	letter-spacing: 0.01em;
-	color: #4F4F4F!important;
-}
-.tab-content .table tr{
-	cursor: pointer;
-}
-.tab-content .table tr:not(.thead):hover{
-	cursor: pointer;
-	background: #cecdcd;
-}
 ::-webkit-scrollbar { width: 6px;cursor: pointer; height: 3px; opacity: 0.5;}
 
 ::-webkit-scrollbar-track {  background-color: #999;}
@@ -235,12 +183,5 @@ html,body{
 	cursor: pointer;
 	opacity: 0;
 }
-::-webkit-scrollbar-corner { background-color: #999;}
+::-webkit-scrollbar-corner { background-color: #999;}}
 ::-webkit-resizer { background-color: #666;}
-.editButton {
-    background-color: #294486 !important;
-  
-}
-#my_tests table tr td a button.editButton {
-    color: white !important;
-}

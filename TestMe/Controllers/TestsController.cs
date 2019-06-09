@@ -159,12 +159,18 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var test = await _testingPlatform.TestManager.FindAsync(t => t.AppUserId == _userId && t.Id == id);
+            var test = await _testingPlatform.TestManager.GetAll().Include(t => t.TestQuestions).FirstOrDefaultAsync(t => t.AppUserId == _userId && t.Id == id);
             if (test is null)
                 return NotFound();
 
             if (!(test.TestCode is null))
                 return NotFound();
+
+            foreach(var testQuestion in test.TestQuestions)
+            {
+                var testAnswers = await _testingPlatform.TestAnswerManager.GetAll().Where(ta => ta.TestQuestionId == testQuestion.Id).ToListAsync();
+                testQuestion.TestAnswers = testAnswers;
+            }
 
             return View(test);
         }
