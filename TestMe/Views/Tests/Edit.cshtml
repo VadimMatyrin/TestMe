@@ -31,7 +31,7 @@
         <div class="col-lg-12 no-padding user-block">
             <span class="col-lg-1 icon-Teacher"></span>
             <span class="col-lg-9 text" style="text-decoration: underline;">
-               @User.Identity.Name
+                @User.Identity.Name
             </span>
         </div>
 
@@ -86,7 +86,7 @@
 
     <!-- RIGHT SIDE -->
     <div class="right-side-container no-padding col-lg-7 col-lg-push-1">
-        <form action="" style="height:100%">
+        <form style="height:100%">
             <div class="col-lg-12 add-test-top">
                 <div class="col-lg-6">
                     <div class="text col-lg-12">Test name</div>
@@ -120,59 +120,11 @@
                     </tbody>
                 </table>
             </div>
-            <input type="button" id="buttonAdd" onclick="AddQuestion()" style="background-color: #294486;" class="col-lg-4 col-lg-push-4 btn btn-primary" value="Add question">
+            <input type="button" id="buttonAdd" onclick="AddQuestion()" style="background-color: #fff; margin-bottom: 2%; color: #294486;font-family: Raleway;font-style: normal;font-weight: bold;font-size: 16px;text-align: center;letter-spacing: 0.05em;" class="col-lg-2 col-lg-push-5 btn btn-primary" value="Add question">
+            <!-- CLEARFIX -->
+            <div class="clearfix visible-lg"></div>
+            <input type="button" id="buttonAdd" onclick="saveTest()" style="background-color: #294486;font-family: Raleway;font-style: normal;font-weight: bold;font-size: 16px;text-align: center;letter-spacing: 0.05em;" onclick="GetCreateTestRequestPayload()" class="col-lg-2 col-lg-push-5 btn btn-primary" value="Save Test">
         </form>
-    </div>
-    <div id="modals">
-
-        <!-- LOGIN TEACHER -->
-        <div class="modal fade" id="QuestionForm_1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-body no-padding no-padding-v">
-                        <div class="container-fluid no-padding form-add-question">
-                            <span class="col-lg-12 titletext QuestionHeader">ADD NEW TEST QUESTION</span>
-                            <div class="col-lg-3 text col-lg-push-3 text">Question №</div>
-                            <!-- CLEARFIX -->
-                            <div class="clearfix visible-lg"></div>
-                            <span class="col-lg-6 col-lg-push-3">Question`s text</span>
-                            <!-- CLEARFIX -->
-                            <div class="clearfix visible-lg"></div>
-                            <textarea id="textQuestion_1" type="textarea" placeholder="Write your question text" class="col-lg-6  col-lg-push-3"></textarea>
-                            <!-- CLEARFIX -->
-                            <div class="clearfix visible-lg"></div>
-                            <div class="col-lg-3 text col-lg-push-3 text">Answers</div>
-                            <!-- CLEARFIX -->
-                            <div class="clearfix visible-lg"></div>
-                            <span class="col-lg-6 col-lg-push-3">Check the correct answers</span>
-
-                            <!-- CLEARFIX -->
-                            <div class="clearfix visible-lg"></div>
-                            <div id="AnswersToQ_1" class="col-lg-6  col-lg-push-3">
-                                <div id="answer_block_1_1" class="col-lg-12">
-                                    <input id="answer_1_1_status" class="col-lg-1" type="checkbox">
-                                    <input id="answer_1_1_text" class="col-lg-9" placeholder="Answer 1" type="text">
-                                    <input type="button" value="Delete" onclick="DeleteAnswer(this.parentElement.parentElement,this.parentElement);">
-                                </div>
-                            </div>
-                            <!-- CLEARFIX -->
-                            <div class="clearfix visible-lg"></div>
-                            <input type="button" value="ADD NEW ANSWER" id="buttonAddAnswer_1" onclick="AddAnswer(this.id)" class="col-lg-3 col-lg-push-5 text btn buttonAddAnswers">
-
-
-                            <!-- CLEARFIX -->
-                            <div class="clearfix visible-lg"></div>
-                            <input type="button" value="SAVE & CONTINUE" data-dismiss="modal" aria-hidden="true" class="col-lg-3 col-lg-push-5 text btn buttonSaveQuestion">
-                            <input type="button" id="buttonAdd" onclick="AddQuestion()" style="background-color: #fff; margin-bottom: 2%; color: #294486;font-family: Raleway;font-style: normal;font-weight: bold;font-size: 16px;text-align: center;letter-spacing: 0.05em;" class="col-lg-2 col-lg-push-5 btn btn-primary" value="Add question">
-                            <!-- CLEARFIX -->
-                            <div class="clearfix visible-lg"></div>
-                            <input type="button" id="buttonAdd" style="background-color: #294486;font-family: Raleway;font-style: normal;font-weight: bold;font-size: 16px;text-align: center;letter-spacing: 0.05em;" onclick="GetCreateTestRequestPayload()" class="col-lg-2 col-lg-push-5 btn btn-primary" value="Save Test">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <!-- Последняя компиляция и сжатый JavaScript -->
@@ -403,40 +355,53 @@
         function DeleteAnswer(parent, child) {
             parent.removeChild(child);
         }
-        function GetCreateTestRequestPayload() {
+
+    </script>
+    <script>
+         function GetCreateTestRequestPayload() {
             var jsonArr = [];
             var name = document.getElementById("TestName").value;
-            var time = document.getElementById("TestTime").value + ":00";
-            jsonArr.push({ TestName: name, TestDuration: time, TestQuestions: [] });
+            var time = document.getElementById("TestTime").value;
+            jsonArr.push({ testName: name, testDuration: time, testQuestions: [] });
 
             for (var i = 0; i < b.length; i++) {
 
                 var nameQ = document.getElementById("textQuestion_" + (i + 1));
                 if (nameQ == null)
                     continue;
-                jsonArr[0].TestQuestions.push({
-                    QuestionText: nameQ.value,
-                    TestAnswers: []
+                jsonArr[0].testQuestions.push({
+                    questionText: nameQ.value,
+                    testAnswers: []
                 });
                 for (var j = 0; j < b[i]; j++) {
                     var ansv = document.getElementById("answer_" + (i + 1) + "_" + (j + 1) + "_text");
                     var ansvCheck = document.getElementById("answer_" + (i + 1) + "_" + (j + 1) + "_status");
                     if (nameQ == null || ansvCheck == null)
                         continue;
-                    jsonArr[0].TestQuestions[jsonArr[0].TestQuestions.length - 1].TestAnswers.push({
-                        AnswerText: ansv.value,
-                        IsCorrect: ansvCheck.checked
+                    jsonArr[0].testQuestions[jsonArr[0].testQuestions.length - 1].testAnswers.push({
+                        answerText: ansv.value,
+                        isCorrect: ansvCheck.checked
                     })
                 }
 
             }
             var myJsonString = JSON.stringify(jsonArr[0]);
-            alert(myJsonString);
             return jsonArr[0];
         }
 
+        function saveTest() {
+            $.ajax({
+                url: "/Tests/Edit/@Model.Id",
+                type: "POST",
+                data: GetCreateTestRequestPayload(),
+                success: function (data) {
+                    window.location.href = "http://www.tsstestme.gear.host/Tests/Index";
+                },
+                error: function () {
 
-
+                }
+            });
+        }
     </script>
 
 

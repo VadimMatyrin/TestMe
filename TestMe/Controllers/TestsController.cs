@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using TestMe.Sevices.Interfaces;
 using System.Text;
 using Microsoft.Extensions.Options;
+using TestMe.Exceptions;
 
 namespace TestMe.Controllers
 {
@@ -23,7 +24,8 @@ namespace TestMe.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IOptions<LoadConfig> _loadConfig;
         private string _userId;
-        public class FilterModel{
+        public class FilterModel
+        {
             public string SearchString { get; set; }
             public int? TestRatingFrom { get; set; }
             public int? TestRatingTo { get; set; }
@@ -97,7 +99,7 @@ namespace TestMe.Controllers
                 return NotFound();
 
             var test = await _testingPlatform.TestManager.FindAsync(t => t.AppUserId == _userId && t.Id == id);
-                
+
             if (test is null)
                 return NotFound();
 
@@ -166,7 +168,7 @@ namespace TestMe.Controllers
             if (!(test.TestCode is null))
                 return NotFound();
 
-            foreach(var testQuestion in test.TestQuestions)
+            foreach (var testQuestion in test.TestQuestions)
             {
                 var testAnswers = await _testingPlatform.TestAnswerManager.GetAll().Where(ta => ta.TestQuestionId == testQuestion.Id).ToListAsync();
                 testQuestion.TestAnswers = testAnswers;
@@ -174,20 +176,28 @@ namespace TestMe.Controllers
 
             return View(test);
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id, TestName,CreationDate, TestDuration")] Test test)
-        {
-            if (id != test.Id)
-                return NotFound();
 
-            if (ModelState.IsValid)
+        [HttpPost]
+        public async Task<IActionResult> Edit(Test test)
+        {
+            if (test is null)
+                throw new TestNotFoundException();
+
+            test.AppUserId = _userId;
+            if (!(test.TestQuestions is null))
             {
-                test.AppUserId = _userId;
-                await _testingPlatform.TestManager.UpdateAsync(test);
-                return RedirectToAction(nameof(Index));
+                foreach (var testQuestion in test.TestQuestions.Where(tq => !(tq is null)))
+                {
+                    testQuestion.AppUserId = _userId;
+                    foreach (var testAnswer in test.TestAnswers.Where(ta => !(ta is null)))
+                    {
+                        testAnswer.AppUserId = _userId;
+                    }
+                }
             }
-            return View(test);
+            await _testingPlatform.TestManager.UpdateAsync(test);
+            return RedirectToAction(nameof(Index));
+
         }
         public async Task<IActionResult> Delete(int? id)
         {
@@ -212,7 +222,7 @@ namespace TestMe.Controllers
                 _testingPlatform.AnswerImageManager.DeleteAnswerImage(testAnswer.ImageName);
 
             await _testingPlatform.TestManager.DeleteAsync(test);
-            if(_userId != _userManager.GetUserId(User))
+            if (_userId != _userManager.GetUserId(User))
             {
                 if (User.IsInRole("Admin"))
                     return RedirectToAction("Index", "Admin");
@@ -267,9 +277,9 @@ namespace TestMe.Controllers
 
             var topRatedTests = await _testingPlatform.TestManager
                 .GetAll()
-                .Where(t => 
+                .Where(t =>
                     !(t.TestCode == null) &&
-                    t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase) && 
+                    t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase) &&
                     t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= _loadConfig.Value.MinTopRatedRate)
                 .Take(_loadConfig.Value.TakeAmount)
                 .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
@@ -437,14 +447,14 @@ namespace TestMe.Controllers
                 filterModel.TestDurationTo = new TimeSpan(23, 59, 0);
 
             filterModel.SwapDurationBounds();
-            
+
             var tests = await _testingPlatform.TestManager
              .GetAll()
              .Where(t => t.TestCode != null &&
                t.TestName.Contains(filterModel.SearchString, StringComparison.OrdinalIgnoreCase) &&
                t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= filterModel.TestRatingFrom &&
                t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) <= filterModel.TestRatingTo &&
-               t.TestDuration >= filterModel.TestDurationFrom && 
+               t.TestDuration >= filterModel.TestDurationFrom &&
                t.TestDuration <= filterModel.TestDurationTo)
              .Skip(skipAmount.Value)
              .Take(_loadConfig.Value.AjaxTakeAmount)
@@ -460,7 +470,7 @@ namespace TestMe.Controllers
                 t.TestDuration,
                 testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
                 t.AppUser.UserName
-            }); 
+            });
 
             return Json(optimizedTests);
         }
@@ -477,13 +487,13 @@ namespace TestMe.Controllers
             var topRatedTests = await _testingPlatform.TestManager
                 .GetAll()
                 .Where(t =>
-                t.TestCode != null && t.TestName.Contains(filterModel.SearchString, StringComparison.OrdinalIgnoreCase) 
+                t.TestCode != null && t.TestName.Contains(filterModel.SearchString, StringComparison.OrdinalIgnoreCase)
                 && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= _loadConfig.Value.MinTopRatedRate)
                 .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
                 .Skip(skipAmount.Value)
                 .Take(_loadConfig.Value.AjaxTakeAmount)
                 .ToListAsync();
-            
+
             var optimizedTests = topRatedTests.Select(t =>
             new
             {
@@ -516,7 +526,7 @@ namespace TestMe.Controllers
 
             if (test.TestQuestions.Any(tq => tq.TestAnswers.All(ta => !ta.IsCorrect)))
                 return true;
-            
+
             return false;
         }
     }
