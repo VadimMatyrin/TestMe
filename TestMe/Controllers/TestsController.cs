@@ -183,21 +183,41 @@ namespace TestMe.Controllers
         public async Task<IActionResult> Edit(Test test)
         {
             if (test is null)
-                throw new TestNotFoundException();
+                throw new TestNotFoundException();            
 
-            test.AppUserId = _userId;
+            var oldTest = await _testingPlatform.TestManager
+                .GetAll()
+                .AsNoTracking()
+                .Include(t => t.TestQuestions)
+                .Include(t => t.TestAnswers)
+                //.Include(t => t.TestReports)
+                //.Include(t => t.TestMarks)
+                .FirstOrDefaultAsync(t => t.Id == test.Id);
+
+            await _testingPlatform.TestQuestionManager.DeleteRangeAsync(oldTest.TestQuestions);
+            oldTest.TestDuration = test.TestDuration;
+            oldTest.TestName = test.TestName;
             if (!(test.TestQuestions is null))
             {
                 foreach (var testQuestion in test.TestQuestions.Where(tq => !(tq is null)))
                 {
+                    if (testQuestion.QuestionText is null)
+                        testQuestion.QuestionText = "Question text";
+
+                    testQuestion.TestId = test.Id;
                     testQuestion.AppUserId = _userId;
-                    foreach (var testAnswer in test.TestAnswers.Where(ta => !(ta is null)))
+                    foreach (var testAnswer in testQuestion.TestAnswers.Where(ta => !(ta is null)))
                     {
+                        if (testAnswer.AnswerText is null)
+                            testAnswer.AnswerText = "Answer text";
+
+                        testAnswer.TestQuestionId = testQuestion.Id;
                         testAnswer.AppUserId = _userId;
                     }
+                    await _testingPlatform.TestQuestionManager.AddAsync(testQuestion);
                 }
             }
-            await _testingPlatform.TestManager.UpdateAsync(test);
+            await _testingPlatform.TestManager.UpdateAsync(oldTest);
             return RedirectToAction(nameof(Index));
 
         }

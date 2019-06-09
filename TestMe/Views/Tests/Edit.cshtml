@@ -86,7 +86,7 @@
 
     <!-- RIGHT SIDE -->
     <div class="right-side-container no-padding col-lg-7 col-lg-push-1">
-        <form style="height:100%">
+        <form style="height:100%" id="testForm">
             <div class="col-lg-12 add-test-top">
                 <div class="col-lg-6">
                     <div class="text col-lg-12">Test name</div>
@@ -111,7 +111,7 @@
                         {
                             ++count;
                             <tr id="Question_@count">
-                                <td data-toggle="modal" data-target="#QuestionForm_@count">#1</td>
+                                <td data-toggle="modal" data-target="#QuestionForm_@count">#@count</td>
 
                                 <td data-toggle="modal" data-target="#QuestionForm_@count">@question.QuestionText</td>
                                 <td> <input value="Delete" type="button" onclick="DeleteQuestion(this.parentElement.parentElement.parentElement,this.parentElement.parentElement);"></td>
@@ -123,8 +123,79 @@
             <input type="button" id="buttonAdd" onclick="AddQuestion()" style="background-color: #fff; margin-bottom: 2%; color: #294486;font-family: Raleway;font-style: normal;font-weight: bold;font-size: 16px;text-align: center;letter-spacing: 0.05em;" class="col-lg-2 col-lg-push-5 btn btn-primary" value="Add question">
             <!-- CLEARFIX -->
             <div class="clearfix visible-lg"></div>
-            <input type="button" id="buttonAdd" onclick="saveTest()" style="background-color: #294486;font-family: Raleway;font-style: normal;font-weight: bold;font-size: 16px;text-align: center;letter-spacing: 0.05em;" onclick="GetCreateTestRequestPayload()" class="col-lg-2 col-lg-push-5 btn btn-primary" value="Save Test">
+            <input type="submit" id="buttonAdd" style="background-color: #294486;font-family: Raleway;font-style: normal;font-weight: bold;font-size: 16px;text-align: center;letter-spacing: 0.05em;" class="col-lg-2 col-lg-push-5 btn btn-primary" value="Save Test">
         </form>
+    </div>
+
+
+    <div id="modals">
+        @{ var testCount = 0;}
+        @foreach (var question in Model.TestQuestions)
+        {
+            testCount++;
+            <!-- LOGIN TEACHER -->
+            <div class="modal fade" id="QuestionForm_@testCount" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-body no-padding no-padding-v">
+                            <div class="container-fluid no-padding form-add-question">
+                                <span class="col-lg-12 titletext QuestionHeader">ADD OR EDIT TEST QUESTION</span>
+                                <div class="col-lg-3 text col-lg-push-3 text">Question № @testCount</div>
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <span class="col-lg-6 col-lg-push-3">Question`s text</span>
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <textarea id="textQuestion_@testCount" type="textarea" placeholder="Write your question text" class="col-lg-6  col-lg-push-3">@question.QuestionText</textarea>
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div class="col-lg-3 text col-lg-push-3 text">Answers</div>
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <span class="col-lg-6 col-lg-push-3">Check the correct answers</span>
+
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div id="AnswersToQ_@testCount" class="col-lg-6  col-lg-push-3">
+                                    @{ var answerCount = 0;}
+                                    @foreach (var testAnswer in question.TestAnswers)
+                                    {
+                                        answerCount++;
+                                        var id = testCount + "_" + answerCount;
+                                        var answerId = "answer_block_" + id;
+                                        var statusId = "answer_" + id + "_status";
+                                        var textId = "answer_" + id + "_text";
+                                        <div id=@answerId class="col-lg-12" data-num="@testCount">
+                                            @if (testAnswer.IsCorrect)
+                                            {
+                                                <input id=@statusId class="col-lg-1" type="checkbox" checked/>
+                                            }
+                                            else
+                                            {
+                                                <input id=@statusId class="col-lg-1" type="checkbox"/>
+                                            }
+                                            <input id=@textId class="col-lg-9" placeholder="Answer 1" type="text" value="@testAnswer.AnswerText">
+                                            <input type="button" value="Delete" onclick="DeleteAnswer(this.parentElement.parentElement,this.parentElement);">
+                                        </div>
+                                    }
+
+                                </div>
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <input type="button" value="ADD NEW ANSWER" id="buttonAddAnswer_@testCount" onclick="AddAnswer(this.id)" class="col-lg-3 col-lg-push-5 text btn buttonAddAnswers">
+
+
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <input type="button" value="SAVE & CONTINUE" data-dismiss="modal" aria-hidden="true" class="col-lg-3 col-lg-push-5 text btn buttonSaveQuestion">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        }
     </div>
 
     <!-- Последняя компиляция и сжатый JavaScript -->
@@ -141,7 +212,8 @@
     }
 
     <script>
-        var b = [1];
+        var b = [];
+        b.length = @Model.TestQuestions.Count;
         function AddQuestion() {
             var table = document.getElementById("TableQuestion");
             var modal = document.getElementById("modals");
@@ -327,7 +399,7 @@
 
             var inputtext = document.createElement("input");
             inputtext.type = "text";
-            inputtext.placeholder += "Answer " + countAnsw;
+            inputtext.placeholder += "Answer";
             inputtext.id += "answer_" + questNum + "_" + countAnsw + "_text";
             inputtext.className += "col-lg-9";
 
@@ -373,8 +445,11 @@
                     questionText: nameQ.value,
                     testAnswers: []
                 });
-                for (var j = 0; j < b[i]; j++) {
+                for (var j = 0; j < Number.MAX_SAFE_INTEGER; j++) {
                     var ansv = document.getElementById("answer_" + (i + 1) + "_" + (j + 1) + "_text");
+                    if (ansv === null)
+                        break;
+
                     var ansvCheck = document.getElementById("answer_" + (i + 1) + "_" + (j + 1) + "_status");
                     if (nameQ == null || ansvCheck == null)
                         continue;
@@ -389,19 +464,20 @@
             return jsonArr[0];
         }
 
-        function saveTest() {
+         $('form#testForm').one('submit', function(e) {
+            e.preventDefault();
             $.ajax({
                 url: "/Tests/Edit/@Model.Id",
                 type: "POST",
                 data: GetCreateTestRequestPayload(),
-                success: function (data) {
-                    window.location.href = "http://www.tsstestme.gear.host/Tests/Index";
+                success: (data) => {
+                    $(this).submit();
                 },
                 error: function () {
 
                 }
             });
-        }
+        });
     </script>
 
 
