@@ -138,21 +138,23 @@ namespace TestMe.Controllers
         {
             return View();
         }
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TestName,CreationDate, TestDuration")]Test test)
+        public async Task<IActionResult> Create(Test test)
         {
             if (_testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == _userId).Any(t => t.TestName == test.TestName))
             {
                 ModelState.AddModelError("TestName", "You already have test with the same name!");
             }
-            if (ModelState.IsValid)
+
+            if (!ModelState.IsValid)
             {
-                test.AppUserId = _userId;
-                await _testingPlatform.TestManager.AddAsync(test);
-                return RedirectToAction(nameof(Index));
+                return View(test);
             }
-            return View(test);
+
+            test.AppUserId = _userId;
+            await _testingPlatform.TestManager.AddAsync(test);
+            return RedirectToAction(nameof(Index));
         }
         public async Task<IActionResult> Edit(int? id)
         {

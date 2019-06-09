@@ -1,43 +1,461 @@
-﻿@model TestMe.Models.Test
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <!--<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="~/css/fonts.css">
+    <link rel="stylesheet" type="text/css" href="~/css/leftside.css">
+    <link rel="stylesheet" type="text/css" href="~/css/addtest.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
 
-@{
-    ViewData["Title"] = "Create";
-}
+    <title>TestMe</title>
 
-<h2>Create</h2>
+</head>
+<body>
 
-<h4>Test</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="TestName" class="control-label"></label>
-                <input asp-for="TestName" class="form-control" />
-                <span asp-validation-for="TestName" class="text-danger"></span>
+    <div class="no-padding col-lg-12" id="header">
+        <div class="col-lg-2 header-container container_vertical" id="logo_container">
+            <a href="" class="vertical_object" id="header_logo">TestMe</a>
+        </div>
+        <div class="col-lg-10 header-container container_vertical">
+            <form class="navbar-form  vertical_object" role="search">
+                <input type="text" class="form-control" style="border: 0; width: 100%;" placeholder="Search test">
+            </form>
+        </div>
+    </div>
+
+    <!-- LEFT SIDE -->
+    <div class="left-side-container no-padding col-lg-2 " id="left-side-user">
+        <div class="col-lg-12 no-padding user-block">
+            <span class="col-lg-1 icon-Teacher"></span>
+            <span class="col-lg-9 text" style="text-decoration: underline;">
+                example@nure.ua
+            </span>
+        </div>
+
+        <button disabled class="disabled left-side-buttons col-lg-12 ">
+            <span class="col-lg-1 icon-write"></span>
+            <span class="col-lg-9 text">
+                Add new test
+            </span>
+        </button>
+        <button class="left-side-buttons col-lg-12 ">
+            <span class="col-lg-1 icon-user"></span>
+            <span class="col-lg-9 text">
+                My account
+            </span>
+        </button>
+        <button class="left-side-buttons col-lg-12 ">
+            <a asp-action="Index" asp-controller="Tests">
+                <span class="col-lg-1 icon-copy"></span>
+            <span class="col-lg-9 text">
+                Tests
+            </span>
+            </a>
+        </button>
+        <button class="left-side-buttons col-lg-12 ">
+            <span class="col-lg-1 icon-tasks"></span>
+            <span class="col-lg-9 text">
+                Results
+            </span>
+        </button>
+
+        <div class="divider"></div>
+
+        <button class="left-side-buttons col-lg-12 ">
+            <span class="col-lg-1 icon-settings"></span>
+            <span class="col-lg-9 text">
+                Settings
+            </span>
+        </button>
+
+
+        <button onclick="GetCreateTestRequestPayload()" class="left-side-buttons col-lg-12 ">
+            <a asp-action="LogOut" asp-controller="Home">
+                <span class="col-lg-1 icon-logout"></span>
+                <span class="col-lg-9 text">
+                    Log out
+                </span>
+            </a>
+        </button>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right-side-container no-padding col-lg-7 col-lg-push-1">
+        <form asp-action="Index" id="testForm" style="height:100%">
+            <div class="col-lg-12 add-test-top">
+                <div class="col-lg-6">
+                    <div class="text col-lg-12">Name of test</div>
+                    <div class="col-lg-12">
+                        <input id="TestName" class="form-control" placeholder="Test-Test" type="text">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="text col-lg-12">Time of test</div>
+                    <div class="col-lg-12">
+                        <input id="TestTime" class="form-control" type="time">
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="TestDuration" class="control-label"></label>
-                <input asp-for="TestDuration" class="form-control" />
-                <span asp-validation-for="TestDuration" class="text-danger"></span>
+
+            <div class="col-lg-12" style="height: 80%; overflow-y: auto;">
+                <!-- CONTROL TESTS -->
+                <table class="table table-striped">
+                    <tbody id="TableQuestion">
+                        <tr id="Question_1">
+                            <td data-toggle="modal" data-target="#QuestionForm_1">#1</td>
+
+                            <td data-toggle="modal" data-target="#QuestionForm_1">Question 1</td>
+                            <td> <input value="Delete" type="button" onclick="DeleteQuestion(this.parentElement.parentElement.parentElement,this.parentElement.parentElement);"></td>
+                        </tr>
+
+
+                    </tbody>
+                </table>
+
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
+
+
+
+            <input type="button" id="buttonAdd" onclick="AddQuestion()" style="background-color: #fff; margin-bottom: 2%; color: #294486;font-family: Raleway;font-style: normal;font-weight: bold;font-size: 16px;text-align: center;letter-spacing: 0.05em;" class="col-lg-2 col-lg-push-5 btn btn-primary" value="Add question">
+            <!-- CLEARFIX -->
+            <div class="clearfix visible-lg"></div>
+            <input type="submit" id="buttonAdd" style="background-color: #294486;font-family: Raleway;font-style: normal;font-weight: bold;font-size: 16px;text-align: center;letter-spacing: 0.05em;" onclick="GetCreateTestRequestPayload()" class="col-lg-2 col-lg-push-5 btn btn-primary" value="Save Test">
+
         </form>
     </div>
-</div>
+    <div id="modals">
+        <!-- LOGIN TEACHER -->
+        <div class="modal fade" id="QuestionForm_1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-body no-padding no-padding-v">
+                        <div class="container-fluid no-padding form-add-question">
+                            <span class="col-lg-12 titletext QuestionHeader">ADD NEW TEST QUESTION</span>
+                            <div class="col-lg-3 text col-lg-push-3 text">Question №</div>
+                            <!-- CLEARFIX -->
+                            <div class="clearfix visible-lg"></div>
+                            <span class="col-lg-6 col-lg-push-3">Question`s text</span>
+                            <!-- CLEARFIX -->
+                            <div class="clearfix visible-lg"></div>
+                            <textarea id="textQuestion_1" type="textarea" placeholder="Write your question text" class="col-lg-6  col-lg-push-3"></textarea>
+                            <!-- CLEARFIX -->
+                            <div class="clearfix visible-lg"></div>
+                            <div class="col-lg-3 text col-lg-push-3 text">Answers</div>
+                            <!-- CLEARFIX -->
+                            <div class="clearfix visible-lg"></div>
+                            <span class="col-lg-6 col-lg-push-3">Check the correct answers</span>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+                            <!-- CLEARFIX -->
+                            <div class="clearfix visible-lg"></div>
+                            <div id="AnswersToQ_1" class="col-lg-6  col-lg-push-3">
+                                <div id="answer_block_1_1" class="col-lg-12">
+                                    <input id="answer_1_1_status" class="col-lg-1" type="checkbox">
+                                    <input id="answer_1_1_text" class="col-lg-9" placeholder="Answer 1" type="text">
+                                    <input type="button" value="Delete" onclick="DeleteAnswer(this.parentElement.parentElement,this.parentElement);">
+                                </div>
+                            </div>
+                            <!-- CLEARFIX -->
+                            <div class="clearfix visible-lg"></div>
+                            <input type="button" value="ADD NEW ANSWER" id="buttonAddAnswer_1" onclick="AddAnswer(this.id)" class="col-lg-3 col-lg-push-5 text btn buttonAddAnswers">
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+                            <!-- CLEARFIX -->
+                            <div class="clearfix visible-lg"></div>
+                            <input type="button" value="SAVE & CONTINUE" data-dismiss="modal" aria-hidden="true" class="col-lg-3 col-lg-push-5 text btn buttonSaveQuestion">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Последняя компиляция и сжатый JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+
+
+
     <script>
-        $(document).ready(function () {
-            $("#TestDuration").rules('remove', 'range');
+        var b = [1];
+        function AddQuestion() {
+            var table = document.getElementById("TableQuestion");
+            var modal = document.getElementById("modals");
+            b.push(1);
+            var count = b.length;
+
+
+            var table_tr = document.createElement("tr");
+            table_tr.id += "Question_" + count;
+            table.appendChild(table_tr);
+
+
+            var table_td = document.createElement("td");
+            table_td.innerHTML = "#" + count;
+            table_td.setAttribute("data-toggle", "modal");
+            table_td.setAttribute("data-target", "#QuestionForm_" + count);
+            table_tr.appendChild(table_td);
+            var table_td1 = document.createElement("td");
+            table_td1.innerHTML = "Question " + count;
+            table_td1.setAttribute("data-toggle", "modal");
+            table_td1.setAttribute("data-target", "#QuestionForm_" + count);
+            table_tr.appendChild(table_td1);
+            var table_td2 = document.createElement("td");
+            table_tr.appendChild(table_td2);
+            var input_td = document.createElement("input")
+            input_td.setAttribute("type", "button");
+            input_td.setAttribute("value", "Delete");
+            input_td.setAttribute("onclick", "DeleteQuestion(this.parentElement.parentElement.parentElement,this.parentElement.parentElement);");
+            table_td2.appendChild(input_td);
+
+
+
+
+
+            var divmodal_1 = document.createElement("div");
+            modal.appendChild(divmodal_1);
+            divmodal_1.id += "QuestionForm_" + count;
+            divmodal_1.className += "modal fade";
+            divmodal_1.setAttribute("tabindex", "-1");
+            divmodal_1.setAttribute("role", "dialog");
+            divmodal_1.setAttribute("aria-labelledby", "myModalLabel");
+            divmodal_1.setAttribute("aria-hidden", "true");
+
+            var divmodal_2 = document.createElement("div");
+            divmodal_2.className += "modal-dialog modal-lg";
+            divmodal_1.appendChild(divmodal_2);
+
+            var divmodal_3 = document.createElement("div");
+            divmodal_3.className += "modal-content";
+            divmodal_2.appendChild(divmodal_3);
+
+            var divmodal_4 = document.createElement("div");
+            divmodal_4.className += "modal-body no-padding no-padding-v";
+            divmodal_3.appendChild(divmodal_4);
+
+            var divmodal_5 = document.createElement("div");
+            divmodal_5.className += "container-fluid no-padding form-add-question";
+            divmodal_4.appendChild(divmodal_5);
+
+            var spanmodal_1 = document.createElement("span");
+            spanmodal_1.className += "col-lg-12 titletext QuestionHeader";
+            spanmodal_1.innerHTML = "ADD NEW TEST QUESTION";
+            divmodal_5.appendChild(spanmodal_1);
+
+            var divspanmodal_2 = document.createElement("div");
+            divspanmodal_2.className += "col-lg-3 text col-lg-push-3 text";
+            divspanmodal_2.innerHTML = "Question №" + count;
+            divmodal_5.appendChild(divspanmodal_2);
+
+            var clearfix = document.createElement("div");
+            clearfix.className += "clearfix visible-lg";
+            divmodal_5.appendChild(clearfix);
+
+            var spanmodal_2 = document.createElement("span");
+            spanmodal_2.className += "col-lg-6 col-lg-push-3";
+            spanmodal_2.innerHTML = "Question`s text";
+            divmodal_5.appendChild(spanmodal_2);
+
+            var clearfix1 = document.createElement("div");
+            clearfix1.className += "clearfix visible-lg";
+            divmodal_5.appendChild(clearfix1);
+
+            var textarea_1 = document.createElement("textarea");
+            textarea_1.className += "col-lg-6  col-lg-push-3";
+            textarea_1.id += "textQuestion_" + count;
+            textarea_1.setAttribute("type", "textarea");
+            textarea_1.setAttribute("placeholder", "Write your question text");
+            divmodal_5.appendChild(textarea_1);
+
+            var clearfix2 = document.createElement("div");
+            clearfix2.className += "clearfix visible-lg";
+            divmodal_5.appendChild(clearfix2);
+
+            var divspanmodal_3 = document.createElement("div");
+            divspanmodal_3.className += "col-lg-3 text col-lg-push-3 text";
+            divspanmodal_3.innerHTML = "Answers";
+            divmodal_5.appendChild(divspanmodal_3);
+
+            var clearfix3 = document.createElement("div");
+            clearfix3.className += "clearfix visible-lg";
+            divmodal_5.appendChild(clearfix3);
+
+            var spanmodal_3 = document.createElement("span");
+            spanmodal_3.className += "col-lg-6 col-lg-push-3";
+            spanmodal_3.innerHTML = "Check the correct answers";
+            divmodal_5.appendChild(spanmodal_3);
+
+            var clearfix4 = document.createElement("div");
+            clearfix4.className += "clearfix visible-lg";
+            divmodal_5.appendChild(clearfix4);
+
+            var divspanmodal_4 = document.createElement("div");
+            divspanmodal_4.className += "col-lg-6  col-lg-push-3";
+            divspanmodal_4.id += "AnswersToQ_" + count;
+            divmodal_5.appendChild(divspanmodal_4);
+
+            var clearfix5 = document.createElement("div");
+            clearfix5.className += "clearfix visible-lg";
+            divmodal_5.appendChild(clearfix5);
+
+            var divspanmodal_5 = document.createElement("div");
+            divspanmodal_5.className += "col-lg-12";
+            divspanmodal_5.id += "answer_block_" + count + "_1";
+            divspanmodal_4.appendChild(divspanmodal_5);
+
+            var input_1 = document.createElement("input");
+            input_1.setAttribute("type", "checkbox");
+            input_1.className += "col-lg-1";
+            input_1.id += "answer_" + count + "_1_status";
+            divspanmodal_5.appendChild(input_1);
+
+            var input_2 = document.createElement("input");
+            input_2.setAttribute("type", "text");
+            input_2.setAttribute("placeholder", "Answer 1");
+            input_2.id += "answer_" + count + "_1_text";
+            input_2.className += "col-lg-9";
+            divspanmodal_5.appendChild(input_2);
+
+            var input_3 = document.createElement("input")
+            input_3.setAttribute("type", "button");
+            input_3.setAttribute("value", "Delete");
+            input_3.setAttribute("onclick", "DeleteAnswer(this.parentElement.parentElement,this.parentElement);");
+            divspanmodal_5.appendChild(input_3);
+
+            var buttonmodal_1 = document.createElement("input");
+            buttonmodal_1.id += "buttonAddAnswer_" + count;
+            buttonmodal_1.className += "col-lg-3 col-lg-push-5 text btn buttonAddAnswers";
+            buttonmodal_1.setAttribute("onclick", "AddAnswer(this.id)");
+            buttonmodal_1.setAttribute("type", "button");
+            buttonmodal_1.setAttribute("value", "ADD NEW ANSWER");
+
+            divmodal_5.appendChild(buttonmodal_1);
+
+            var clearfix6 = document.createElement("div");
+            clearfix6.className += "clearfix visible-lg";
+            divmodal_5.appendChild(clearfix6);
+
+            var buttonmodal_2 = document.createElement("input");
+            buttonmodal_2.className += "col-lg-3 col-lg-push-5 text btn buttonSaveQuestion";
+            buttonmodal_2.setAttribute("data-dismiss", "modal");
+            buttonmodal_2.setAttribute("type", "button");
+            buttonmodal_2.setAttribute("value", "SAVE & CONTINUE");
+            buttonmodal_2.setAttribute("aria-hidden", "true");
+            divmodal_5.appendChild(buttonmodal_2);
+
+
+
+        }
+        function AddAnswer(id) {
+            var regex = /(\d+)$/;
+            var myArray = regex.exec(id);
+            var questNum = myArray[0];
+            var index = myArray[0] - 1;
+            b[index] = b[index] + 1;
+            var countAnsw = b[index];
+
+            var table = document.getElementById("AnswersToQ_" + questNum);
+            var div = document.createElement("div");
+            div.id += "answer_block_" + questNum + "_" + countAnsw;
+            div.className += "col-lg-12";
+
+            var inputcheck = document.createElement("input");
+            inputcheck.type = "checkbox";
+            inputcheck.id += "answer_" + questNum + "_" + countAnsw + "_status";
+            inputcheck.className += "col-lg-1";
+
+            var inputtext = document.createElement("input");
+            inputtext.type = "text";
+            inputtext.placeholder += "Answer " + countAnsw;
+            inputtext.id += "answer_" + questNum + "_" + countAnsw + "_text";
+            inputtext.className += "col-lg-9";
+
+            var input_delete = document.createElement("input")
+            input_delete.setAttribute("type", "button");
+            input_delete.setAttribute("value", "Delete");
+            input_delete.setAttribute("onclick", "DeleteAnswer(this.parentElement.parentElement,this.parentElement);");
+
+
+            div.appendChild(inputcheck);
+            div.appendChild(inputtext);
+            div.appendChild(input_delete);
+            table.appendChild(div);
+
+
+
+        }
+        function DeleteQuestion(parent, child) {
+
+
+            var regex = /(\d+)$/;
+            var myArray = regex.exec(child.id);
+            var questNum = myArray[0];
+            var modal = document.getElementById("QuestionForm_" + questNum);
+            parent.removeChild(child);
+            modal.parentElement.removeChild(modal);
+
+        }
+        function DeleteAnswer(parent, child) {
+            parent.removeChild(child);
+        }
+
+        $('form#testForm').one('submit', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: "/Tests/Create",
+                type: "POST",
+                data: GetCreateTestRequestPayload(),
+                success: (data) => {
+                    $(this).submit();
+                },
+                error: function () {
+
+                }
+            });
         });
+
+        function GetCreateTestRequestPayload() {
+            var jsonArr = [];
+            var name = document.getElementById("TestName").value;
+            var time = document.getElementById("TestTime").value;
+            jsonArr.push({ testName: name, testDuration: time, testQuestions: [] });
+
+            for (var i = 0; i < b.length; i++) {
+
+                var nameQ = document.getElementById("textQuestion_" + (i + 1));
+                if (nameQ == null)
+                    continue;
+                jsonArr[0].testQuestions.push({
+                    questionText: nameQ.value,
+                    testAnswers: []
+                });
+                for (var j = 0; j < b[i]; j++) {
+                    var ansv = document.getElementById("answer_" + (i + 1) + "_" + (j + 1) + "_text");
+                    var ansvCheck = document.getElementById("answer_" + (i + 1) + "_" + (j + 1) + "_status");
+                    if (nameQ == null || ansvCheck == null)
+                        continue;
+                    jsonArr[0].testQuestions[jsonArr[0].testQuestions.length - 1].testAnswers.push({
+                        answerText: ansv.value,
+                        isCorrect: ansvCheck.checked
+                    })
+                }
+
+            }
+            var myJsonString = JSON.stringify(jsonArr[0]);
+            console.log(myJsonString);
+            return jsonArr[0];
+        }
+
+
+
     </script>
-}
+
+
+
+</body>
+</html>
