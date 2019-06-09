@@ -23,7 +23,8 @@ namespace TestMe.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IOptions<LoadConfig> _loadConfig;
         private string _userId;
-        public class FilterModel{
+        public class FilterModel
+        {
             public string SearchString { get; set; }
             public int? TestRatingFrom { get; set; }
             public int? TestRatingTo { get; set; }
@@ -97,7 +98,7 @@ namespace TestMe.Controllers
                 return NotFound();
 
             var test = await _testingPlatform.TestManager.FindAsync(t => t.AppUserId == _userId && t.Id == id);
-                
+
             if (test is null)
                 return NotFound();
 
@@ -136,21 +137,23 @@ namespace TestMe.Controllers
         {
             return View();
         }
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TestName,CreationDate, TestDuration")]Test test)
+        public async Task<IActionResult> Create(Test test)
         {
             if (_testingPlatform.TestManager.GetAll().Where(t => t.AppUserId == _userId).Any(t => t.TestName == test.TestName))
             {
                 ModelState.AddModelError("TestName", "You already have test with the same name!");
             }
-            if (ModelState.IsValid)
+
+            if (!ModelState.IsValid)
             {
-                test.AppUserId = _userId;
-                await _testingPlatform.TestManager.AddAsync(test);
-                return RedirectToAction(nameof(Index));
+                return View(test);
             }
-            return View(test);
+
+            test.AppUserId = _userId;
+            await _testingPlatform.TestManager.AddAsync(test);
+            return RedirectToAction(nameof(Index));
         }
         public async Task<IActionResult> Edit(int? id)
         {
@@ -206,7 +209,7 @@ namespace TestMe.Controllers
                 _testingPlatform.AnswerImageManager.DeleteAnswerImage(testAnswer.ImageName);
 
             await _testingPlatform.TestManager.DeleteAsync(test);
-            if(_userId != _userManager.GetUserId(User))
+            if (_userId != _userManager.GetUserId(User))
             {
                 if (User.IsInRole("Admin"))
                     return RedirectToAction("Index", "Admin");
@@ -261,9 +264,9 @@ namespace TestMe.Controllers
 
             var topRatedTests = await _testingPlatform.TestManager
                 .GetAll()
-                .Where(t => 
+                .Where(t =>
                     !(t.TestCode == null) &&
-                    t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase) && 
+                    t.TestName.Contains(searchString, StringComparison.OrdinalIgnoreCase) &&
                     t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= _loadConfig.Value.MinTopRatedRate)
                 .Take(_loadConfig.Value.TakeAmount)
                 .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
@@ -431,14 +434,14 @@ namespace TestMe.Controllers
                 filterModel.TestDurationTo = new TimeSpan(23, 59, 0);
 
             filterModel.SwapDurationBounds();
-            
+
             var tests = await _testingPlatform.TestManager
              .GetAll()
              .Where(t => t.TestCode != null &&
                t.TestName.Contains(filterModel.SearchString, StringComparison.OrdinalIgnoreCase) &&
                t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= filterModel.TestRatingFrom &&
                t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) <= filterModel.TestRatingTo &&
-               t.TestDuration >= filterModel.TestDurationFrom && 
+               t.TestDuration >= filterModel.TestDurationFrom &&
                t.TestDuration <= filterModel.TestDurationTo)
              .Skip(skipAmount.Value)
              .Take(_loadConfig.Value.AjaxTakeAmount)
@@ -454,7 +457,7 @@ namespace TestMe.Controllers
                 t.TestDuration,
                 testRating = t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest),
                 t.AppUser.UserName
-            }); 
+            });
 
             return Json(optimizedTests);
         }
@@ -471,13 +474,13 @@ namespace TestMe.Controllers
             var topRatedTests = await _testingPlatform.TestManager
                 .GetAll()
                 .Where(t =>
-                t.TestCode != null && t.TestName.Contains(filterModel.SearchString, StringComparison.OrdinalIgnoreCase) 
+                t.TestCode != null && t.TestName.Contains(filterModel.SearchString, StringComparison.OrdinalIgnoreCase)
                 && t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest) >= _loadConfig.Value.MinTopRatedRate)
                 .OrderByDescending(t => t.TestMarks.Count(tm => tm.EnjoyedTest) - t.TestMarks.Count(tm => !tm.EnjoyedTest))
                 .Skip(skipAmount.Value)
                 .Take(_loadConfig.Value.AjaxTakeAmount)
                 .ToListAsync();
-            
+
             var optimizedTests = topRatedTests.Select(t =>
             new
             {
@@ -510,7 +513,7 @@ namespace TestMe.Controllers
 
             if (test.TestQuestions.Any(tq => tq.TestAnswers.All(ta => !ta.IsCorrect)))
                 return true;
-            
+
             return false;
         }
     }

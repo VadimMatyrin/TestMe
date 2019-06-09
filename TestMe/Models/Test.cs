@@ -33,7 +33,6 @@ namespace TestMe.Models
         [NotMapped]
         public int TestScore { get; set; }
         public bool RequiresTeacherToStart { get; set; } = false;
-        [JsonIgnore]
         public virtual ICollection<TestQuestion> TestQuestions { get; set; }
         [JsonIgnore]
         public virtual ICollection<TestAnswer> TestAnswers { get; set; }
