@@ -112,15 +112,14 @@ namespace TestMe.Controllers
 
             await _testingPlatform.UserAnswerManager.DeleteRangeAsync(oldAnswers);
         }
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult GetUserName()
         {
             return Json(User.Identity.Name);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> StartTest()
         {
             var testCode = HttpContext.Session.GetString("testCode");
@@ -157,7 +156,6 @@ namespace TestMe.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult GetIfAnswered(int? questionId)
         {
             if (questionId is null)
@@ -172,7 +170,6 @@ namespace TestMe.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CheckAnswer(int? questionId, List<int> checkedIds)
         {
             var testCode = HttpContext.Session.GetString("testCode");
@@ -245,7 +242,6 @@ namespace TestMe.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetQuestionsIds()
         {
             var testCode = HttpContext.Session.GetString("testCode");
@@ -266,7 +262,6 @@ namespace TestMe.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetQuestion(int? questionId)
         {
             var testCode = HttpContext.Session.GetString("testCode");
@@ -288,7 +283,6 @@ namespace TestMe.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult GetEndTime(string code)
         {
             var codeFromSession = HttpContext.Session.GetString("testCode");
@@ -304,7 +298,6 @@ namespace TestMe.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> FinishTest()
         {
             var alreadyAnsweredStr = HttpContext.Session.GetString("answeredQuestions");
@@ -355,8 +348,8 @@ namespace TestMe.Controllers
 
             return Json(new { score, testId = test.Id, isRated = prevMark.EnjoyedTest });
         }
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetCorrectAnswers()
         {
             var code = HttpContext.Session.GetString("testCode");
@@ -382,8 +375,8 @@ namespace TestMe.Controllers
             return Json(optimizedQuestions);
 
         }
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RateFinishedTestAjax(int? id, bool? mark)
         {
             if (mark is null)

@@ -2,90 +2,859 @@
 @{
     ViewData["Title"] = Model.Test.TestName;
 }
-<div id="mainContainer" class="container-fluid">
-    <div id="startTestElem" class="row">
-        @Html.AntiForgeryToken()
-        <h1 class="text-center col-md-12">@Model.Test.TestName</h1>
-        <h2 class="col-md-12">
-            Author:
-            <a asp-action="Index" asp-controller="Profile" asp-route-id="@Model.Test.AppUser.Id">@Model.Test.AppUser.UserName</a>
-        </h2>
-        <h3 class="col-md-12">Creation date: @Model.Test.CreationDate</h3>
-        <h4 class="col-md-12">Question amount: @Model.Test.TestQuestions.Count</h4>
-        <h4 class="col-md-12">Test tries amount: @Model.Test.TestResults.Count</h4>
-        @if (!(Model.UserTestResult is null) || Model.Test.AppUser.UserName == User.Identity.Name)
-        {
-            <h4 class="col-md-12">
-                <a asp-action="Index" asp-controller="TestResults" asp-route-id="@Model.Test.Id">Other user results</a>
-            </h4>
-        }
-        @if (Model.Test.TestResults.Count != 0)
-        {
-            <h4 class="col-md-12">Your results: @Model.Test.TestResults.First().Score</h4>
-        }
-        <h4 class="col-md-12">
-            Test rating:
-            @{var rating = Model.Test.TestMarks.Count(tm => tm.EnjoyedTest) - Model.Test.TestMarks.Count(tm => !tm.EnjoyedTest); }
-            @if (rating > 0)
-            {
-                <span class="text-success">@rating</span>
-            }
-            else if (rating < 0)
-            {
-                <span class="text-danger">@rating</span>
-            }
-            else
-            {
-                <span>@rating</span>
-            }
-        </h4>
-        <h4 class="col-md-12">Test time: @Model.Test.TestDuration</h4>
-        <input type="hidden" value="@Model.Test.TestCode" id="testCode" />
-        <button type="button" class="btn btn-primary btn-lg center-block col-md-12" id="startButton" onclick="startTest()">Start test</button>
+
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <!--<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="~/css/fonts.css">
+    <link rel="stylesheet" type="text/css" href="~/css/leftside.css">
+    <link rel="stylesheet" type="text/css" href="~/css/passtest.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+
+    <title>TestMe</title>
+
+</head>
+<body>
+
+    <div class="no-padding col-lg-12" id="header">
+        <div class="col-lg-2 header-container container_vertical" id="logo_container">
+            <a href="" class="vertical_object" id="header_logo">TestMe</a>
+        </div>
+        <div class="col-lg-10 header-container container_vertical">
+            <form class="navbar-form  vertical_object" role="search">
+                <input type="text" class="form-control" style="border: 0; width: 100%;" placeholder="Search test">
+            </form>
+        </div>
     </div>
-    <div id="questionBlock" class="row" display="none">
-        @Html.AntiForgeryToken()
-        <fieldset id="testQuestionFieldSet" class="col-md-12">
-            <legend id="questionText">
-                <p id="question" class="col-xs-12 col-md-8"></p>
-                <h2 id="timer" class="col-xs-12 col-md-4"></h2>
-                <h5 class="colx-xs-12 col-md-12"></h5>
-            </legend>
-        </fieldset>
-        <div id="navButtons" class="row">
-            <button id="prevQuestionButton" class="btn btn-primary col-md-offset-0 col-md-2 col-xs-8 col-xs-offset-2" >Prev question</button>
-            <button id="answerButton" class="btn btn-success col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2" onclick="checkAnswerClick()">Check answer</button>
-            <button id="nextQuestionButton" class="btn btn-primary col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2" >Next question</button>
-            <button id="finishTest" class="btn btn-primary col-md-offset-5 col-md-2 col-xs-8 col-xs-offset-2" data-toggle="modal" data-target="#finishTestModal">Finish test</button>
-            <div class="modal fade" id="finishTestModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-body">
-                            <h3>Are you sure?</h3>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" onclick="finishTestButton()">Confirm</button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        </div>
-                    </div>
+
+    <!-- LEFT SIDE -->
+    <div class=" left-side-container no-padding col-lg-2 " id="left-side-user">
+        <div class="col-lg-12 no-padding user-block">
+            <span class="col-lg-1 icon-Teacher"></span>
+            <span class="col-lg-9 text" style="text-decoration: underline;">
+                @User.Identity.Name
+            </span>
+        </div>
+
+        <button disabled class="disabled left-side-buttons col-lg-12 ">
+            <a asp-action="Create" asp-controller="Tests">
+                <span class="col-lg-1 icon-write"></span>
+                <span class="col-lg-9 text">
+                    Add new test
+                </span>
+            </a>
+        </button>
+        <button class="left-side-buttons col-lg-12 ">
+            <span class="col-lg-1 icon-user"></span>
+            <span class="col-lg-9 text">
+                My account
+            </span>
+        </button>
+        <button class="left-side-buttons col-lg-12 ">
+            <a asp-action="Index" asp-controller="Tests">
+                <span class="col-lg-1 icon-copy"></span>
+                <span class="col-lg-9 text">
+                    Tests
+                </span>
+            </a>
+        </button>
+        <button class="left-side-buttons col-lg-12 ">
+            <span class="col-lg-1 icon-tasks"></span>
+            <span class="col-lg-9 text">
+                Results
+            </span>
+        </button>
+
+        <div class="divider"></div>
+
+        <button class="left-side-buttons col-lg-12 ">
+            <span class="col-lg-1 icon-settings"></span>
+            <span class="col-lg-9 text">
+                Settings
+            </span>
+        </button>
+
+
+        <button class="left-side-buttons col-lg-12 ">
+            <a asp-action="LogOut" asp-controller="Home">
+                <span class="col-lg-1 icon-logout"></span>
+                <span class="col-lg-9 text">
+                    Log out
+                </span>
+            </a>
+        </button>
+    </div>
+
+
+
+
+
+
+    <!-- RIGHT SIDE START -->
+    <div id="startTestElem" class="right-side-container no-padding col-lg-7 col-lg-push-1">
+
+        <div class="col-lg-12 add-test-top">
+            <div class="col-lg-12">
+                <div class="text col-lg-12">Education mode</div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-12" style="height: 80%; overflow-y: auto;">
+            <div class="test-Label col-lg-12 padding-top-15 padding-bottom-5">Test</div>
+
+            <div class="col-lg-10 col-lg-push-1">
+
+                <table class="table  table-striped">
+                    <thead>
+                        <tr class="thead">
+                            <th class="col-lg-5">Name</th>
+                            <th class="col-lg-3">Student</th>
+                            <th class="col-lg-2">Questions</th>
+                            <th class="col-lg-2">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="subject_start">@Model.Test.AppUser.Name</td>
+                            <td id="username_start">@Model.Test.AppUser.UserName</td>
+                            <td id="questions_count_start">@Model.Test.TestQuestions.Count</td>
+                            <td><span id="time_on_test_start">@Model.Test.TestDuration.Minutes</span> min</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+
+
+
+        <button id="buttonAdd" onclick="startTest()" style="font-family: Raleway;font-style: normal;font-weight: bold;font-size: 14px; background: #294486 ;text-align: center;letter-spacing: 0.05em;color: #FFFFFF;" class="col-lg-2 col-lg-push-5 btn ">START</button>
+    </div>
+
+    <div id="questionBlock" class="right-side-container no-padding col-lg-7 col-lg-push-1" display="none">
+        <div class="col-lg-12 add-test-top">
+            <div class="col-lg-6">
+                <div class="text col-lg-12">Question <span id="testCount">1</span> out of @Model.Test.TestQuestions.Count</div>
+
+            </div>
+            <div class="col-lg-6">
+                <div class="text col-lg-12">Time left: <span id="Left_time">12:59</span></div>
+
+            </div>
+        </div>
+        <div class="col-lg-12" style="height: 80%; overflow-y: auto;">
+            <!-- CONTROL Questions -->
+            <span class="col-lg-10 col-lg-push-1 text">Question:</span>
+
+            <!-- CLEARFIX -->
+            <div class="clearfix visible-lg"></div>
+
+
+            <div class="col-lg-10 col-lg-push-1 text" id="QuestionText"></div>
+
+            <!-- CONTROL Answers -->
+            <span class="col-lg-10 col-lg-push-1 text">Answer options:</span>
+
+            <div class="col-lg-12" id="Answers">
+
+                <div class="answer_block">
+                    <label class="col-lg-10 col-lg-push-1 label_answer"><input onclick="checkboxChange(this,this.parentElement)" class="checkbox_answer" type="checkbox">A) Test with answer choices</label>
                 </div>
+                <div class="answer_block">
+                    <label class="col-lg-10 col-lg-push-1 label_answer"><input onclick="checkboxChange(this,this.parentElement)" class="checkbox_answer" type="checkbox">B) Essay on the free theme</label>
+                </div>
+                <div class="answer_block">
+                    <label class="col-lg-10 col-lg-push-1 label_answer"><input onclick="checkboxChange(this,this.parentElement)" class="checkbox_answer" type="checkbox">C) Test work with detailed answers</label>
+                </div>
+
             </div>
         </div>
         <div id="questions" class="row">
 
         </div>
+        <input type="button" id="prevQuestionButton" class="col-lg-2 col-lg-push-1 btn control_test" value="Back">
+        <input type="button" id="answerButton" onclick="checkAnswerClick()" class="col-lg-2 col-lg-push-3 btn control_test" value="Answer">
+        <input type="button" id="nextQuestionButton" class="col-lg-2 col-lg-push-5 btn control_test" value="Next">
+        <button id="answerButton" class="col-md-offset-5 col-md-2 col-xs-8 col-xs-offset-2 btn control_test" style="margin-top: 20px" onclick="finishTestButton()">Finish test</button>
     </div>
-</div>
-@if (Model.Test.AppUser.UserName != User.Identity.Name && Model.Test.TestReports.Count == 0)
-{
-    <a asp-action="Create" asp-controller="TestReports" asp-route-id="@Model.Test.Id">Report test</a>
-}
-else{
-    if (Model.Test.AppUser.UserName != User.Identity.Name)
-    {   
-        <h6 class="text-danger">You have already reported this test</h6>
+
+
+
+    <!-- RIGHT SIDE FINISH -->
+    <div id="endTestElem" class="  right-side-container no-padding col-lg-7 col-lg-push-1">
+        <div class="col-lg-12 add-test-top">
+            <div class="col-lg-12">
+                <div class="text col-lg-12">Education mode</div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-12" style="height: 80%; overflow-y: auto;">
+            <div class="test-Label col-lg-12 padding-top-15 padding-bottom-5">Test is passed!</div>
+
+            <div class="col-lg-10 col-lg-push-1">
+
+                <table class="table  table-striped">
+                    <thead>
+                        <tr class="thead">
+                            <th class="col-lg-5">Name</th>
+                            <th class="col-lg-4">Student</th>
+                            <th class="col-lg-4">Questions</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="subject_start">@Model.Test.TestName</td>
+                            <td id="username_start">@User.Identity.Name</td>
+                            <td id="questions_count_start">@Model.Test.TestQuestions.Count</td>
+
+                        </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+
+
+
+            <div class="col-lg-4 col-lg-push-4">
+                <div class="progress blue">
+                    <span class="progress-left">
+                        <span class="progress-bar"></span>
+                    </span>
+                    <span class="progress-right">
+                        <span class="progress-bar"></span>
+                    </span>
+                    <div class="progress-value">50%</div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+        <a asp-action="Index" asp-controller="Home">
+            <button id="buttonAdd" onclick="location.href = '/Tests" style="font-family: Raleway; font-style: normal; font-weight: bold; font-size: 14px; background: #294486; text-align: center; letter-spacing: 0.05em; color: #FFFFFF;" class="col-lg-2 col-lg-push-5 btn ">HOME</button>
+        </a>
+    </div>
+
+
+
+
+    <!-- Последняя компиляция и сжатый JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+    <script>
+        function checkboxChange(checkbox, label) {
+            if (checkbox.checked) {
+                label.style.background = "#294486";
+                label.style.color = "#fff";
+            }
+            else {
+                label.style.background = "";
+                label.style.color = "";
+            }
+        }
+
+        var test;
+        function startTest() {
+            test = TestEngine.startTest();
+        }
+        class TestEngine {
+            constructor(question) {
+                this.currentQuestion = question;
+                this.testQuestionsIds = '';
+                this.endTime = '';
+                this.configureForTheFirstQuestion();
+            }
+
+            static startTest() {
+                var token = $('input[name="__RequestVerificationToken"]', $('#startTestElem')).val();
+                var myData = { code: "@Model.Test.TestCode" };
+                var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+                var test;
+                $.ajax({
+                    context: this,
+                    async: false,
+                    url: "/TestEngine/StartTest",
+                    type: "POST",
+                    data: dataWithAntiforgeryToken,
+                    success: function (data) {
+                        test = new TestEngine(data);
+                    },
+                    error: function () {
+                        //$("#questionForm").empty();
+                    }
+                });
+                return test;
+            }
+            configureForTheFirstQuestion() {
+                this.getQuestionsId();
+                $('#questionBlock').show();
+                $('#endTestElem').hide();
+                $('#startTestElem').remove();
+                this.appendQuestion();
+                this.getIfAnswered();
+                if (this.endTime === '')
+                    this.getEndTime();
+
+                $('#nextQuestionButton').click(function (event) {
+                    var currentQst = Number.parseInt($('#testCount').text()) + 1;
+                    $('#testCount').text(currentQst)
+                    var testQuestionId = $(this).data('nextQuestionId');
+                    $("button[value='" + testQuestionId + "']").click();
+                    return false;
+                });
+                $('#prevQuestionButton').click(function (event) {
+                    var currentQst = Number.parseInt($('#testCount').text()) - 1;
+                    $('#testCount').text(currentQst)
+                    var testQuestionId = $(this).data('prevQuestionId');
+                    $("button[value='" + testQuestionId + "']").click();
+                    return false;
+                });
+            }
+            getQuestionsId() {
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                var dataWithAntiforgeryToken = { '__RequestVerificationToken': token };
+
+                $.ajax({
+                    context: this,
+                    url: "/TestEngine/GetQuestionsIds",
+                    type: "POST",
+                    data: dataWithAntiforgeryToken,
+                    success: function (data) {
+                        this.testQuestionsIds = [];
+                        for (var i = 0; i < data.length; i++) {
+                            this.testQuestionsIds.push(data[i].id);
+                        }
+                        this.displayQuestionNav(data);
+                    },
+                    error: function () {
+
+                    }
+                });
+            }
+            getCorrectAnswers() {
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                var dataWithAntiforgeryToken = { '__RequestVerificationToken': token };
+
+                $.ajax({
+                    context: this,
+                    url: "/TestEngine/GetCorrectAnswers",
+                    type: "POST",
+                    data: dataWithAntiforgeryToken,
+                    success: function (data) {
+                        this.displayCorrectAnswers(data);
+                    },
+                    error: function () {
+
+                    }
+                });
+            }
+            displayCorrectAnswers(questions) {
+                let counter = 0;
+                questions.forEach(function (elem) {
+                    let div = $('<div/>', { class: 'correctAnswerBlock' });
+                    div.append($('<h1/>', { text: ++counter + ') ' + elem.questionText }));
+
+                    if (elem.preformattedText !== null) {
+                        var preText = $('<pre/>', { text: elem.preformattedText });
+                        div.append(preText);
+                    }
+
+                    elem.testAnswers.forEach(function (answer) {
+                        var input = $('<input />', { type: 'checkbox', name: 'answer', value: answer.id, disabled: 'true' });
+                        var answerId = answer.id;
+                        if (elem.userAnswers !== null && elem.userAnswers.indexOf(answerId) !== -1)
+                            input.prop({ checked: true });
+
+                        var answerText;
+                        if (answer.isCode)
+                            answerText = $('<pre />', { text: answer.answerText });
+                        else
+                            answerText = $('<label />', { text: answer.answerText });
+
+                        if (answer.isCorrect)
+                            answerText.addClass('text-success');
+
+                        var answDiv = $('<div />', { class: "questionAnswer" });
+                        input.appendTo(answDiv);
+                        answerText.appendTo(answDiv);
+                        $('<br>').appendTo(answDiv);
+                        if (answer.imageName) {
+                            var image = $('<img />', { src: '/uploads/answerPics/' + answer.imageName, height: "200", class: 'answerImage' });
+                            image.appendTo(answDiv);
+                            image.click(function () {
+                                if ($(this).hasClass('max')) {
+                                    $(this).animate({ height: 200 }, 200).removeClass('max');
+                                } else {
+                                    $(this).animate({ height: 600 }, 200).addClass('max');
+                                }
+                            });
+                        }
+                        div.append(answDiv);
+                    });
+                    div.appendTo($('#mainContainer'));
+                });
+            }
+            appendQuestion() {
+                $('#testQuestionFieldSet div').remove();
+                $('#answerButton').removeClass('btn-default');
+                $('#answerButton').addClass('btn-success');
+                $('#answerButton').text('Answer');
+
+                $('#Answers').empty();
+                $('#QuestionText').text(this.currentQuestion.questionText);
+
+                if (this.currentQuestion.preformattedText !== null) {
+                    var preText = $('<pre/>', { text: this.currentQuestion.preformattedText });
+                    $('#question').append(preText);
+                }
+
+                var count = 1;
+                this.currentQuestion.testAnswers.forEach(function (element) {
+                    var block = $('<div/>', { class: 'answer_block' });
+                    var label = $('<label/>', { class: 'col-lg-10 col-lg-push-1 label_answer', text: count++ + ")" + element.answerText });
+                    var input = $('<input />', { type: 'checkbox', class: 'checkbox_answer', name: 'answer', value: element.id });
+                    input.appendTo(label);
+                    label.appendTo(block);
+                    block.appendTo('#Answers');
+                    $("input[type='checkbox']").change(function () {
+                        checkboxChange(this, this.parentElement)
+                    });
+                });
+                this.setNavButtonsQuestIds();
+            }
+            static isStarted() {
+                let token = $('input[name="__RequestVerificationToken"]').val();
+                var myData = { code: "@Model.Test.TestCode" };
+                var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+                let res;
+                $.ajax({
+                    async: false,
+                    url: "/TestEngine/GetEndTime",
+                    type: "POST",
+                    data: dataWithAntiforgeryToken,
+                    success: function (data) {
+                        res = (data !== null);
+                    },
+                    error: function () {
+                        res = false;
+                    }
+                });
+                return res;
+            }
+            getEndTime() {
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                var myData = { code: "@Model.Test.TestCode" };
+                var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+
+                $.ajax({
+                    context: this,
+                    url: "/TestEngine/GetEndTime",
+                    type: "POST",
+                    data: dataWithAntiforgeryToken,
+                    success: function (data) {
+                        this.endTime = data;
+                        this.timer = startTimer();
+                    },
+                    error: function () {
+                        //$("#questionForm").empty();
+                    }
+                });
+            }
+            displayQuestionNav(data) {
+                this.setNavButtonsQuestIds();
+                for (let i = 0; i < this.testQuestionsIds.length; i++) {
+                    let button = $('<button />', {
+                        type: 'button',
+                        class: 'btn',
+                        value: this.testQuestionsIds[i],
+                        text: (i + 1),
+                        click: function (event) {
+                            navButtonClick(event);
+                        },
+                    });
+                    if (data[i].answered)
+                        button.addClass('btn-default');
+                    else {
+                        button.addClass('btn-info');
+                    }
+                    button.css("display", "none");
+                    $('<div />', { class: 'col-xs-1' }).append(button).appendTo('div#questions');
+                }
+                let firstButton = $('#questions button').first();
+                firstButton.removeClass('btn-info');
+                firstButton.addClass('btn-primary');
+            }
+            setNavButtonsQuestIds() {
+                var currIdIndex = this.testQuestionsIds.indexOf(this.currentQuestion.id);
+                if (currIdIndex - 1 < 0) {
+                    $('#prevQuestionButton').prop({ disabled: true });
+                }
+                else {
+                    $('#prevQuestionButton').prop({ disabled: false });
+                    $('#prevQuestionButton').data('prevQuestionId', this.testQuestionsIds[currIdIndex - 1]);
+                }
+                if (currIdIndex + 1 >= this.testQuestionsIds.length) {
+                    $('#nextQuestionButton').prop({ disabled: true });
+                }
+                else {
+                    $('#nextQuestionButton').prop({ disabled: false });
+                    $('#nextQuestionButton').data('nextQuestionId', this.testQuestionsIds[currIdIndex + 1]);
+                }
+            }
+            checkAnswer() {
+                var token = $('input[name="__RequestVerificationToken"]', $('#questionBlock')).val();
+                var checkedArray = new Array();
+                $('input[name="answer"]:checked').each(function () {
+                    checkedArray.push(this.value);
+                });
+
+                var myData = { checkedIds: checkedArray };
+                myData = $.extend(myData, { 'questionId': this.currentQuestion.id });
+                var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+                $.ajax({
+                    context: this,
+                    url: "/TestEngine/CheckAnswer",
+                    type: "POST",
+                    data: dataWithAntiforgeryToken,
+                    success: function (data) {
+                        this.showCorrectAnswer(checkedArray);
+                    },
+                    error: function () {
+                        //$("#questionBlock").append('<h5> Internal error. Try again</h5>');
+                    }
+                });
+            }
+            showCorrectAnswer(userAnswers) {
+                userAnswers.forEach(function (element) {
+                    const input = $("input[type=checkbox][value='" + element + "']");
+                    input.prop('checked', true);
+                    const parent = input.parent();
+                    parent.css({ "background": "#294486", "color": "#fff"});
+                });
+
+                var navButton = $('button[value="' + this.currentQuestion.id + '"]');
+                navButton.removeClass('btn-primary');
+                var div = $('<div />', { id: 'answerMessage', class: 'text-center text-primary col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2' });
+                navButton.addClass('btn-default');
+                var h3 = $('<h3 />', { class: 'text-center', text: 'Answered' });
+                $('#answerButton').text('Change answer');
+                $('#answerButton').removeClass('btn-primary');
+                $('#answerButton').removeClass('btn-success');
+                $('#answerButton').addClass('btn-default');
+                div.append(h3);
+
+            }
+            getQuestion(questionId) {
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                var myData = { questionId: questionId };
+                var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+
+                $.ajax({
+                    context: this,
+                    url: "/TestEngine/GetQuestion",
+                    type: "POST",
+                    data: dataWithAntiforgeryToken,
+                    success: function (data) {
+                        this.currentQuestion = data;
+                        this.appendQuestion();
+                        this.getIfAnswered();
+                    },
+                    error: function () {
+                        //$("#questionForm").empty();
+                    }
+                });
+            }
+            getIfAnswered() {
+                var token = $('input[name="__RequestVerificationToken"]', $('#questionBlock')).val();
+                var questionId = { questionId: this.currentQuestion.id };
+                var dataWithAntiforgeryToken = $.extend(questionId, { '__RequestVerificationToken': token });
+                $.ajax({
+                    context: this,
+                    url: "/TestEngine/GetIfAnswered",
+                    type: "POST",
+                    data: dataWithAntiforgeryToken,
+                    success: function (data) {
+                        if (data !== "notAnswered")
+                            this.showCorrectAnswer(data);
+                    },
+                    error: function () {
+
+                    }
+                });
+            }
+            finishTest() {
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                var dataWithAntiforgeryToken = { '__RequestVerificationToken': token };
+                $('#timer').remove();
+                clearInterval(this.timer);
+                $.ajax({
+                    context: this,
+                    url: "/TestEngine/FinishTest",
+                    type: "POST",
+                    data: dataWithAntiforgeryToken,
+                    success: function (data) {
+                        this.showResult(data);
+                        if ('isRated' in data) {
+                            if (data.isRated)
+                                $('#likeButton').addClass('btn-primary');
+                            else
+                                $('#dislikeButton').addClass('btn-primary');
+                        }
+                    },
+                    error: function () {
+
+                    }
+                });
+            }
+            showResult(data) {
+                $('#questionBlock').remove();
+                $('#endTestElem').show();
+                let link = $('<a />', { href: "/TestResults/Index/" + data.testId, text: "Other users results" });
+                $("#questions_count_start").text(data.score + "/" + @Model.Test.TestQuestions.Count);
+                $('.progress-value').text(data.score + "/" + @Model.Test.TestQuestions.Count);
+                $('#mainContainer').append('<h1> Your score: ' +
+                    data.score +
+                    ' out of ' +
+                    this.testQuestionsIds.length +
+                    '</h1>');
+                this.showRateButtons();
+                $('#mainContainer').append(link);
+                $('#mainContainer').append($('<br/>'));
+                var correctAnswButton = $('<button/>',
+                    {
+                        id: 'correctAnswButton',
+                        text: 'Show correct answers',
+                        class: 'btn btn-sm btn-primary',
+                        click: function(e) {
+                            showCorrectAnswersClick();
+                        }
+                    });
+                $('#mainContainer').append(correctAnswButton);
+            }
+
+            showRateButtons() {
+                let likeButton = $('<button/>', { type: 'button', class: 'btn btn-default btn-sm', id: 'likeButton' });
+                likeButton.click(function() {
+                    rateTestClick(true);
+                });
+                $('<span/>', { class: 'glyphicon glyphicon-thumbs-up', test: 'Like' }).appendTo(likeButton);
+                let dislikeButton = $('<button/>',
+                    { type: 'button', class: 'btn btn-default btn-sm', id: 'dislikeButton' });
+                dislikeButton.click(function() {
+                    rateTestClick(false);
+                });
+                $('<span/>', { class: 'glyphicon glyphicon-thumbs-down', test: 'Dislike' }).appendTo(dislikeButton);
+                $('#mainContainer').append('<p>Rate this test:</p>')
+                $('#mainContainer').append(likeButton);
+                $('#mainContainer').append(dislikeButton);
+                $('#mainContainer').append('<br/>');
+            }
+
+            rateTest(mark) {
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                var myData = { mark: mark };
+                var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+
+                $.ajax({
+                    url: "/TestEngine/RateFinishedTestAjax",
+                    type: "POST",
+                    data: dataWithAntiforgeryToken,
+                    success: function(data) {
+                        if (data) {
+                            $('#dislikeButton').removeClass('btn-primary');
+                            $('#likeButton').addClass('btn-primary');
+                        } else {
+                            $('#likeButton').removeClass('btn-primary');
+                            $('#dislikeButton').addClass('btn-primary');
+                        }
+                    },
+                    error: function() {
+
+                    }
+                });
+            }
+        }
+
+        function checkAnswerClick() {
+            if ($('input[name="answer"]:checked').length === 0)
+                return;
+            test.checkAnswer();
+
+            const answerButton = $('#nextQuestionButton');
+
+            if (!answerButton.prop("disabled"))
+                $('#nextQuestionButton').click();
+        }
+
+        function finishTestButton() {
+            test.finishTest();
+        }
+
+        function navButtonClick(event) {
+            event.preventDefault();
+            var prevButton = $('#questions > div > button.btn-primary');
+            if (!prevButton.hasClass('btn-default'))
+                prevButton.addClass('btn-info');
+
+            let clickButton = $(event.target);
+            prevButton.removeClass('btn-primary');
+            clickButton.removeClass('btn-info');
+            clickButton.addClass('btn-primary');
+            test.getQuestion(clickButton.attr('value'));
+            return false;
+        }
+
+        function startTimer() {
+            var countDownDate = new Date(test.endTime).getTime();
+
+            return setInterval(function() {
+
+                    var now = new Date().getTime();
+
+                    var distance = countDownDate - now;
+
+                    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    if (minutes < 10)
+                        minutes = "0" + minutes;
+                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    if (seconds < 10)
+                        seconds = "0" + seconds;
+                    $('#Left_time').text(hours + ":" + minutes + ":" + seconds + "s ");
+
+                    if (distance <= 500) {
+                        test.finishTest();
+                    }
+                },
+                1000);
+        }
+
+        function rateTestClick(mark) {
+            test.rateTest(mark);
+        }
+
+        function showCorrectAnswersClick() {
+            $('#correctAnswButton').hide();
+            test.getCorrectAnswers();
+        }
+
+        if (TestEngine.isStarted()) {
+            startTest();
+        } else {
+            $("#endTestElem").hide();
+            $("#questionBlock").hide();
+        }
+
+
+    </script>
+
+
+
+</body>
+</html>
+
+
+@*<div id="mainContainer" class="container-fluid">
+        <div id="startTestElem" class="row">
+            @Html.AntiForgeryToken()
+            <h1 class="text-center col-md-12">@Model.Test.TestName</h1>
+            <h2 class="col-md-12">
+                Author:
+                <a asp-action="Index" asp-controller="Profile" asp-route-id="@Model.Test.AppUser.Id">@Model.Test.AppUser.UserName</a>
+            </h2>
+            <h3 class="col-md-12">Creation date: @Model.Test.CreationDate</h3>
+            <h4 class="col-md-12">Question amount: @Model.Test.TestQuestions.Count</h4>
+            <h4 class="col-md-12">Test tries amount: @Model.Test.TestResults.Count</h4>
+            @if (!(Model.UserTestResult is null) || Model.Test.AppUser.UserName == User.Identity.Name)
+            {
+                <h4 class="col-md-12">
+                    <a asp-action="Index" asp-controller="TestResults" asp-route-id="@Model.Test.Id">Other user results</a>
+                </h4>
+            }
+            @if (Model.Test.TestResults.Count != 0)
+            {
+                <h4 class="col-md-12">Your results: @Model.Test.TestResults.First().Score</h4>
+            }
+            <h4 class="col-md-12">
+                Test rating:
+                @{var rating = Model.Test.TestMarks.Count(tm => tm.EnjoyedTest) - Model.Test.TestMarks.Count(tm => !tm.EnjoyedTest); }
+                @if (rating > 0)
+                {
+                    <span class="text-success">@rating</span>
+                }
+                else if (rating < 0)
+                {
+                    <span class="text-danger">@rating</span>
+                }
+                else
+                {
+                    <span>@rating</span>
+                }
+            </h4>
+            <h4 class="col-md-12">Test time: @Model.Test.TestDuration</h4>
+            <input type="hidden" value="@Model.Test.TestCode" id="testCode" />
+            <button type="button" class="btn btn-primary btn-lg center-block col-md-12" id="startButton" onclick="startTest()">Start test</button>
+        </div>
+        <div id="questionBlock" class="row" display="none">
+            @Html.AntiForgeryToken()
+            <fieldset id="testQuestionFieldSet" class="col-md-12">
+                <legend id="questionText">
+                    <p id="question" class="col-xs-12 col-md-8"></p>
+                    <h2 id="timer" class="col-xs-12 col-md-4"></h2>
+                    <h5 class="colx-xs-12 col-md-12"></h5>
+                </legend>
+            </fieldset>
+            <div id="navButtons" class="row">
+                <button id="prevQuestionButton" class="btn btn-primary col-md-offset-0 col-md-2 col-xs-8 col-xs-offset-2">Prev question</button>
+                <button id="answerButton" class="btn btn-success col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2" onclick="checkAnswerClick()">Check answer</button>
+                <button id="nextQuestionButton" class="btn btn-primary col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2">Next question</button>
+                <button id="finishTest" class="btn btn-primary col-md-offset-5 col-md-2 col-xs-8 col-xs-offset-2" data-toggle="modal" data-target="#finishTestModal">Finish test</button>
+                <div class="modal fade" id="finishTestModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <h3>Are you sure?</h3>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="finishTestButton()">Confirm</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="questions" class="row">
+
+            </div>
+        </div>
+    </div>
+    @if (Model.Test.AppUser.UserName != User.Identity.Name && Model.Test.TestReports.Count == 0)
+    {
+        <a asp-action="Create" asp-controller="TestReports" asp-route-id="@Model.Test.Id">Report test</a>
     }
-}
-@section Scripts{
-    <script src="~/js/testEngine.js"></script>
-}
+    else
+    {
+        if (Model.Test.AppUser.UserName != User.Identity.Name)
+        {
+            <h6 class="text-danger">You have already reported this test</h6>
+        }
+    }
+    @section Scripts{
+        <script src="~/js/testEngine.js"></script>
+    }*@

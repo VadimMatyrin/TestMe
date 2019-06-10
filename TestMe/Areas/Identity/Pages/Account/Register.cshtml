@@ -105,7 +105,7 @@
                                 <div class="clearfix visible-lg"></div>
                                 <div>
                                     <label asp-for="RegisterModel.Email" class="col-lg-3"></label>
-                                    <input asp-for="RegisterModel.Email" class="col-lg-7" placeholder="example@nure.ua" />
+                                    <input asp-for="RegisterModel.Email" class="col-lg-7" placeholder="example@nure.ua" title="Email should only contain 'nure.ua' domain" pattern="(\w+)(nure.ua)$" />
                                 </div>
                                 <!-- CLEARFIX -->
                                 <div class="clearfix visible-lg"></div>
@@ -171,7 +171,7 @@
                                 <div class="clearfix visible-lg"></div>
                                 <div>
                                     <label asp-for="RegisterModel.Email" class="col-lg-3"></label>
-                                    <input asp-for="RegisterModel.Email" class="col-lg-7" placeholder="example@nure.ua" />
+                                    <input asp-for="RegisterModel.Email" class="col-lg-7" placeholder="example@nure.ua" title="Email should only contain 'nure.ua' domain" pattern="(\w+)(nure.ua)$"/>
                                 </div>
                                 <!-- CLEARFIX -->
                                 <div class="clearfix visible-lg"></div>

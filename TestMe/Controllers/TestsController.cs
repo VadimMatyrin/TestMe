@@ -153,7 +153,16 @@ namespace TestMe.Controllers
             }
 
             test.AppUserId = _userId;
+            foreach (var question in test.TestQuestions)
+            {
+                question.AppUserId = _userId;
+                foreach (var answer in question.TestAnswers)
+                {
+                    answer.AppUserId = _userId;
+                }
+            }
             await _testingPlatform.TestManager.AddAsync(test);
+            await CreateCode(test.Id);
             return RedirectToAction(nameof(Index));
         }
         public async Task<IActionResult> Edit(int? id)
@@ -167,8 +176,8 @@ namespace TestMe.Controllers
             if (test is null)
                 return NotFound();
 
-            if (!(test.TestCode is null))
-                return NotFound();
+            //if (!(test.TestCode is null))
+            //    return NotFound();
 
             foreach (var testQuestion in test.TestQuestions)
             {
