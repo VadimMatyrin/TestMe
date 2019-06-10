@@ -154,6 +154,7 @@ namespace TestMe.Controllers
 
             test.AppUserId = _userId;
             await _testingPlatform.TestManager.AddAsync(test);
+            await CreateCode(test.Id);
             return RedirectToAction(nameof(Index));
         }
         public async Task<IActionResult> Edit(int? id)
