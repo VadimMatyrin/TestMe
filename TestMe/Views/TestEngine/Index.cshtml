@@ -140,7 +140,7 @@
     <div id="questionBlock" class="right-side-container no-padding col-lg-7 col-lg-push-1" display="none">
         <div class="col-lg-12 add-test-top">
             <div class="col-lg-6">
-                <div class="text col-lg-12">Question 1 out of 20</div>
+                <div class="text col-lg-12">Question <span id="testCount">1</span> out of @Model.Test.TestQuestions.Count</div>
 
             </div>
             <div class="col-lg-6">
@@ -181,7 +181,7 @@
         <input type="button" id="prevQuestionButton" class="col-lg-2 col-lg-push-1 btn control_test" value="Back">
         <input type="button" id="answerButton" onclick="checkAnswerClick()" class="col-lg-2 col-lg-push-3 btn control_test" value="Answer">
         <input type="button" id="nextQuestionButton" class="col-lg-2 col-lg-push-5 btn control_test" value="Next">
-        <button id="answerButton"  class="col-md-offset-5 col-md-2 col-xs-8 col-xs-offset-2 btn control_test" style="margin-top: 20px" onclick="finishTestButton()">Finish test</button>
+        <button id="answerButton" class="col-md-offset-5 col-md-2 col-xs-8 col-xs-offset-2 btn control_test" style="margin-top: 20px" onclick="finishTestButton()">Finish test</button>
     </div>
 
 
@@ -243,7 +243,7 @@
 
 
         <a asp-action="Index" asp-controller="Home">
-            <button id="buttonAdd" onclick="location.href = '/user.html'" style="font-family: Raleway; font-style: normal; font-weight: bold; font-size: 14px; background: #294486; text-align: center; letter-spacing: 0.05em; color: #FFFFFF;" class="col-lg-2 col-lg-push-5 btn ">HOME</button>
+            <button id="buttonAdd" onclick="location.href = '/Tests" style="font-family: Raleway; font-style: normal; font-weight: bold; font-size: 14px; background: #294486; text-align: center; letter-spacing: 0.05em; color: #FFFFFF;" class="col-lg-2 col-lg-push-5 btn ">HOME</button>
         </a>
     </div>
 
@@ -310,11 +310,15 @@
                     this.getEndTime();
 
                 $('#nextQuestionButton').click(function (event) {
+                    var currentQst = Number.parseInt($('#testCount').text()) + 1;
+                    $('#testCount').text(currentQst)
                     var testQuestionId = $(this).data('nextQuestionId');
                     $("button[value='" + testQuestionId + "']").click();
                     return false;
                 });
                 $('#prevQuestionButton').click(function (event) {
+                    var currentQst = Number.parseInt($('#testCount').text()) - 1;
+                    $('#testCount').text(currentQst)
                     var testQuestionId = $(this).data('prevQuestionId');
                     $("button[value='" + testQuestionId + "']").click();
                     return false;
@@ -692,11 +696,7 @@
         }
 
         function finishTestButton() {
-            $('#finishTestModal').modal('toggle');
-            $('#finishTestModal').on('hidden.bs.modal',
-                function(e) {
-                    test.finishTest();
-                });
+            test.finishTest();
         }
 
         function navButtonClick(event) {
