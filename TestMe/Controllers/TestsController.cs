@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using TestMe.Sevices.Interfaces;
 using System.Text;
 using Microsoft.Extensions.Options;
+using TestMe.Exceptions;
 
 namespace TestMe.Controllers
 {
@@ -162,29 +163,63 @@ namespace TestMe.Controllers
                 return NotFound();
             }
 
-            var test = await _testingPlatform.TestManager.FindAsync(t => t.AppUserId == _userId && t.Id == id);
+            var test = await _testingPlatform.TestManager.GetAll().Include(t => t.TestQuestions).FirstOrDefaultAsync(t => t.AppUserId == _userId && t.Id == id);
             if (test is null)
                 return NotFound();
 
             if (!(test.TestCode is null))
                 return NotFound();
 
+            foreach (var testQuestion in test.TestQuestions)
+            {
+                var testAnswers = await _testingPlatform.TestAnswerManager.GetAll().Where(ta => ta.TestQuestionId == testQuestion.Id).ToListAsync();
+                testQuestion.TestAnswers = testAnswers;
+            }
+
             return View(test);
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id, TestName,CreationDate, TestDuration")] Test test)
-        {
-            if (id != test.Id)
-                return NotFound();
 
-            if (ModelState.IsValid)
+        [HttpPost]
+        public async Task<IActionResult> Edit(Test test)
+        {
+            if (test is null)
+                throw new TestNotFoundException();            
+
+            var oldTest = await _testingPlatform.TestManager
+                .GetAll()
+                .AsNoTracking()
+                .Include(t => t.TestQuestions)
+                .Include(t => t.TestAnswers)
+                //.Include(t => t.TestReports)
+                //.Include(t => t.TestMarks)
+                .FirstOrDefaultAsync(t => t.Id == test.Id);
+
+            await _testingPlatform.TestQuestionManager.DeleteRangeAsync(oldTest.TestQuestions);
+            oldTest.TestDuration = test.TestDuration;
+            oldTest.TestName = test.TestName;
+            if (!(test.TestQuestions is null))
             {
-                test.AppUserId = _userId;
-                await _testingPlatform.TestManager.UpdateAsync(test);
-                return RedirectToAction(nameof(Index));
+                foreach (var testQuestion in test.TestQuestions.Where(tq => !(tq is null)))
+                {
+                    if (testQuestion.QuestionText is null)
+                        testQuestion.QuestionText = "Question text";
+
+                    testQuestion.TestId = test.Id;
+                    testQuestion.AppUserId = _userId;
+                    foreach (var testAnswer in testQuestion.TestAnswers.Where(ta => !(ta is null)))
+                    {
+                        if (testAnswer.AnswerText is null)
+                            testAnswer.AnswerText = "Answer text";
+
+                        testAnswer.TestQuestionId = testQuestion.Id;
+                        testAnswer.AppUserId = _userId;
+                    }
+                    await _testingPlatform.TestQuestionManager.AddAsync(testQuestion);
+                }
             }
-            return View(test);
+            await _testingPlatform.TestManager.UpdateAsync(oldTest);
+            return RedirectToAction(nameof(Index));
+
         }
         public async Task<IActionResult> Delete(int? id)
         {

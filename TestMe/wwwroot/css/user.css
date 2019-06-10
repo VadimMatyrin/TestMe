@@ -241,6 +241,6 @@ html,body{
     background-color: #294486 !important;
   
 }
-#my_tests table tr td button.editButton a {
+#my_tests table tr td a button.editButton {
     color: white !important;
 }

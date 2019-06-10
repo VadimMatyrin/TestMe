@@ -30,7 +30,7 @@
         <div class="col-lg-12 no-padding user-block">
             <span class="col-lg-1 icon-Teacher"></span>
             <span class="col-lg-9 text" style="text-decoration: underline;">
-                example@nure.ua
+                @User.Identity.Name
             </span>
         </div>
 
@@ -49,10 +49,12 @@
             </span>
         </button>
         <button class="left-side-buttons col-lg-12 ">
-            <span class="col-lg-1 icon-copy"></span>
-            <span class="col-lg-9 text">
-                Tests
-            </span>
+            <a asp-action="Index">
+                <span class="col-lg-1 icon-copy"></span>
+                <span class="col-lg-9 text">
+                    Tests
+                </span>
+            </a>
         </button>
         <button class="left-side-buttons col-lg-12 ">
             <span class="col-lg-1 icon-tasks"></span>
@@ -158,31 +160,33 @@
                     <tbody>
                         @foreach (var test in Model.Where(t => t.AppUser.Email == User.Identity.Name))
                         {
-                        <tr onclick="location.href = '/' + '@test.TestCode'">
-                            <td>@test.TestName</td>
-                            <td>@test.AppUser.Email</td>
-                            <td>@test.TestQuestions.Count</td>
-                            @{ var testResults = test.TestResults.Where(tr => tr.TestId == test.Id);}
-                            @{
-                                int passProcentage;
-                                var testQustionCount = test.TestQuestions.Count();
-                                if (testQustionCount != 0 && test.TestResults.Count() != 0)
-                                {
-                                    passProcentage = 100 * (test.TestResults.Count(tr => tr.Score == testQustionCount)) / test.TestResults.Count();
+                            <tr onclick="location.href = '/' + '@test.TestCode'">
+                                <td>@test.TestName</td>
+                                <td>@test.AppUser.Email</td>
+                                <td>@test.TestQuestions.Count</td>
+                                @{ var testResults = test.TestResults.Where(tr => tr.TestId == test.Id);}
+                                @{
+                                    int passProcentage;
+                                    var testQustionCount = test.TestQuestions.Count();
+                                    if (testQustionCount != 0 && test.TestResults.Count() != 0)
+                                    {
+                                        passProcentage = 100 * (test.TestResults.Count(tr => tr.Score == testQustionCount)) / test.TestResults.Count();
+                                    }
+                                    else
+                                    {
+                                        passProcentage = 0;
+                                    }
                                 }
-                                else
-                                {
-                                    passProcentage = 0;
-                                }
-                            }
 
-                            <td>@passProcentage %</td>
-                            <td>
-                                <button class="btn editButton">
-                                    <a asp-action="Edit" asp-route-id="@test.Id">Edit</a>
-                                </button>
-                            </td>
-                        </tr>
+                                <td>@passProcentage %</td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@test.Id">
+                                        <button class="btn editButton">
+                                            Edit
+                                        </button>
+                                    </a>
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>
