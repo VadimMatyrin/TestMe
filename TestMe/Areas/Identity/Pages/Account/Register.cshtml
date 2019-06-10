@@ -1,5 +1,5 @@
 ﻿@page
-@model Model
+@model RegisterModel
 @{
     ViewData["Title"] = "Register";
 }
@@ -8,7 +8,6 @@
 <head>
     <!--<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="~/css/fonts.css">
     <link rel="stylesheet" type="text/css" href="~/css/main.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
@@ -91,33 +90,33 @@
                             <span class="register-hello">Hello, I'm Student</span>
                             <form asp-route-returnUrl="@Model.ReturnUrl" method="post" class="register">
                                 <div>
-                                    <label asp-for="RegisterModel.Name" class="col-lg-3"></label>
-                                    <input asp-for="RegisterModel.Name" class="col-lg-7" placeholder="James Smith" />
+                                    <label asp-for="InputModel.Name" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.Name" class="col-lg-7" placeholder="James Smith" />
                                 </div>
-                                <input asp-for="RegisterModel.UserType" value="@UserTypes.Student" type="hidden" />
+                                <input asp-for="InputModel.UserType" value="@RegisterModel.UserTypes.Student" type="hidden" />
                                 <!-- CLEARFIX -->
                                 <div class="clearfix visible-lg"></div>
                                 <div>
-                                    <label asp-for="RegisterModel.Group" class="col-lg-3"></label>
-                                    <input asp-for="RegisterModel.Group" class="col-lg-7" placeholder="PZPI-17-4" />
-                                </div>
-                                <!-- CLEARFIX -->
-                                <div class="clearfix visible-lg"></div>
-                                <div>
-                                    <label asp-for="RegisterModel.Email" class="col-lg-3"></label>
-                                    <input asp-for="RegisterModel.Email" class="col-lg-7" placeholder="example@nure.ua" />
+                                    <label asp-for="InputModel.Group" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.Group" class="col-lg-7" placeholder="PZPI-17-4" />
                                 </div>
                                 <!-- CLEARFIX -->
                                 <div class="clearfix visible-lg"></div>
                                 <div>
-                                    <label asp-for="RegisterModel.Password" class="col-lg-3"></label>
-                                    <input asp-for="RegisterModel.Password" class="col-lg-7" placeholder="**********" />
+                                    <label asp-for="InputModel.Email" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.Email" class="col-lg-7" placeholder="example@nure.ua" />
                                 </div>
                                 <!-- CLEARFIX -->
                                 <div class="clearfix visible-lg"></div>
                                 <div>
-                                    <label asp-for="RegisterModel.ConfirmPassword" class="col-lg-3"></label>
-                                    <input asp-for="RegisterModel.ConfirmPassword" class="col-lg-7" placeholder="**********" />
+                                    <label asp-for="InputModel.Password" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.Password" class="col-lg-7" placeholder="**********" />
+                                </div>
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div>
+                                    <label asp-for="InputModel.ConfirmPassword" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.ConfirmPassword" class="col-lg-7" placeholder="**********" />
                                 </div>
 
                                 <!-- CLEARFIX -->
@@ -130,7 +129,7 @@
                                 <!-- CLEARFIX -->
                                 <div class="clearfix visible-lg"></div>
                                 <div>
-                                    <a class="col-lg-push-3 padding-bottom col-lg-7" style="text-align: center;" onclick="$('#RegisterStudent').modal('hide')" data-toggle="modal" data-target="#LoginStudent" href="/login.html">I already have account</a>
+                                    <a class="col-lg-push-3 padding-bottom col-lg-7" style="text-align: center;" href="/login.html">I already have account</a>
                                 </div>
 
 
@@ -163,27 +162,27 @@
                             <span class="register-hello">Hello, I'm Teacher</span>
                             <form asp-route-returnUrl="@Model.ReturnUrl" method="post" class="register">
                                 <div>
-                                    <label asp-for="RegisterModel.Name" class="col-lg-3"></label>
-                                    <input asp-for="RegisterModel.Name" class="col-lg-7" placeholder="James Smith" />
+                                    <label asp-for="InputModel.Name" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.Name" class="col-lg-7" placeholder="James Smith" />
                                 </div>
-                                <input asp-for="RegisterModel.UserType" value="@UserTypes.Teacher" type="hidden" />
+                                <input asp-for="InputModel.UserType" value="@RegisterModel.UserTypes.Teacher" type="hidden" />
                                 <!-- CLEARFIX -->
                                 <div class="clearfix visible-lg"></div>
                                 <div>
-                                    <label asp-for="RegisterModel.Email" class="col-lg-3"></label>
-                                    <input asp-for="RegisterModel.Email" class="col-lg-7" placeholder="example@nure.ua" />
-                                </div>
-                                <!-- CLEARFIX -->
-                                <div class="clearfix visible-lg"></div>
-                                <div>
-                                    <label asp-for="RegisterModel.Password" class="col-lg-3"></label>
-                                    <input asp-for="RegisterModel.Password" class="col-lg-7" placeholder="**********" />
+                                    <label asp-for="InputModel.Email" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.Email" class="col-lg-7" placeholder="example@nure.ua" />
                                 </div>
                                 <!-- CLEARFIX -->
                                 <div class="clearfix visible-lg"></div>
                                 <div>
-                                    <label asp-for="RegisterModel.ConfirmPassword" class="col-lg-3"></label>
-                                    <input asp-for="RegisterModel.ConfirmPassword" class="col-lg-7" placeholder="**********" />
+                                    <label asp-for="InputModel.Password" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.Password" class="col-lg-7" placeholder="**********" />
+                                </div>
+                                <!-- CLEARFIX -->
+                                <div class="clearfix visible-lg"></div>
+                                <div>
+                                    <label asp-for="InputModel.ConfirmPassword" class="col-lg-3"></label>
+                                    <input asp-for="InputModel.ConfirmPassword" class="col-lg-7" placeholder="**********" />
                                 </div>
 
                                 <!-- CLEARFIX -->
@@ -196,7 +195,7 @@
                                 <!-- CLEARFIX -->
                                 <div class="clearfix visible-lg"></div>
                                 <div>
-                                    <a class="col-lg-push-3 padding-bottom col-lg-7" style="text-align: center;" onclick="$('#RegisterTeacher').modal('hide')" data-toggle="modal" data-target="#LoginTeacher" href="/login.html">I already have account</a>
+                                    <a class="col-lg-push-3 padding-bottom col-lg-7" style="text-align: center;" href="/login.html">I already have account</a>
                                 </div>
 
 
@@ -209,160 +208,11 @@
             </div>
         </div>
     </div>
-
-
-    <!-- LOGIN TEACHER -->
-    <div class="modal fade" id="LoginStudent" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-
-
-                <div class="modal-body">
-                    <div class="container-fluid no-padding">
-                        <div class="col-lg-5  padding-top-5 padding-bottom-5 left-modal">
-                            <span class="icon-Student"></span>
-                            <span class="titletext padding-top-5 white-color" ые>Let's get you sign in</span>
-                            <span class="text  white-color">It should only take a couple minutes</span>
-
-                        </div>
-                        <div class="col-lg-6 col-lg-push-1   right-modal">
-                            <span class="register-hello">Hello, I'm Student</span>
-                            <form asp-route-returnUrl="@Model.ReturnUrl" method="post" class="register">
-                                <div>
-                                    <label asp-for="LoginModel.Username" class="col-lg-3"></label>
-                                    <input asp-for="LoginModel.Username" class="col-lg-7" placeholder="example@nure.ua" />
-                                </div>
-                                <!-- CLEARFIX -->
-                                <div class="clearfix visible-lg"></div>
-                                <div>
-                                    <label asp-for="LoginModel.Password" class="col-lg-3"></label>
-                                    <input asp-for="LoginModel.Password" class="col-lg-7" placeholder="**********" />
-                                </div>
-                                <!-- CLEARFIX -->
-                                <div class="clearfix visible-lg"></div>
-                                <div class="col-lg-12">
-                                    <div style="padding-top: 3px;" class="col-lg-1 col-lg-push-3">
-                                        <label id="rememberStudent">
-                                            <input asp-for="LoginModel.RememberMe" class="hidden" id="RememberMeStudent" />
-                                        </label>
-                                    </div>
-                                    <label asp-for="LoginModel.RememberMe" class=" label_for_remember col-lg-6 col-lg-push-4" for="RememberMeStudent"></label>
-                                </div>
-
-                                <!-- CLEARFIX -->
-                                <div class="clearfix visible-lg"></div>
-                                <div>
-                                    <button id="Register" class="col-lg-push-3 col-lg-7">
-                                        SIGN IN
-                                    </button>
-                                </div>
-                                <!-- CLEARFIX -->
-                                <div class="clearfix visible-lg"></div>
-                                <div>
-                                    <a class="col-lg-push-3 padding-bottom col-lg-7" style="text-align: center;" onclick="$('#LoginStudent').modal('hide')" data-toggle="modal" data-target="#RegisterStudent" href="login.html">I have`t account</a>
-                                </div>
-
-
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-        </div>
-    </div>
-
-    <!-- LOGIN TEACHER -->
-    <div class="modal fade" id="LoginTeacher" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-
-
-                <div class="modal-body">
-                    <div class="container-fluid no-padding">
-                        <div class="col-lg-5  padding-top-5 padding-bottom-5 left-modal">
-                            <span class="icon-Teacher"></span>
-                            <span class="titletext padding-top-5 white-color" ые>Let's get you sign in</span>
-                            <span class="text  white-color">It should only take a couple minutes</span>
-
-                        </div>
-                        <div class="col-lg-6 col-lg-push-1   right-modal">
-                            <span class="register-hello">Hello, I'm Teacher</span>
-                            <form asp-route-returnUrl="@Model.ReturnUrl" method="post" class="register">
-                                <div>
-                                    <label asp-for="LoginModel.Username" class="col-lg-3"></label>
-                                    <input asp-for="LoginModel.Username" class="col-lg-7" placeholder="example@nure.ua" />
-                                </div>
-                                <!-- CLEARFIX -->
-                                <div class="clearfix visible-lg"></div>
-                                <div>
-                                    <label asp-for="LoginModel.Password" class="col-lg-3"></label>
-                                    <input asp-for="LoginModel.Password" class="col-lg-7" placeholder="**********" />
-                                </div>
-                                <!-- CLEARFIX -->
-                                <div class="clearfix visible-lg"></div>
-                                <div class="col-lg-12">
-                                    <div style="padding-top: 3px;" class="col-lg-1 col-lg-push-3">
-                                        <label id="rememberStudent">
-                                            <input asp-for="LoginModel.RememberMe" class="hidden" id="RememberMeStudent" />
-                                        </label>
-                                    </div>
-                                    <label asp-for="LoginModel.RememberMe" class=" label_for_remember col-lg-6 col-lg-push-4" for="RememberMeStudent"></label>
-                                </div>
-
-                                <!-- CLEARFIX -->
-                                <div class="clearfix visible-lg"></div>
-                                <div>
-                                    <button id="Register" class="col-lg-push-3 col-lg-7">
-                                        SIGN IN
-                                    </button>
-                                </div>
-                                <!-- CLEARFIX -->
-                                <div class="clearfix visible-lg"></div>
-                                <div>
-                                    <a class="col-lg-push-3 padding-bottom col-lg-7" style="text-align: center;" onclick="$('#LoginTeacher').modal('hide')" data-toggle="modal" data-target="#RegisterTeacher" href="login.html">I have`t account</a>
-                                </div>
-
-
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-        </div>
-    </div>
-
-
     @section Scripts {
         <partial name="_ValidationScriptsPartial" />
     }
     <!-- Последняя компиляция и сжатый JavaScript -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script>
-        document.getElementById('rememberTeacher').onclick = function color() {
-            var b = document.getElementById('rememberTeacher')
-            if (b.style.background != "rgb(41, 68, 134)") {
-                b.style.background = "rgb(41, 68, 134)"
-            }
-            else if (b.style.background == "rgb(41, 68, 134)") {
-                b.style.background = "#fff"
-            }
-            color();
-        }
-        document.getElementById('rememberStudent').onclick = function color() {
-            var b = document.getElementById('rememberStudent')
-            if (b.style.background != "rgb(41, 68, 134)") {
-                b.style.background = "rgb(41, 68, 134)"
-            }
-            else if (b.style.background == "rgb(41, 68, 134)") {
-                b.style.background = "#fff"
-            }
-            color();
-        }
-    </script>
 </body>
 </html>

@@ -1,249 +1,129 @@
-﻿@model ICollection<Test>
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <!--<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">-->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="~/css/fonts.css">
-    <link rel="stylesheet" type="text/css" href="~/css/user.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="utf-8">
+﻿@model IEnumerable<TestMe.Models.Test>
 
-    <title>TestMe</title>
+@{ 
+    ViewData["Title"] = "Test manager";
+}
 
-</head>
-<body>
+<h2>Test manager</h2>
 
-    <div class="no-padding col-lg-12" id="header">
-        <div class="col-lg-2 header-container container_vertical" id="logo_container">
-            <a href="" class="vertical_object" id="header_logo">TestMe</a>
-        </div>
-        <div class="col-lg-10 header-container container_vertical">
-            <form class="navbar-form  vertical_object" role="search">
-                <input type="text" class="form-control" style="border: 0; width: 100%;" placeholder="Search test">
-            </form>
-        </div>
-    </div>
-
-    <!-- LEFT SIDE -->
-    <div class="left-side-container no-padding col-lg-2 " id="left-side-user">
-        <div class="col-lg-12 no-padding user-block">
-            <span class="col-lg-1 icon-Teacher"></span>
-            <span class="col-lg-9 text" style="text-decoration: underline;">
-                @User.Identity.Name
-            </span>
-        </div>
-
-        <button class="left-side-buttons col-lg-12 ">
-            <a asp-action="Create">
-                <span class="col-lg-1 icon-write"></span>
-                <span class="col-lg-9 text">
-                    Add new test
-                </span>
-            </a>
-        </button>
-        <button class="left-side-buttons col-lg-12 ">
-            <span class="col-lg-1 icon-user"></span>
-            <span class="col-lg-9 text">
-                My account
-            </span>
-        </button>
-        <button class="left-side-buttons col-lg-12 ">
-            <a asp-action="Index">
-                <span class="col-lg-1 icon-copy"></span>
-                <span class="col-lg-9 text">
-                    Tests
-                </span>
-            </a>
-        </button>
-        <button class="left-side-buttons col-lg-12 ">
-            <span class="col-lg-1 icon-tasks"></span>
-            <span class="col-lg-9 text">
-                Results
-            </span>
-        </button>
-
-        <div class="divider"></div>
-
-        <button class="left-side-buttons col-lg-12 ">
-            <span class="col-lg-1 icon-settings"></span>
-            <span class="col-lg-9 text">
-                Settings
-            </span>
-        </button>
-
-
-        <button class="left-side-buttons col-lg-12 ">
-            <a asp-action="LogOut" asp-controller="Home">
-                <span class="col-lg-1 icon-logout"></span>
-                <span class="col-lg-9 text">
-                    Log out
-                </span>
-            </a>
-        </button>
-    </div>
-
-    <!-- RIGHT SIDE -->
-    <div class="right-side-container no-padding col-lg-7 col-lg-push-1">
-        <!-- Nav tabs -->
-        <ul class="nav nav-tabs">
-            <li class="active"><a href="#all_tests" data-toggle="tab">All tests</a></li>
-            <li><a href="#my_tests" data-toggle="tab">My tests</a></li>
-            @if (Model.Any(t => t.RequiresTeacherToStart))
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                №
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TestName)
+            </th>
+            <th class="hidden-xs">
+                @Html.DisplayNameFor(model => model.CreationDate)
+            </th>
+            <th class="hidden-xs">
+                Question amount
+            </th>
+            @if (Model.Any(t => !(t.TestCode is null)))
             {
-                <li><a href="#control_tests" data-toggle="tab">Control tests</a></li>
+                <th class="hidden-xs">
+                    @Html.DisplayNameFor(model => model.First().TestCode)
+                </th>
             }
-        </ul>
-
-        <!-- Tab panes -->
-        <div class="tab-content">
-            <div class="tab-pane active" id="all_tests">
-
-
-                <!-- ALL TESTS -->
-                <table class="table  table-striped">
-                    <thead>
-                        <tr class="thead">
-                            <th class="col-lg-5">Name</th>
-                            <th class="col-lg-3">Author</th>
-                            <th class="col-lg-2">Questions</th>
-                            <th class="col-lg-2">Result</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var test in Model)
-                        {
-                            <tr onclick="location.href = '/' + '@test.TestCode'">
-                                <td>@test.TestName</td>
-                                <td>@test.AppUser.Email</td>
-                                <td>@test.TestQuestions.Count</td>
-                                @{ var testResults = test.TestResults.Where(tr => tr.TestId == test.Id);}
-                                @{
-                                    int passProcentage;
-                                    var testQustionCount = test.TestQuestions.Count();
-                                    if (testQustionCount != 0 && test.TestResults.Count() != 0)
-                                    {
-                                        passProcentage = 100 * (test.TestResults.Count(tr => tr.Score == testQustionCount)) / test.TestResults.Count();
-                                    }
-                                    else
-                                    {
-                                        passProcentage = 0;
-                                    }
-                                }
-
-                                <td>@passProcentage %</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-
-
-
-
-
-            </div>
-            <div class="tab-pane" id="my_tests">
-
-
-
-                <!-- MY TESTS -->
-                <table class="table table-striped">
-                    <thead>
-                        <tr class="thead">
-                            <th class="col-lg-5">Name</th>
-                            <th class="col-lg-2">Author</th>
-                            <th class="col-lg-2">Questions</th>
-                            <th class="col-lg-2">Result</th>
-                            <th class="col-lg-2">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var test in Model.Where(t => t.AppUser.Email == User.Identity.Name))
-                        {
-                            <tr onclick="location.href = '/' + '@test.TestCode'">
-                                <td>@test.TestName</td>
-                                <td>@test.AppUser.Email</td>
-                                <td>@test.TestQuestions.Count</td>
-                                @{ var testResults = test.TestResults.Where(tr => tr.TestId == test.Id);}
-                                @{
-                                    int passProcentage;
-                                    var testQustionCount = test.TestQuestions.Count();
-                                    if (testQustionCount != 0 && test.TestResults.Count() != 0)
-                                    {
-                                        passProcentage = 100 * (test.TestResults.Count(tr => tr.Score == testQustionCount)) / test.TestResults.Count();
-                                    }
-                                    else
-                                    {
-                                        passProcentage = 0;
-                                    }
-                                }
-
-                                <td>@passProcentage %</td>
-                                <td>
-                                    <a asp-action="Edit" asp-route-id="@test.Id">
-                                        <button class="btn editButton">
-                                            Edit
-                                        </button>
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-
-
-            </div>
-
-            @if (Model.Any(t => t.RequiresTeacherToStart))
+            <th>
+                Test rating
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{var counter = 1; }
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                <b>@counter</b>
+            </td>
+            <td>
+                <a asp-action="Index" asp-controller="TestQuestions" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.TestName)</a>
+            </td>
+            <td class="hidden-xs">
+                @Html.DisplayFor(modelItem => item.CreationDate)
+            </td>
+            <td class="hidden-xs">
+                @item.TestQuestions.Count
+            </td>
+            @if (Model.Any(t => !(t.TestCode is null)))
             {
-                <div class="tab-pane" id="control_tests">
-
-                    <!-- CONTROL TESTS -->
-                    <table class="table table-striped">
-                        <thead>
-                            <tr class="thead">
-                                <th class="col-lg-5">Name</th>
-                                <th class="col-lg-3">Author</th>
-                                <th class="col-lg-2">Questions</th>
-                                <th class="col-lg-2">Result</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var test in Model.Where(t => t.RequiresTeacherToStart))
-                            {
-                                <tr onclick="location.href = '/' + '@test.TestCode'">
-                                    <td>@test.TestName</td>
-                                    <td>@test.AppUser.Email</td>
-                                    <td>@test.TestQuestions.Count</td>
-                                    @{ var testResults = test.TestResults.Where(tr => tr.TestId == test.Id);}
-                                    @{
-                                        int passProcentage;
-                                        var testQustionCount = test.TestQuestions.Count();
-                                        if (testQustionCount != 0 && test.TestResults.Count() != 0)
-                                        {
-                                            passProcentage = 100 * (test.TestResults.Count(tr => tr.Score == testQustionCount)) / test.TestResults.Count();
-                                        }
-                                        else
-                                        {
-                                            passProcentage = 0;
-                                        }
-                                    }
-
-                                    <td>@passProcentage %</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-
-                </div>
+                <td class="hidden-xs">
+                    @item.TestCode
+                </td>
             }
-        </div>
-    </div>
+                <td>
+                    @{var rating = item.TestMarks.Count(tm => tm.EnjoyedTest) - item.TestMarks.Count(tm => !tm.EnjoyedTest); }
+                    @if (rating > 0)
+                    {
+                        <span class="text-success">@rating</span>
+                    }
+                    else if (rating < 0)
+                    {
+                        <span class="text-danger">@rating</span>
+                    }
+                    else
+                    {
+                        <span>@rating</span>
+                    }
+                </td>
+                <td>
+                    @if (item.TestCode is null)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a><span> |</span>
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a><span> |</span>
+                        var modalId = $"startSharingModal{item.Id}";
+                        <a data-toggle="modal" data-target="#@modalId">Share your test </a><span> |</span>
+                        <div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labelledby="@modalId" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <h4>All previous test results will be deleted. Are you sure?</h4>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a asp-action="CreateCode" asp-route-id="@item.Id"><button type="button" class="btn btn-primary">Yes</button></a>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a asp-action="ValidateTest" asp-route-id="@item.Id">Validate test</a><span> |</span>
+                    }
+                    else
+                    {
+                        <a asp-action="Index" asp-controller="TestEngine" asp-route-code="@item.TestCode">Try your test out</a><span> |</span>
+                        var modalId = $"stopSharingModal{item.Id}";
+                        <a data-toggle="modal" data-target="#@modalId">Stop sharing </a><span> |</span>
+                        <div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labelledby="@modalId" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <h4>If you stop sharing your test right now, next time you share a test, all it previous results will be deleted. Are you sure?</h4>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a asp-action="StopSharing" asp-route-id="@item.Id"><button type="button" class="btn btn-primary">Yes</button></a>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <a asp-action="Index" asp-controller="TestResults" asp-route-id="@item.Id">User results </a><span> |</span>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a><span> |</span>
+                    <a asp-action="TestRecord" asp-route-id="@item.Id">Test record</a>
 
-
-
-    <!-- Последняя компиляция и сжатый JavaScript -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-</body>
-</html>
+                </td>
+        </tr>
+            counter++;
+        }
+    </tbody>
+</table>

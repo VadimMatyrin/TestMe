@@ -238,8 +238,6 @@ namespace TestMe.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<bool>("RequiresTeacherToStart");
-
                     b.Property<string>("TestCode");
 
                     b.Property<TimeSpan>("TestDuration");

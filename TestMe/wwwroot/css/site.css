@@ -111,6 +111,9 @@ body {
     padding:20px;
     width: 300px !important;
 }
+#resetFilterButton {
+    /*margin-top: 20px;*/
+}
 .testAnswersDropDown
 {
     padding: 10px;
