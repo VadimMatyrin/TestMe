@@ -80,10 +80,12 @@
 
 
         <button class="left-side-buttons col-lg-12 ">
-            <span class="col-lg-1 icon-logout"></span>
-            <span class="col-lg-9 text">
-                Log out
-            </span>
+            <a asp-action="LogOut" asp-controller="Home">
+                <span class="col-lg-1 icon-logout"></span>
+                <span class="col-lg-9 text">
+                    Log out
+                </span>
+            </a>
         </button>
     </div>
 
@@ -693,6 +695,11 @@
             if ($('input[name="answer"]:checked').length === 0)
                 return;
             test.checkAnswer();
+
+            const answerButton = $('#nextQuestionButton');
+
+            if (!answerButton.prop("disabled"))
+                $('#nextQuestionButton').click();
         }
 
         function finishTestButton() {
