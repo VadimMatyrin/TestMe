@@ -1,0 +1,122 @@
+.right-side-container{
+	height: 70%;
+	margin-top: 3em;
+	background-color: #fff;
+	border: 1px solid #E1E3E5;
+	border-radius: 0;
+
+}
+
+#control-test button{
+	visibility: hidden;
+}
+ .table>*{
+	font-family: Raleway;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 14px;
+	line-height: 16px;
+	letter-spacing: 0.01em;
+	color: #4F4F4F!important;
+}
+.table tr{
+	cursor: pointer;
+}
+.table tr input[type="button"]{
+	border: 0;
+	background: transparent;
+	text-decoration: underline;
+
+}
+ .table tr:not(.thead):hover{
+	cursor: pointer;
+	background: #cecdcd;
+}
+
+.add-test-top{
+	text-align: center;
+	background-color: #294486;
+	border-radius: 4px 4px 0px 0px;
+	padding: 2% 0;
+}
+.add-test-top>div>.text{
+	font-size: 20px;
+	padding-bottom: 10px;
+}
+.form-add-question>span{
+	color:  #707683;
+	text-align: left;
+}
+.form-add-question>.QuestionHeader{
+	background-color: #294486;
+	padding: 2% 0;
+	color: #fff;
+	text-align: center;
+	font-size: 25px;
+}
+.modal-body{background: #fff;}
+.buttonSaveQuestion{
+	border: 0;
+	background: #294486;
+	margin-bottom: 2%;
+	color: #fff;
+	outline: 0;
+}
+.buttonAddAnswers{
+	border-color: #294486 ;
+	background: #fff;
+	margin: 2% 0;
+	color: #294486;
+	outline: 0;
+}
+.buttonAddAnswers:hover{
+	border-color: #294486 ;
+	background: #fff;
+	font-size: 1.1em;
+	color: #294486;
+	outline: 0;
+}
+.buttonSaveQuestion:hover{
+	border: 0;
+	font-size: 1.1em;
+	background: #294486;
+	color: #fff;
+	outline: 0;
+}
+[id^="QuestionForm_"] .text:not([type="button"]){
+	font-family: Raleway;
+font-style: normal;
+font-weight: normal;
+font-size: 18px;
+padding-top: 2%;
+padding-bottom: 2%;
+line-height: 24px;
+text-align: left;
+color: #294486;
+}
+[id^="answer_block"]{
+	padding: 4%;
+	background: #FFFFFF;
+border: 1px solid #C2CFE0;
+box-sizing: border-box;
+border-radius: 4px;
+}
+[id^="answer_block"]>input[type="text"]{
+	font-family: Raleway;
+font-style: normal;
+font-weight: normal;
+font-size: 14px;
+line-height: 21px;
+letter-spacing: 0.01em;
+
+color: #707683;
+border: 0;
+outline: 0;
+
+}
+[id^="answer_block"]>input[type="button"]{
+	border: 0;
+	background: transparent;
+	text-decoration: underline;
+
+}
