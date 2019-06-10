@@ -41,10 +41,12 @@
         </div>
 
         <button disabled class="disabled left-side-buttons col-lg-12 ">
-            <span class="col-lg-1 icon-write"></span>
-            <span class="col-lg-9 text">
-                Add new test
-            </span>
+            <a asp-action="Create" asp-controller="Tests">
+                <span class="col-lg-1 icon-write"></span>
+                <span class="col-lg-9 text">
+                    Add new test
+                </span>
+            </a>
         </button>
         <button class="left-side-buttons col-lg-12 ">
             <span class="col-lg-1 icon-user"></span>
@@ -173,28 +175,13 @@
 
             </div>
         </div>
-        <div id="navButtons" class="row">
-            <div class="modal fade" id="finishTestModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-body">
-                            <h3>Are you sure?</h3>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" onclick="finishTestButton()">Confirm</button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div id="questions" class="row">
 
         </div>
         <input type="button" id="prevQuestionButton" class="col-lg-2 col-lg-push-1 btn control_test" value="Back">
         <input type="button" id="answerButton" onclick="checkAnswerClick()" class="col-lg-2 col-lg-push-3 btn control_test" value="Answer">
         <input type="button" id="nextQuestionButton" class="col-lg-2 col-lg-push-5 btn control_test" value="Next">
-        <button id="finishTest" class="btn btn-primary col-md-offset-5 col-md-2 col-xs-8 col-xs-offset-2" data-toggle="modal" data-target="#finishTestModal">Finish test</button>
+        <button id="answerButton"  class="col-md-offset-5 col-md-2 col-xs-8 col-xs-offset-2 btn control_test" style="margin-top: 20px" onclick="finishTestButton()">Finish test</button>
     </div>
 
 
@@ -255,7 +242,9 @@
 
 
 
-        <button id="buttonAdd" onclick="location.href = '/user.html'" style="font-family: Raleway;font-style: normal;font-weight: bold;font-size: 14px; background: #294486 ;text-align: center;letter-spacing: 0.05em;color: #FFFFFF;" class="col-lg-2 col-lg-push-5 btn ">HOME</button>
+        <a asp-action="Index" asp-controller="Home">
+            <button id="buttonAdd" onclick="location.href = '/user.html'" style="font-family: Raleway; font-style: normal; font-weight: bold; font-size: 14px; background: #294486; text-align: center; letter-spacing: 0.05em; color: #FFFFFF;" class="col-lg-2 col-lg-push-5 btn ">HOME</button>
+        </a>
     </div>
 
 
@@ -445,7 +434,7 @@
             }
             static isStarted() {
                 let token = $('input[name="__RequestVerificationToken"]').val();
-                var myData = { code: $("#testCode").val() };
+                var myData = { code: "@Model.Test.TestCode" };
                 var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
                 let res;
                 $.ajax({
@@ -632,28 +621,36 @@
                 $('#endTestElem').show();
                 let link = $('<a />', { href: "/TestResults/Index/" + data.testId, text: "Other users results" });
                 $("#questions_count_start").text(data.score + "/" + @Model.Test.TestQuestions.Count);
-                $('#mainContainer').append('<h1> Your score: ' + data.score + ' out of ' + this.testQuestionsIds.length + '</h1>');
+                $('.progress-value').text(data.score + "/" + @Model.Test.TestQuestions.Count);
+                $('#mainContainer').append('<h1> Your score: ' +
+                    data.score +
+                    ' out of ' +
+                    this.testQuestionsIds.length +
+                    '</h1>');
                 this.showRateButtons();
                 $('#mainContainer').append(link);
                 $('#mainContainer').append($('<br/>'));
-                var correctAnswButton = $('<button/>', {
-                    id: 'correctAnswButton',
-                    text: 'Show correct answers',
-                    class: 'btn btn-sm btn-primary',
-                    click: function (e) {
-                        showCorrectAnswersClick();
-                    }
-                });
+                var correctAnswButton = $('<button/>',
+                    {
+                        id: 'correctAnswButton',
+                        text: 'Show correct answers',
+                        class: 'btn btn-sm btn-primary',
+                        click: function(e) {
+                            showCorrectAnswersClick();
+                        }
+                    });
                 $('#mainContainer').append(correctAnswButton);
             }
+
             showRateButtons() {
                 let likeButton = $('<button/>', { type: 'button', class: 'btn btn-default btn-sm', id: 'likeButton' });
-                likeButton.click(function () {
+                likeButton.click(function() {
                     rateTestClick(true);
                 });
                 $('<span/>', { class: 'glyphicon glyphicon-thumbs-up', test: 'Like' }).appendTo(likeButton);
-                let dislikeButton = $('<button/>', { type: 'button', class: 'btn btn-default btn-sm', id: 'dislikeButton' });
-                dislikeButton.click(function () {
+                let dislikeButton = $('<button/>',
+                    { type: 'button', class: 'btn btn-default btn-sm', id: 'dislikeButton' });
+                dislikeButton.click(function() {
                     rateTestClick(false);
                 });
                 $('<span/>', { class: 'glyphicon glyphicon-thumbs-down', test: 'Dislike' }).appendTo(dislikeButton);
@@ -662,6 +659,7 @@
                 $('#mainContainer').append(dislikeButton);
                 $('#mainContainer').append('<br/>');
             }
+
             rateTest(mark) {
                 var token = $('input[name="__RequestVerificationToken"]').val();
                 var myData = { mark: mark };
@@ -671,33 +669,36 @@
                     url: "/TestEngine/RateFinishedTestAjax",
                     type: "POST",
                     data: dataWithAntiforgeryToken,
-                    success: function (data) {
+                    success: function(data) {
                         if (data) {
                             $('#dislikeButton').removeClass('btn-primary');
                             $('#likeButton').addClass('btn-primary');
-                        }
-                        else {
+                        } else {
                             $('#likeButton').removeClass('btn-primary');
                             $('#dislikeButton').addClass('btn-primary');
                         }
                     },
-                    error: function () {
+                    error: function() {
 
                     }
                 });
             }
         }
+
         function checkAnswerClick() {
             if ($('input[name="answer"]:checked').length === 0)
                 return;
             test.checkAnswer();
         }
+
         function finishTestButton() {
             $('#finishTestModal').modal('toggle');
-            $('#finishTestModal').on('hidden.bs.modal', function (e) {
-                test.finishTest();
-            });
+            $('#finishTestModal').on('hidden.bs.modal',
+                function(e) {
+                    test.finishTest();
+                });
         }
+
         function navButtonClick(event) {
             event.preventDefault();
             var prevButton = $('#questions > div > button.btn-primary');
@@ -711,46 +712,47 @@
             test.getQuestion(clickButton.attr('value'));
             return false;
         }
+
         function startTimer() {
             var countDownDate = new Date(test.endTime).getTime();
 
-            return setInterval(function () {
+            return setInterval(function() {
 
-                var now = new Date().getTime();
+                    var now = new Date().getTime();
 
-                var distance = countDownDate - now;
+                    var distance = countDownDate - now;
 
-                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                if (minutes < 10)
-                    minutes = "0" + minutes;
-                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                if (seconds < 10)
-                    seconds = "0" + seconds;
-                $('#Left_time').text(hours + ":"
-                    + minutes + ":" + seconds + "s ");
+                    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    if (minutes < 10)
+                        minutes = "0" + minutes;
+                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    if (seconds < 10)
+                        seconds = "0" + seconds;
+                    $('#Left_time').text(hours + ":" + minutes + ":" + seconds + "s ");
 
-                if (distance <= 500) {
-                    test.finishTest();
-                }
-            }, 1000);
+                    if (distance <= 500) {
+                        test.finishTest();
+                    }
+                },
+                1000);
         }
+
         function rateTestClick(mark) {
             test.rateTest(mark);
         }
+
         function showCorrectAnswersClick() {
             $('#correctAnswButton').hide();
             test.getCorrectAnswers();
         }
-        if (TestEngine.isStarted())
+
+        if (TestEngine.isStarted()) {
             startTest();
-        else {
+        } else {
             $("#endTestElem").hide();
             $("#questionBlock").hide();
         }
-
-
-
 
 
     </script>
@@ -762,90 +764,90 @@
 
 
 @*<div id="mainContainer" class="container-fluid">
-    <div id="startTestElem" class="row">
-        @Html.AntiForgeryToken()
-        <h1 class="text-center col-md-12">@Model.Test.TestName</h1>
-        <h2 class="col-md-12">
-            Author:
-            <a asp-action="Index" asp-controller="Profile" asp-route-id="@Model.Test.AppUser.Id">@Model.Test.AppUser.UserName</a>
-        </h2>
-        <h3 class="col-md-12">Creation date: @Model.Test.CreationDate</h3>
-        <h4 class="col-md-12">Question amount: @Model.Test.TestQuestions.Count</h4>
-        <h4 class="col-md-12">Test tries amount: @Model.Test.TestResults.Count</h4>
-        @if (!(Model.UserTestResult is null) || Model.Test.AppUser.UserName == User.Identity.Name)
-        {
+        <div id="startTestElem" class="row">
+            @Html.AntiForgeryToken()
+            <h1 class="text-center col-md-12">@Model.Test.TestName</h1>
+            <h2 class="col-md-12">
+                Author:
+                <a asp-action="Index" asp-controller="Profile" asp-route-id="@Model.Test.AppUser.Id">@Model.Test.AppUser.UserName</a>
+            </h2>
+            <h3 class="col-md-12">Creation date: @Model.Test.CreationDate</h3>
+            <h4 class="col-md-12">Question amount: @Model.Test.TestQuestions.Count</h4>
+            <h4 class="col-md-12">Test tries amount: @Model.Test.TestResults.Count</h4>
+            @if (!(Model.UserTestResult is null) || Model.Test.AppUser.UserName == User.Identity.Name)
+            {
+                <h4 class="col-md-12">
+                    <a asp-action="Index" asp-controller="TestResults" asp-route-id="@Model.Test.Id">Other user results</a>
+                </h4>
+            }
+            @if (Model.Test.TestResults.Count != 0)
+            {
+                <h4 class="col-md-12">Your results: @Model.Test.TestResults.First().Score</h4>
+            }
             <h4 class="col-md-12">
-                <a asp-action="Index" asp-controller="TestResults" asp-route-id="@Model.Test.Id">Other user results</a>
+                Test rating:
+                @{var rating = Model.Test.TestMarks.Count(tm => tm.EnjoyedTest) - Model.Test.TestMarks.Count(tm => !tm.EnjoyedTest); }
+                @if (rating > 0)
+                {
+                    <span class="text-success">@rating</span>
+                }
+                else if (rating < 0)
+                {
+                    <span class="text-danger">@rating</span>
+                }
+                else
+                {
+                    <span>@rating</span>
+                }
             </h4>
-        }
-        @if (Model.Test.TestResults.Count != 0)
-        {
-            <h4 class="col-md-12">Your results: @Model.Test.TestResults.First().Score</h4>
-        }
-        <h4 class="col-md-12">
-            Test rating:
-            @{var rating = Model.Test.TestMarks.Count(tm => tm.EnjoyedTest) - Model.Test.TestMarks.Count(tm => !tm.EnjoyedTest); }
-            @if (rating > 0)
-            {
-                <span class="text-success">@rating</span>
-            }
-            else if (rating < 0)
-            {
-                <span class="text-danger">@rating</span>
-            }
-            else
-            {
-                <span>@rating</span>
-            }
-        </h4>
-        <h4 class="col-md-12">Test time: @Model.Test.TestDuration</h4>
-        <input type="hidden" value="@Model.Test.TestCode" id="testCode" />
-        <button type="button" class="btn btn-primary btn-lg center-block col-md-12" id="startButton" onclick="startTest()">Start test</button>
-    </div>
-    <div id="questionBlock" class="row" display="none">
-        @Html.AntiForgeryToken()
-        <fieldset id="testQuestionFieldSet" class="col-md-12">
-            <legend id="questionText">
-                <p id="question" class="col-xs-12 col-md-8"></p>
-                <h2 id="timer" class="col-xs-12 col-md-4"></h2>
-                <h5 class="colx-xs-12 col-md-12"></h5>
-            </legend>
-        </fieldset>
-        <div id="navButtons" class="row">
-            <button id="prevQuestionButton" class="btn btn-primary col-md-offset-0 col-md-2 col-xs-8 col-xs-offset-2">Prev question</button>
-            <button id="answerButton" class="btn btn-success col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2" onclick="checkAnswerClick()">Check answer</button>
-            <button id="nextQuestionButton" class="btn btn-primary col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2">Next question</button>
-            <button id="finishTest" class="btn btn-primary col-md-offset-5 col-md-2 col-xs-8 col-xs-offset-2" data-toggle="modal" data-target="#finishTestModal">Finish test</button>
-            <div class="modal fade" id="finishTestModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-body">
-                            <h3>Are you sure?</h3>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" onclick="finishTestButton()">Confirm</button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <h4 class="col-md-12">Test time: @Model.Test.TestDuration</h4>
+            <input type="hidden" value="@Model.Test.TestCode" id="testCode" />
+            <button type="button" class="btn btn-primary btn-lg center-block col-md-12" id="startButton" onclick="startTest()">Start test</button>
+        </div>
+        <div id="questionBlock" class="row" display="none">
+            @Html.AntiForgeryToken()
+            <fieldset id="testQuestionFieldSet" class="col-md-12">
+                <legend id="questionText">
+                    <p id="question" class="col-xs-12 col-md-8"></p>
+                    <h2 id="timer" class="col-xs-12 col-md-4"></h2>
+                    <h5 class="colx-xs-12 col-md-12"></h5>
+                </legend>
+            </fieldset>
+            <div id="navButtons" class="row">
+                <button id="prevQuestionButton" class="btn btn-primary col-md-offset-0 col-md-2 col-xs-8 col-xs-offset-2">Prev question</button>
+                <button id="answerButton" class="btn btn-success col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2" onclick="checkAnswerClick()">Check answer</button>
+                <button id="nextQuestionButton" class="btn btn-primary col-md-offset-3 col-md-2 col-xs-8 col-xs-offset-2">Next question</button>
+                <button id="finishTest" class="btn btn-primary col-md-offset-5 col-md-2 col-xs-8 col-xs-offset-2" data-toggle="modal" data-target="#finishTestModal">Finish test</button>
+                <div class="modal fade" id="finishTestModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <h3>Are you sure?</h3>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="finishTestButton()">Confirm</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div id="questions" class="row">
+            <div id="questions" class="row">
 
+            </div>
         </div>
     </div>
-</div>
-@if (Model.Test.AppUser.UserName != User.Identity.Name && Model.Test.TestReports.Count == 0)
-{
-    <a asp-action="Create" asp-controller="TestReports" asp-route-id="@Model.Test.Id">Report test</a>
-}
-else
-{
-    if (Model.Test.AppUser.UserName != User.Identity.Name)
+    @if (Model.Test.AppUser.UserName != User.Identity.Name && Model.Test.TestReports.Count == 0)
     {
-        <h6 class="text-danger">You have already reported this test</h6>
+        <a asp-action="Create" asp-controller="TestReports" asp-route-id="@Model.Test.Id">Report test</a>
     }
-}
-@section Scripts{
-    <script src="~/js/testEngine.js"></script>
-}*@
+    else
+    {
+        if (Model.Test.AppUser.UserName != User.Identity.Name)
+        {
+            <h6 class="text-danger">You have already reported this test</h6>
+        }
+    }
+    @section Scripts{
+        <script src="~/js/testEngine.js"></script>
+    }*@
